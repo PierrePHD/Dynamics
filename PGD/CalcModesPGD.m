@@ -1,19 +1,24 @@
-function [HistMf,HistMg,HistMgp,HistMgpp,HistTotf,HistTotg,HistTotgp,HistTotgpp,TableConv,Mmax,erreur] = CalcModesPGD(Mmax,Kmax,M, C, K0, HistF, U0, V0, D, conditionU, OthoIntern,VectL,epsilon,Ttot,dt,verif,schem)
-
+function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(Mmax,Kmax,problem,calcul,OthoIntern,epsilon)
+        
+    SizeVectL = size(problem.VectL,2); 
+    SizeVectT = size(problem.HistF,2);
+    SizeD =   size(problem.D,1);
+    conditionU = problem.conditionU;
+    
     erreur = 0;
     
-    if norm(U0)
-        if (verif)
-            Mmax = Mmax + 1;
-            [i,~]=find(D');
-            U0(i,1) = conditionU(:,1);
-        else
-            ErreurVerifConditionInitialNonPriseEnCompte;
-        end
+    if norm(problem.U0) ;     Mmax = Mmax + 1; end;
+    if norm(problem.V0) ;     Mmax = Mmax + 1; end;
+    if norm(conditionU(1:end,:))
+        for i=1:size(conditionU,1) 
+            if norm(conditionU(i,:))  
+                Mmax = Mmax + 1;
+            end
+        end  
     end
     
     if norm(conditionU)     
-        if ~verif    
+        if ~problem.verif    
             ErreurVerifConditionDeplacementNonPriseEnCompte;
         end
         
@@ -25,27 +30,22 @@ function [HistMf,HistMg,HistMgp,HistMgpp,HistTotf,HistTotg,HistTotgp,HistTotgpp,
         
     end
         
-    HistMf    =zeros(size(K0,1)+size(D,1),Mmax);
-    HistMg  =zeros(size((0:dt:Ttot)',1),Mmax);
-    HistMgp =zeros(size(HistMg));
-    HistMgpp=zeros(size(HistMg));
+    HistMf    =zeros(SizeVectL+SizeD,Mmax);
 
     HistTotf=cell(1,Mmax);
     HistTotg  =cell(1,Mmax);
-    HistTotgp =cell(1,Mmax);
-    HistTotgpp=cell(1,Mmax);
 
 
     TableCondi = zeros(Mmax,Kmax);
     TableConv =  zeros(Mmax,Kmax);
 
-    if norm(U0)
+    if norm(problem.U0)
         initU=1;
     else
         initU=0;
     end
     
-    if norm(V0)
+    if norm(problem.V0)
         initV=1;
     else
         initV=0;
@@ -59,42 +59,38 @@ function [HistMf,HistMg,HistMgp,HistMgpp,HistTotf,HistTotg,HistTotgp,HistTotgpp,
             initU=0;
             HistKf = [];
             HistKg  = [];
-            HistKgp  = [];
-            HistKgpp  = [];
-            f_q = [U0 ; zeros(size(D,1),1)] ;
-            g_q = ones(size(HistF,2),1);
-            g_q = g_q * norm(f_q(1:size(VectL,2)));
-            f_q = f_q / norm(f_q(1:size(VectL,2)));
-            gp_q = zeros(size(HistF,2),1);
-            gpp_q = zeros(size(HistF,2),1);
+            f_q = [problem.U0 ; zeros(SizeD,1)] ;
+            g_q.u = ones(SizeVectT,1);
+            g_q.u = g_q.u * norm(f_q(1:SizeVectL));
+            f_q = f_q / norm(f_q(1:SizeVectL));
+            g_q.v = zeros(SizeVectT,1);
+            g_q.w = zeros(SizeVectT,1);
             
         elseif initV
             initV=0;
             HistKf = [];
             HistKg  = [];
-            HistKgp  = [];
-            HistKgpp  = [];
-            f_q = [V0 ; zeros(size(D,1),1)] ;
-            gp_q = ones(size(HistF,2),1);
-            gp_q = gp_q * norm(f_q(1:size(VectL,2)));
-            f_q = f_q / norm(f_q(1:size(VectL,2)));
-            g_q = zeros(size(HistF,2),1);
-            gpp_q = zeros(size(HistF,2),1);
+            f_q = [problem.V0 ; zeros(SizeD,1)] ;
+            g_q.u = zeros(SizeVectT,1);
+            g_q.v = ones(SizeVectT,1);
+            %g_q.v = zeros(SizeVectT,1);
+            %g_q.v(1) = 1;
+            g_q.v = g_q.v * norm(f_q(1:SizeVectL));
+            g_q.u = (0:calcul.dt:problem.Ttot)' * norm(f_q(1:SizeVectL));
+            f_q = f_q / norm(f_q(1:SizeVectL));
+            g_q.w = zeros(SizeVectT,1);
             
         elseif norm(conditionU(LectureConditionU:end,:)) %&& LectureConditionU <= size(conditionU,1)
-            for i=LectureConditionU:size(conditionU,1)
-                if norm(conditionU(i,:))
-                    
+            for i=LectureConditionU:size(conditionU,1) % \
+                if norm(conditionU(i,:))               % / eviter les lignes nulles (causee par les encastrement imposes par multiplicateurs
                     HistKf = [];
                     HistKg  = [];
-                    HistKgp  = [];
-                    HistKgpp  = [];
-                    f_q = [D(i,:)' ; zeros(size(D,1),1) ];
-                    g_q = conditionU(i,:);
-                    g_q = g_q * norm(f_q(1:size(VectL,2)));
-                    f_q = f_q / norm(f_q(1:size(VectL,2)));
-                    gp_q = zeros(size(HistF,2),1);
-                    gpp_q = zeros(size(HistF,2),1);
+                    f_q = [problem.D(i,:)' ; zeros(SizeD,1) ];
+                    g_q.u = conditionU(i,:);
+                    g_q.u = g_q.u * norm(f_q(1:SizeVectL));
+                    f_q = f_q / norm(f_q(1:SizeVectL));
+                    g_q.v = zeros(SizeVectT,1);
+                    g_q.w = zeros(SizeVectT,1);
             
                     LectureConditionU = i + 1;
                     break
@@ -104,29 +100,38 @@ function [HistMf,HistMg,HistMgp,HistMgpp,HistTotf,HistTotg,HistTotgp,HistTotgpp,
                 end
             end            
         else
-            [HistKf,HistKg,HistKgp,HistKgpp,TableConv(m,:),TableCondi(m,:),f_q,g_q,gp_q,gpp_q,erreur] = PointFixePGD(Kmax,M, C, K0, HistF, D, conditionU, m, dt, HistMf, HistMg, HistMgp, HistMgpp,OthoIntern,VectL,epsilon,Ttot,schem);
+            if m==1
+               %[HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,M, C, K0, HistF, D, conditionU, m, dt, HistMf,     [],OthoIntern,VectL,epsilon,Ttot,schem);
+                [HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,problem,calcul, m, HistMf,     [],OthoIntern,epsilon);
+            else
+               %[HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,M, C, K0, HistF, D, conditionU, m, dt, HistMf, HistMg,OthoIntern,VectL,epsilon,Ttot,schem);
+                [HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,problem,calcul, m, HistMf, HistMg,OthoIntern,epsilon);
+            end
+        end
+        if (~size(HistKf,1) && calcul.schem==6)
+            g_q.u.m=g_q.u;
+            g_q.u.p=g_q.u.m;
+            g_q.u.moy=g_q.u.m;
+            g_q.v.m=g_q.v;
+            g_q.v.p=g_q.v.m;
+            g_q.v.moy=g_q.v.m;
         end
         
         
         
-        % norme_f_q=norm(f_q(1:size(VectL,2)))-1
-        % f_q(1:size(VectL,2)) = f_q(1:size(VectL,2)) / norm(f_q(1:size(VectL,2))); 
-        % norme_f_q=norm(f_q(1:size(VectL,2)))-1
+        % norme_f_q=norm(f_q(1:SizeVectL))-1
+        % f_q(1:SizeVectL) = f_q(1:SizeVectL) / norm(f_q(1:SizeVectL)); 
+        % norme_f_q=norm(f_q(1:SizeVectL))-1
         
         HistTotf{m} = HistKf;
         HistTotg{m}   = HistKg;
-        HistTotgp{m}  = HistKgp;
-        HistTotgpp{m} = HistKgpp;
         if (erreur)
             Mmax = m-1;
-            return;
+            break;
         end
         HistMf(:,m) = f_q;
-        HistMg(:,m)  = g_q  ;
-        HistMgp(:,m) = gp_q ;
-        HistMgpp(:,m)= gpp_q;
-        
-
+        HistMg(m) = g_q  ; 
     end
+    HistMf = HistMf(1:SizeVectL,:); % Retire les multiplicateurs
 
 end

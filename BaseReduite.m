@@ -1,13 +1,13 @@
-function [PRT] = BaseReduite (reduc,TailleBase,M,K0,D,conditionU,VectL,Donnees)
+function [PRT] = BaseReduite (reduc,TailleBase,problem,D,Donnees)
 
-        if ((TailleBase+size(D,1))>size(M,1))
+        if ((TailleBase+size(D,1))>size(problem.M,1))
             fprintf('\nNombre de noeuds insuffisant\n\n(TailleBase+size(D,1))>nombreNoeuds\n\n');
             return;
         end
-        PRT =zeros(size(M,1),TailleBase+size(D,1)); % Matrice de Passage 
+        PRT =zeros(size(problem.M,1),TailleBase+size(D,1)); % Matrice de Passage 
                                            % de la base Reduite a la base Totale
 
-        if (reduc == 1)         % POD
+        if (reduc == 1)         % SVD
             [~,~,V_SVD]=svd(Donnees);
             for i=1:TailleBase
                 ModeEspace = V_SVD(:,i)';
@@ -15,7 +15,7 @@ function [PRT] = BaseReduite (reduc,TailleBase,M,K0,D,conditionU,VectL,Donnees)
             end
 
         elseif (reduc == 2)     % Rayleigh-Ritz
-            [Famille,~]=AnalyseRR(TailleBase,M,K0,conditionU,D,VectL);
+            [Famille,~]=AnalyseRR(TailleBase,problem.M,problem.K0,problem.conditionU,D,problem.VectL);
             if (size(Famille,2) >= TailleBase)
                 PRT(:,1:TailleBase) = Famille(:,1:TailleBase);
             else
@@ -26,7 +26,7 @@ function [PRT] = BaseReduite (reduc,TailleBase,M,K0,D,conditionU,VectL,Donnees)
         elseif (reduc == 3)     % PGD
             if (Mmax >= TailleBase)                
                 for i=1:TailleBase
-                    ModeEspace = HistMfOrth(1:size(VectL,2),i)';
+                    ModeEspace = HistMfOrth(1:size(problem.VectL,2),i)';
                     PRT(:,i) = ModeEspace /norm(ModeEspace); 
                 end
             else

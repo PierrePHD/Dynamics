@@ -1,5 +1,23 @@
-function [sortie] = resolutionTemporelle(schem,alpha,M,C,K0,dt,Ttot,HistF,U0,V0,conditionU,conditionV,conditionA,D,nonLine,nonLinearite,verif)
+function [sortie] = resolutionTemporelle(calcul,problem)
 %%  Schemas d'integration
+schem = calcul.schem;
+alpha = calcul.alpha;
+dt = calcul.dt;
+
+M           = problem.M;
+C           = problem.C;
+K0          = problem.K0;
+Ttot        = problem.Ttot;
+HistF       = problem.HistF;
+U0          = problem.U0;
+V0          = problem.V0;
+conditionU  = problem.conditionU;
+conditionV  = problem.conditionV;
+conditionA  = problem.conditionA;
+D           = problem.D;
+nonLine     = problem.nonLine;
+nonLinearite = problem.nonLinearite;
+verif       = problem.verif;
 
     if (schem == 1)             % Newmark - Difference centree
         beta = 0;
@@ -43,7 +61,7 @@ function [sortie] = resolutionTemporelle(schem,alpha,M,C,K0,dt,Ttot,HistF,U0,V0,
     Eu =0;
     
 %% Conditions Initiales
-disp(['size(M,1)= ' num2str(size(M,1)) ]);
+%disp(['size(M,1)= ' num2str(size(M,1)) ]);
     
     if norm(U0)
         if (verif)

@@ -1,6 +1,9 @@
-function [g_q,gp_q,gpp_q] = ProblemTemps(M, C, K0, HistF, f_q, m, dt, HistMf, HistMg, HistMgp, HistMgpp, schem)
+function [g] = ProblemTemps(problem, f_q, m, dt, HistMf, HistMg, schem)
+    % [g_q]  = ProblemTemps(problem, f_q(1:SizeVectL,:), m, calcul.dt, HistMfg, HistMg, calcul.schem);
 
-    K = K0; %[ K0 D' ; D zeros(size(D,1))];
+    HistF = problem.HistF;
+    K = problem.K0; 
+%         [ K0 D' ; D zeros(size(D,1))];
 %     C = [ C zeros(size(D')) ; zeros(size(D)) zeros(size(D,1))];
 %     M = [ M zeros(size(D')) ; zeros(size(D)) zeros(size(D,1))];
 %     HistF = [ HistF ; conditionU ] ;
@@ -29,13 +32,16 @@ function [g_q,gp_q,gpp_q] = ProblemTemps(M, C, K0, HistF, f_q, m, dt, HistMf, Hi
         alpha = -1/9;      % -1/3 <= alpha <= 0 
         gamma = 1/2 - alpha;        % alpha = -1/3 -> amortissement maximal
         beta  = ((1-alpha)^2)/4;
+    elseif (schem == 6)         % HHT-alpha
+        g = PGD_TDG(problem, f_q, m, dt, HistMf, HistMg);
+        return;
     end
 
     
 %% Premier membre
     Premier_g   = f_q' * K * f_q ;
-    Premier_gp  = f_q' * C * f_q ;
-    Premier_gpp = f_q' * M * f_q ;
+    Premier_gp  = f_q' * problem.C * f_q ;
+    Premier_gpp = f_q' * problem.M * f_q ;
     
 %% Resolution
 
@@ -71,7 +77,7 @@ function [g_q,gp_q,gpp_q] = ProblemTemps(M, C, K0, HistF, f_q, m, dt, HistMf, Hi
             sum = 0;
             Second = sum;
             for i=1:(m-1)
-                g_k_q = HistMg(:,i);
+                g_k_q = HistMg(:,i).u;
                 f_k_q = HistMf(:,i);
                 sum = sum + (f_q' * K * f_k_q) * g_k_q(t);
             end
@@ -81,9 +87,9 @@ function [g_q,gp_q,gpp_q] = ProblemTemps(M, C, K0, HistF, f_q, m, dt, HistMf, Hi
             for i=1:(m-1)
                 % g_k_q = HistMg(:,i);
                 % %g_kp_q   = DerivVect(g_k_q  ,dt,5);
-                g_kp_q = HistMgp(:,i);
+                g_kp_q = HistMg(:,i).v;
                 f_k_q = HistMf(:,i);
-                sum = sum + f_q' * C * f_k_q *g_kp_q(t);
+                sum = sum + f_q' * problem.C * f_k_q *g_kp_q(t);
             end
             Second = Second - sum;
 
@@ -93,9 +99,9 @@ function [g_q,gp_q,gpp_q] = ProblemTemps(M, C, K0, HistF, f_q, m, dt, HistMf, Hi
                 % %g_kp_q   = DerivVect(g_k_q  ,dt,5);
                 % g_kp_q = HistMgp(:,i);
                 % %g_kpp_q  = DerivVect(g_kp_q ,dt,5);
-                g_kpp_q = HistMgpp(:,i);
+                g_kpp_q = HistMg(:,i).w;
                 f_k_q = HistMf(:,i);
-                sum = sum + f_q' * M * f_k_q *g_kpp_q(t);
+                sum = sum + f_q' * problem.M * f_k_q *g_kpp_q(t);
             end
             Second = Second - sum;
 
@@ -110,5 +116,8 @@ function [g_q,gp_q,gpp_q] = ProblemTemps(M, C, K0, HistF, f_q, m, dt, HistMf, Hi
         end
     end
     
-        
+    g.u=g_q;
+    g.v=gp_q;
+    g.w=gpp_q;    
+    
 end

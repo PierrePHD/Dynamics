@@ -1,4 +1,4 @@
-function [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(CL,M,C,K0,L,nombreElements,cas,nombrePasTemps,dt,Ttot,AmpliF,NbPas6,T8)
+function [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(CL,M,C,K0,L,nombreElements,cas,nombrePasTemps,dt,Ttot)
 %% Encastrement en debut et fin (ressort encastre)
 if (CL==1)
     % Expression generale
@@ -41,26 +41,27 @@ elseif (CL==2)
 end
 
 
-if (cas == 2)
+if (cas.type == 2)
     omega = 1e+04 ; 
-    HistF(NoeudCharge,:) = (1- cos( (0:dt:Ttot)*omega))*AmpliF;
-elseif (cas ==4)
-    HistF(NoeudCharge,:) = AmpliF;
-elseif (cas ==5)
-    HistF(NoeudCharge,:) = (0:dt:Ttot)*AmpliF;
-elseif (cas ==6)
-    HistF(NoeudCharge,1:NbPas6) = AmpliF;
-elseif (cas ==8)
-    omega=2*pi/T8;
-    NbPas8 = round(T8/dt)+1;
-    HistF(NoeudCharge,1:NbPas8) = (1- cos( (0:dt:T8)*omega))*AmpliF;
+    HistF(NoeudCharge,:) = (1- cos( (0:dt:Ttot)*omega))*cas.AmpliF;
+elseif (cas.type ==4)
+    HistF(NoeudCharge,:) = cas.AmpliF;
+elseif (cas.type ==5)
+    HistF(NoeudCharge,:) = (0:dt:Ttot)*cas.AmpliF;
+elseif (cas.type ==6)
+    NbPas = round(cas.T/calcul.dt);
+    HistF(NoeudCharge,1:NbPas) = cas.AmpliF;
+elseif (cas.type ==8)
+    omega=2*pi/cas.T;
+    NbPas = round(cas.T/dt)+1;
+    HistF(NoeudCharge,1:NbPas) = (1- cos( (0:dt:cas.T)*omega))*cas.AmpliF;
 end
 
 
 %% Position et Vitesse initiales   
 U0 = zeros(size(M,1),1);
 V0 = zeros(size(M,1),1) ; 
-if (cas==1)          % Deformee correspondant a un effort en bout
+if (cas.type==1)          % Deformee correspondant a un effort en bout
     if (CL==1)
         for j=1:size(M,1)       
             U0(j,1) = 0.1*L*(j-1)/nombreElements;
@@ -70,20 +71,20 @@ if (cas==1)          % Deformee correspondant a un effort en bout
             U0(j,1) = 0.1*L*j/nombreElements;
         end      
     end
-elseif (cas==7)          % Vitesse initiale
+elseif (cas.type==7)          % Vitesse initiale
     if (CL==1)
         for j=1:size(M,1)       
-            V0(j,1) = 0.1*(L/dt)*(j-1)/nombreElements;
+            V0(j,1) = 0.1*(L/dt)*(1/100)*(j-1)/nombreElements;
         end 
     elseif (CL==2)
         for j=1:size(M,1)       
-            V0(j,1) = 0.1*(L/dt)*j/nombreElements;
+            V0(j,1) = 0.1*(L/dt)*(1/100)*j/nombreElements;
         end      
     end
 end
 
 %% Deplacement impose au cours du temps
-if (cas ==3)
+if (cas.type ==3)
     omega = 1e+04;
     noeudAuDepImp= ceil(size(M,1)/2);
     if (CL==1)

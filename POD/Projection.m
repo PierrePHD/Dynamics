@@ -1,26 +1,26 @@
-function [MR,CR,K0R,U0R,V0R,DR,HistFR,nonLineariteR,PresenceNan] = Projection(PRT,M,C,K0,U0,V0,D,HistF,nonLine,nonLinearite)
+function [MR,CR,K0R,U0R,V0R,DR,HistFR,nonLineariteR,PresenceNan] = Projection(PRT,problem)
 
 
-        MR  = PRT'*M*PRT;
-        CR  = PRT'*C*PRT;
-        K0R = PRT'*K0*PRT; 
+        MR  = PRT'*problem.M*PRT;
+        CR  = PRT'*problem.C*PRT;
+        K0R = PRT'*problem.K0*PRT; 
         
-        if (nonLine==1)
+        if (problem.nonLine==1)
             % Ajout du ressort
-            nonLineariteR(1).scalaires      = nonLinearite(1).scalaires; 
-            nonLineariteR(1).matriceKUnit   = PRT'*nonLinearite(1).matriceKUnit*PRT; 
-            nonLineariteR(1).dependanceEnU  = PRT'*nonLinearite(1).dependanceEnU;
+            nonLineariteR(1).scalaires      = problem.nonLinearite(1).scalaires; 
+            nonLineariteR(1).matriceKUnit   = PRT'*problem.nonLinearite(1).matriceKUnit*PRT; 
+            nonLineariteR(1).dependanceEnU  = PRT'*problem.nonLinearite(1).dependanceEnU;
         else
-            nonLineariteR(1) = nonLinearite(1);
+            nonLineariteR(1) = problem.nonLinearite(1);
         end
         
-        HistFR  = PRT'*HistF;
-        U0R     = PRT'*U0;
-        V0R     = PRT'*V0;
+        HistFR  = PRT'*problem.HistF;
+        U0R     = PRT'*problem.U0;
+        V0R     = PRT'*problem.V0;
         test = isnan(U0R);
         PresenceNan = sum(test);
-        if (size(D,1))
-            DR=D*PRT;
+        if (size(problem.D,1))
+            DR=problem.D*PRT;
         else    
             DR=[];
         end
