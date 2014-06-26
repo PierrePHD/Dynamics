@@ -2,8 +2,8 @@
 
 for iter in Autres Castem Latex Maple Matlab
 do
-	git clone https://github.com/kissvcool/Doctorat.git
-	mv Doctorat/ $iter/
+	git clone https://github.com/PierrePHD/Dynamics.git
+	mv Dynamics/ $iter/
 	cd $iter/
 	git checkout -b $iter origin/$iter
 	git branch -d master

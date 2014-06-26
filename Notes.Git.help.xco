@@ -16,24 +16,24 @@ Creer un dossier remote local
 
 Comment copier plusieurs branches depuis un dépot distant :
 
-	à partir du dépot distant (https://github.com/kissvcool/Doctorat.git), 
-		on se place dans le dossier ou l'on veut travailler sur une copie. 
+	à partir du dépot distant (https://github.com/PierrePHD/Dynamics.git),
+		on se place dans le dossier ou l'on veut travailler sur une copie.
 		Le dossier devrait être vide au préalable (ne pas faire 'git init')
 	-On tape la commande :
-		~: git clone https://github.com/kissvcool/Doctorat.git
+		~: git clone https://github.com/PierrePHD/Dynamics.git
 			-Ce qui copie la branche "master" du dépot distant
 				 dans la branche "master" locale.
 			-Cela fixe aussi le dépot distant comme étant "origin"
-	-Puis pour les éventuelles autre branche ditantes, il faut 
+	-Puis pour les éventuelles autre branche ditantes, il faut
 		les copier une par une, comme ici la branch "Galer" :
 		~: git checkout -b Galer origin/Galer
-				-La commande générale étant 
+				-La commande générale étant
 					~: git checkout -b [branch] [remotename]/[branch]
 
 Voir l'historique
 	~: git log -n
-	
-	
+
+
 Modifier les commit / les associer …
 	~: git rebase -i 2925189e58858dfaa73b59dc4378fe87cbc215fa
 		l’id donné sera le premier commit inaccessible par le rebase
@@ -45,7 +45,7 @@ Modifier les dates des commit:
 			then
 			export GIT_AUTHOR_DATE="Sat May 19 01:01:01 2007 -0700"
 		fi'
-	
+
 	et pour lui associer la date de commit :
 		~: git filter-branch -f --env-filter 'if [ $GIT_COMMIT = f0e4734c2f9e393e72a98bf8a0fe92d0b6b37dca ]
 			then
@@ -59,11 +59,11 @@ Corriger le bug avec Vim :
 	Can be fixed by adding
 	let g:spf13_keep_trailing_whitespace = 1
 	into ~/.vimrc.local
-	
+
 Avoir un aperçu des log
 	git log --pretty=oneline --abbrev-commit
-	
-		
+
+
 Executer une commande git pour une liste de fichier
 	Creer un fichierTempGit contenant les noms fournis par git status et
 		for line in $(cat TempGit); do git rm "$line" ; done
