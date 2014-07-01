@@ -207,18 +207,14 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                 elseif Methode == 3             
                     ResultatSol  = zeros(size(VectL,2),size(0:dt:Ttot,2));
                     f=HistMf(1:size(VectL,2),1:n);
-%                     for j=1:size(VectL,2)
-%                         for k=1:1:size(0:dt:Ttot,2)
-                            for l=1:n
-                                if (isa(HistMg(l).u,'numeric') )
-                                    g=HistMg(l).u(:);
-                                else
-                                    g=HistMg(l).u.moy(:);
-                                end
-                                ResultatSol = ResultatSol +   (g*(f(:,l)'))'; %f(j,l)*g(k)
-                            end
-%                         end
-%                     end                        
+                    for l=1:n
+                        if (isa(HistMg(l).u,'numeric') )
+                            g=HistMg(l).u(:);
+                        else
+                            g=HistMg(l).u.moy(:);
+                        end
+                        ResultatSol = ResultatSol +   (g*(f(:,l)'))'; %f(j,l)*g(k)
+                    end                 
                 end 
 
                 NomFigure = ['Calcul sur base reduite par ' NomMethode ' a ' num2str(n, '%10.u\n') ' modes'];

@@ -51,20 +51,21 @@ clc
 %     fclose(fileID);
 
 
+                        %% Creation du probleme %%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    calcul = ParamCalcul(4e-6   ,6      ,-1/3 );
-            %ParamCalcul(dt     ,schem  ,alpha)
-       % *dt *schem *alpha *nombreElements *CL
-        
-    cas.type=2;
-        cas.AmpliF=10;         % N 
-        cas.T = 2e-4;
-        
-    calcul.cas = cas;
-    problem = Poutre(calcul);
-        % *M *C *K0 *Ttot *VectL *D *conditionU *conditionV *conditionA *HistF 
-        % *U0 *V0 *nonLinearite *verif
+calcul = ParamCalcul(4e-6   ,6     ,-1/3 );
+        %ParamCalcul(dt     ,schem  ,alpha)
+            % *dt *schem *alpha *nombreElements *CL
 
+cas.type=4;
+    cas.AmpliF=100;         % N 
+    cas.T = 2e-4;
+
+calcul.cas = cas;
+problem = Poutre(calcul);
+    % *M *C *K0 *Ttot *VectL *D *conditionU *conditionV *conditionA *HistF 
+    % *U0 *V0 *nonLinearite *verif
 
                        %% Solution Complete %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -94,19 +95,29 @@ method.m = 5;        % Nombre de modes maximum
 SoluPGD = Resolution(calcul,problem,method);
             
 
+
+%% Solution Exacte
+   % Sans ressort - E constant - Cas 4, 5 et 6
+    %[HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem);
+
+
+%% Animation
+    %AfficherAnimation(SoluComplete.f.HistV,SoluPGD,problem,calcul);
+
+
+
 %% Affichage Complet POD
 
     Ref     = SoluComplete.f.HistU;
-    MET     = 1:3;   %ModesEspaceTemps
+    MET     = [];   %ModesEspaceTemps
     ME      = [];   %ModesEspace
-    MT      = 1:4;   %ModesTemps
-    Res     = 1:3; %Resultat
+    MT      = [];   %ModesTemps
+    Res     = 1:5; %Resultat
     NDR     = 0;    %NoDisplayResultat 
     NDE     = 0;    %NoDisplayErreur
     %titre = ['POD calcul.schem=' num2str(calcul.schem)];
 
-    %ErrPOD = AfficherMethode(Ref,SoluPOD,MET,ME,MT,Res,NDR,NDE);
-    ErrPGD = AfficherMethode(Ref,SoluPGD,MET,ME,MT,Res,NDR,NDE);
+    ErrPOD = AfficherMethode(Ref,SoluPGD,MET,ME,MT,Res,NDR,NDE);
 
    
 return;

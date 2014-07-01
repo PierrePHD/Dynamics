@@ -1,6 +1,5 @@
 function [g] = PGD_TDG(problem, f_q, m, dt, HistMf, HistMg)
-%% Iterations Temporelles
-    
+   
     SizeVectT = size(problem.HistF,2);
     
 
@@ -30,6 +29,7 @@ function [g] = PGD_TDG(problem, f_q, m, dt, HistMf, HistMg)
         pMp_i(i)=f_q'*problem.M*HistMf(:,i);
     end
     
+%% Iterations Temporelles
     
     for t=1:(SizeVectT-1)
         SM_ig_i=0;
@@ -108,29 +108,29 @@ function [g] = PGD_TDG(problem, f_q, m, dt, HistMf, HistMg)
 %         end
 
     end
+    
+%% Post Traitement
     g.u.m=Hist_g_U_m;
     g.u.p=Hist_g_U_p;
     g.v.m=Hist_g_V_m;
     g.v.p=Hist_g_V_p;
     g.w  =Hist_g_W;
     
-    for i=1:size(g.u.m,1)
-        g.u.plot((i-1)*3+1)=g.u.m(i);
-        g.u.plot((i-1)*3+2)=g.u.m(i)*NaN;
-        g.u.plot((i-1)*3+3)=g.u.p(i);
-    end
+%     for i=1:size(g.u.m,1)
+%         g.u.plot((i-1)*3+1)=g.u.m(i);
+%         g.u.plot((i-1)*3+2)=g.u.m(i)*NaN;
+%         g.u.plot((i-1)*3+3)=g.u.p(i);
+%     end
+
+    concatener = [g.u.m';g.u.m'*NaN;g.u.p'];
+    g.u.plot = concatener(:);
     
-    for i=1:size(g.v.m,1)
-        g.v.plot((i-1)*3+1)=g.v.m(i);
-        g.v.plot((i-1)*3+2)=g.v.m(i)*NaN;
-        g.v.plot((i-1)*3+3)=g.v.p(i);
-    end
+    concatener = [g.v.m';g.v.m'*NaN;g.v.p'];
+    g.v.plot = concatener(:);
     
-    for i=1:size(g.u.m,1)
-        g.VectTplotGD((i-1)*3+1)=(i-1)*dt;
-        g.VectTplotGD((i-1)*3+2)=(i-1)*dt;
-        g.VectTplotGD((i-1)*3+3)=(i-1)*dt;
-    end
+    VectTplot = 0:problem.calcul.dt:problem.Ttot;
+    concatener = [VectTplot;VectTplot;VectTplot];
+    g.VectTplotGD = concatener(:);
     
     g.u.moy= zeros(size(g.u.m));
     g.u.moy(:,1)= g.u.p(:,1);

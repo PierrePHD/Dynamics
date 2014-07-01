@@ -1,13 +1,25 @@
-function [HistUExact,HistVExact,HistAExact] = SolutionExacte(cas,c,AmpliF,Egene,Sec,L,VectL,VectT,dt,NbPas6)
+function [HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem)
 
-   if cas == 4
-        HistAExact=zeros( size(VectL,2),size(VectT,2) );
-        HistVExact=zeros( size(VectL,2),size(VectT,2) );
-        HistUExact=zeros( size(VectL,2),size(VectT,2) );
-        CoeffChoc = ((c*AmpliF)/(Egene*Sec));
+    L = problem.L ;
+    VectT = 0:calcul.dt:problem.Ttot ;
+    c=(problem.Egene/problem.rho)^(0.5);
+    
+    HistAExact=zeros( size(problem.VectL,2),size(VectT,2) );
+    HistVExact=zeros( size(problem.VectL,2),size(VectT,2) );
+    HistUExact=zeros( size(problem.VectL,2),size(VectT,2) );
+    
+   if problem.kres || problem.nonLine || problem.ENonConstant
+        HistAExact = [];
+        HistVExact = [];
+        HistUExact = [];
+        return;
+   end
+        
+   if calcul.cas.type == 4
+        CoeffChoc = ((c*calcul.cas.AmpliF)/(problem.Egene*problem.Sec));
         for j=1:(size(VectT,2))
-            for i=1:size(VectL,2)
-                x= VectL(i);
+            for i=1:size(problem.VectL,2)
+                x= problem.VectL(i);
                 t= VectT(j);
                 k= floor(c*t/(2*L));
                 if (x > abs(L-c*t+2*k*L) )
@@ -24,18 +36,15 @@ function [HistUExact,HistVExact,HistAExact] = SolutionExacte(cas,c,AmpliF,Egene,
                 end
                 
                 if (j>1)
-                    HistAExact(i,j) = ( HistVExact(i,j) -HistVExact(i,j-1) ) / dt;
+                    HistAExact(i,j) = ( HistVExact(i,j) -HistVExact(i,j-1) ) / calcul.dt;
                 end
             end
         end
-    elseif cas == 6
-        HistAExact=zeros( size(VectL,2),size(VectT,2) );
-        HistVExact=zeros( size(VectL,2),size(VectT,2) );
-        HistUExact=zeros( size(VectL,2),size(VectT,2) );
-        CoeffChoc = ((c*AmpliF)/(Egene*Sec));
+    elseif calcul.cas.type == 6
+        CoeffChoc = ((c*calcul.cas.AmpliF)/(problem.Egene*problem.Sec));
         for j=1:(size(VectT,2))
-            for i=1:size(VectL,2)
-                x= VectL(i);
+            for i=1:size(problem.VectL,2)
+                x= problem.VectL(i);
                 t= VectT(j);
                 k= floor(c*t/(2*L));
                 if (x > abs(L-c*t+2*k*L) )
@@ -54,9 +63,10 @@ function [HistUExact,HistVExact,HistAExact] = SolutionExacte(cas,c,AmpliF,Egene,
             end
         end
         
+        NbPas6 = round(calcul.cas.T/calcul.dt);
         for j=(NbPas6+1):(size(VectT,2))
-            for i=1:size(VectL,2)
-                x= VectL(i);
+            for i=1:size(problem.VectL,2)
+                x= problem.VectL(i);
                 t= VectT(j-NbPas6);
                 k= floor(c*t/(2*L));
                 if (x > abs(L-c*t+2*k*L) )
@@ -76,22 +86,19 @@ function [HistUExact,HistVExact,HistAExact] = SolutionExacte(cas,c,AmpliF,Egene,
         end
         
         for j=2:(size(VectT,2))
-            for i=1:size(VectL,2)
-                HistAExact(i,j) = ( HistVExact(i,j) -HistVExact(i,j-1) ) / dt;
+            for i=1:size(problem.VectL,2)
+                HistAExact(i,j) = ( HistVExact(i,j) -HistVExact(i,j-1) ) / calcul.dt;
             end
         end
         
-    elseif cas == 5
+    elseif calcul.cas.type == 5
         % Dans ce cas AmpliF est utilise comme coefficient de la rampe,
-        %  donc dans la bonne unité pour (c*AmpliF)/(Egene*Sec) soit une
+        %  donc dans la bonne unite pour (c*AmpliF)/(Egene*Sec) soit une
         %  acceleration
-        HistAExact=zeros( size(VectL,2),size(VectT,2) );
-        HistVExact=zeros( size(VectL,2),size(VectT,2) );
-        HistUExact=zeros( size(VectL,2),size(VectT,2) );
-        CoeffChoc = ((c*AmpliF)/(Egene*Sec));
+        CoeffChoc = ((c*calcul.cas.AmpliF)/(problem.Egene*problem.Sec));
         for j=1:(size(VectT,2))
-            for i=1:size(VectL,2)
-                x= VectL(i);
+            for i=1:size(problem.VectL,2)
+                x= problem.VectL(i);
                 t= VectT(j);
                 k= floor(c*t/(2*L));
                 Dk = floor(k/2);

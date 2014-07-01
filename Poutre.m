@@ -59,7 +59,14 @@ function [problem] = Poutre(calcul)
 
     [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(calcul.CL,M,C,K0,L,calcul.nombreElements,calcul.cas,nombrePasTemps,calcul.dt,Ttot);
       
-        
+    
+    problem.Egene = Egene ;
+    problem.Sec = Sec ;
+    problem.L = L ;
+    problem.rho = rho ;
+    problem.kres = kres ;
+    problem.ENonConstant = ENonConstant;
+    
     problem.M = M ;
     problem.C = C ;
     problem.K0 = K0 ;

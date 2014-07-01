@@ -39,7 +39,8 @@ function [erreurMaximale,erreurCarre,erreurAmpTotale] = AfficherSolution(Referen
                 elseif (i ==3)
                     title(['Difference, d amplitude ' num2str((s(i).a)*100, '%2.2g\n') '% de l amplitude Ref' ]);
                     zlabel(['u(x,t)/Amp(Ref)*10^' num2str(zoom) ]);  
-                end          
+                end
+            %set(gca, 'FontSize', 20);
         end
     end
 
