@@ -1,4 +1,4 @@
-function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(Mmax,Kmax,problem,calcul,OthoIntern,epsilon)
+function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(Mmax,Kmax,problem,calcul,OthoIntern,OrthoExtern,epsilon)
         
     SizeVectL = size(problem.VectL,2); 
     SizeVectT = size(problem.HistF,2);
@@ -50,9 +50,13 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
     else
         initV=0;
     end
+    HistKf = [];
     
+    mMin=-1; % Nombre de mode ajoutes avant le point fixe - calculee apres
     LectureConditionU =1;
-    for m=1:Mmax
+    m=0;
+    while m<Mmax
+        m=m+1;
         disp(['m = ' num2str(m)]);
         
         if initU
@@ -65,6 +69,9 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
             f_q = f_q / norm(f_q(1:SizeVectL));
             g_q.v = zeros(SizeVectT,1);
             g_q.w = zeros(SizeVectT,1);
+            
+            %g_q.u = zeros(SizeVectT,1);
+            %g_q.u(1) = 1;
             
         elseif initV
             initV=0;
@@ -100,37 +107,57 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
                 end
             end            
         else
+            if (~size(HistKf,1)) % Si n a pas encore ete rempli par un point fixe
+                mMin=m-1;
+            end
             if m==1
-               %[HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,M, C, K0, HistF, D, conditionU, m, dt, HistMf,     [],OthoIntern,VectL,epsilon,Ttot,schem);
                 [HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,problem,calcul, m, HistMf,     [],OthoIntern,epsilon);
             else
-               %[HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,M, C, K0, HistF, D, conditionU, m, dt, HistMf, HistMg,OthoIntern,VectL,epsilon,Ttot,schem);
                 [HistKf,HistKg,TableConv(m,:),TableCondi(m,:),f_q,g_q,erreur] = PointFixePGD(Kmax,problem,calcul, m, HistMf, HistMg,OthoIntern,epsilon);
             end
         end
-        if (~size(HistKf,1) && calcul.schem==6)
+        
+        if (mMin<0 && calcul.schem==6)
             g_q.u.m=g_q.u;
             g_q.u.p=g_q.u.m;
             g_q.u.moy=g_q.u.m;
             g_q.v.m=g_q.v;
             g_q.v.p=g_q.v.m;
             g_q.v.moy=g_q.v.m;
+            VectTplot = 0:problem.calcul.dt:problem.Ttot;
+            concatener = [VectTplot;VectTplot;VectTplot];
+            g_q.VectTplotGD = concatener(:);
         end
         
+        epsilon =1;
         
+        % Doit on orthogonaliser les modes initiaux / deplacement imposes ? N
+        %                        les modes trouves par rapport aux modes
+        %                        initiaux / deplacement imposes ? ??
+        %         eviter la polution des petit changements ? O  10%
+        % Ne pas tenir compte des multiplicateur en fin de f_q ? N
+%         [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVectL);
+%         f_q = f_q / norm(f_q(1:SizeVectL));
         
-        % norme_f_q=norm(f_q(1:SizeVectL))-1
-        % f_q(1:SizeVectL) = f_q(1:SizeVectL) / norm(f_q(1:SizeVectL)); 
-        % norme_f_q=norm(f_q(1:SizeVectL))-1
+        if (mMin >= 0 && m > (mMin+1) && OrthoExtern)
+            [HistMg,f_q,g_q,epsilon] = Ortho2PGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVectL);
+        end
         
-        HistTotf{m} = HistKf;
-        HistTotg{m}   = HistKg;
         if (erreur)
             Mmax = m-1;
             break;
         end
-        HistMf(:,m) = f_q;
-        HistMg(m) = g_q  ; 
+        
+        if epsilon > 0
+            HistTotf{m} = HistKf;
+            HistTotg{m}   = HistKg;
+            HistMf(:,m) = f_q;
+            HistMg(m) = g_q  ;
+        else
+            m = m-1;
+        end
+        
+        
     end
     HistMf = HistMf(1:SizeVectL,:); % Retire les multiplicateurs
 

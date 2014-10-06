@@ -1,4 +1,4 @@
-function [sortie] = resolutionGDTemp(M,C,K0,dt,Ttot,HistF,U0,V0,conditionU,conditionV,conditionA,D,nonLine,nonLinearite,verif)
+function [sortie] = resolutionTDG(M,C,K0,dt,Ttot,HistF,U0,V0,conditionU,conditionV,conditionA,D,nonLine,nonLinearite,verif)
 %% Initialisation
 
     HistU_m=zeros(size(HistF));

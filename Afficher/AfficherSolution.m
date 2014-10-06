@@ -11,7 +11,7 @@ function [erreurMaximale,erreurCarre,erreurAmpTotale] = AfficherSolution(Referen
         elseif (i ==2)
             s(i).f=Resultat;
         elseif (i ==3)
-            s(i).f= (s(1).f - s(2).f)/s(1).a;
+            s(i).f= (s(1).f - s(2).f);
         end
 
         s(i).a = max(s(i).f(:)) - min(s(i).f(:));   % amplitude
@@ -33,21 +33,20 @@ function [erreurMaximale,erreurCarre,erreurAmpTotale] = AfficherSolution(Referen
                 end
 
                 if (i ==1)
-                    title(['Solution de Reference, d amplitude ' num2str(s(i).a, '%10.1e\n') ]);
+                    title(['Solution de Reference, d amplitude ' num2str(s(1).a, '%10.1e\n') ]);
                 elseif (i ==2)
-                    title(['Resultat, d amplitude ' num2str(s(i).a, '%10.1e\n') ]);
+                    title(['Resultat, d amplitude ' num2str(s(2).a, '%10.1e\n') ]);
                 elseif (i ==3)
-                    title(['Difference, d amplitude ' num2str((s(i).a)*100, '%2.2g\n') '% de l amplitude Ref' ]);
-                    zlabel(['u(x,t)/Amp(Ref)*10^' num2str(zoom) ]);  
+                    title(['Difference, d amplitude ' num2str((s(3).a)*100/s(1).a, '%2.2g\n') '% de l amplitude Ref' ]);
                 end
             %set(gca, 'FontSize', 20);
         end
     end
 
-    erreurMaximale = max(abs(s(3).f(:)));
-    DiffAmp = s(1).a - s(2).a;
-    DiffVol = sum(sum((s(3).f*s(1).a).^2))/sum(sum((s(1).f).^2));
-    %DiffVol = sum(sum((s(3).f).^2))/sum(sum((s(1).f).^2));
+    erreurMaximale = max(abs(s(3).f(:)))/s(1).a;
+    DiffAmp = (s(1).a - s(2).a)/s(1).a;
+    %DiffVol = sum(sum((s(3).f*s(1).a).^2))/sum(sum((s(1).f).^2));
+    DiffVol = sum(sum((s(3).f).^2))/sum(sum((s(1).f).^2));
     erreurCarre = abs(DiffVol);
     erreurAmpTotale = abs(DiffAmp);
     
@@ -55,7 +54,7 @@ function [erreurMaximale,erreurCarre,erreurAmpTotale] = AfficherSolution(Referen
         ax = subplot(2,2,4);
         text(0,0,['Erreur sur l amplitude totale ' num2str(abs(DiffAmp)*100, '%2.2g\n') '%' ]);
         text(0,0.12,['Erreur volume au carre ' num2str(abs(DiffVol)*100, '%2.2g\n') '%' ]);
-        text(0,0.24,['Erreur locale max ' num2str(erreurMaximale*100, '%2.2g\n') '%' ]);
+        text(0,0.24,['Erreur relative max ' num2str(erreurMaximale*100, '%2.2g\n') '%' ]);
         set ( ax, 'visible', 'off')
         title(['Erreur sur l amplitude totale ' num2str(abs(DiffAmp)*100, '%2.2g\n') '%' ]);
     end

@@ -54,13 +54,13 @@ clc
                         %% Creation du probleme %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-calcul = ParamCalcul(4e-6   ,6     ,-1/3 );
+calcul = ParamCalcul(4e-6   ,5,-1/3 );
         %ParamCalcul(dt     ,schem  ,alpha)
             % *dt *schem *alpha *nombreElements *CL
 
-cas.type=4;
+cas.type=1;
     cas.AmpliF=100;         % N 
-    cas.T = 2e-4;
+    cas.T = 1e-4;
 
 calcul.cas = cas;
 problem = Poutre(calcul);
@@ -79,7 +79,7 @@ SoluComplete = Resolution(calcul,problem,method);
 
 method= struct('type',0,'Modes',[],'Apriori',[]);
 method.type = 2;
-method.Modes = 1:30;%(size(M,1)-size(D,1));
+method.Modes = 5;%(size(M,1)-size(D,1));
 method.Apriori = SoluComplete.f.HistU';
 
 SoluPOD = Resolution(calcul,problem,method);
@@ -91,36 +91,44 @@ method= struct('type',0,'k',[],'m',[]);
 method.type = 3;
 method.k = 30;        % Nombre d'iterations max pour obtenir un mode
 method.m = 5;        % Nombre de modes maximum
+method.OrthoExtern = 0;
+method.OrthoIntern = 0;
 
 SoluPGD = Resolution(calcul,problem,method);
+% method.OrthoExtern = 1;
+% SoluPGDOrtho = Resolution(calcul,problem,method);
             
 
 
-%% Solution Exacte
+%% Options
    % Sans ressort - E constant - Cas 4, 5 et 6
     %[HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem);
-
-
-%% Animation
+    
     %AfficherAnimation(SoluComplete.f.HistV,SoluPGD,problem,calcul);
 
 
-
-%% Affichage Complet POD
+%% Affichage Complet
 
     Ref     = SoluComplete.f.HistU;
     MET     = [];   %ModesEspaceTemps
     ME      = [];   %ModesEspace
     MT      = [];   %ModesTemps
-    Res     = 1:5; %Resultat
+    Res     = 1:method.m; %Resultat
     NDR     = 0;    %NoDisplayResultat 
     NDE     = 0;    %NoDisplayErreur
     %titre = ['POD calcul.schem=' num2str(calcul.schem)];
 
-    ErrPOD = AfficherMethode(Ref,SoluPGD,MET,ME,MT,Res,NDR,NDE);
+    %ErrPOD = AfficherMethode(Ref,SoluPOD,MET,ME,MT,Res,NDR,NDE);
+    ErrPGD = AfficherMethode(Ref,SoluPGD,MET,ME,MT,Res,NDR,NDE);
+%         SoluPGDHist  = zeros(size(problem.VectL,2),size(0:calcul.dt:problem.Ttot,2));
+%         f=SoluPGD.HistMf(1:size(problem.VectL,2),1:SoluPGD.Mmax);
+%         for l=1:SoluPGD.Mmax
+%             g=SoluPGD.HistMg(l).u(:);
+%             SoluPGDHist = SoluPGDHist +   (g*(f(:,l)'))'; %f(j,l)*g(k)
+%         end   
+%     ErrPGD = AfficherMethode(SoluPGDHist,SoluPGDOrtho,MET,ME,MT,Res,NDR,NDE);
 
-   
-return;
+   return
                         %% Analyse des modes %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    
@@ -136,6 +144,7 @@ end
 AnalyseDeMAC(NbModesPOD,NbModesPGD,ModePOD,ModePGD);
 
 
+return;
 % fichier = ['Resultats' num2str(program+1)];
 % save(fichier);
 

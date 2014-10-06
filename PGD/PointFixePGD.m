@@ -34,7 +34,7 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
         end
         Conditionnement(k) = condi;
         if ~(norm(f_q)==0)
-            f_q(1:SizeVectL) = f_q(1:SizeVectL) / norm(f_q(1:SizeVectL));
+            f_q = f_q / norm(f_q(1:SizeVectL));
         end
         HistKf(:,k) = f_q;
         if m>1  % Enlever les multiplicateur de Lagrange

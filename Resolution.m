@@ -68,12 +68,10 @@ function [Solutions] = Resolution(calcul,problem,method)
         Solutions.problem = problem;
         Solutions.method  = method;
         
-        OthoIntern = 0;
-        
         epsilon = 10^-6;
 
         % Fonction f(X), g(t) %, h(theta)
-        [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax] = CalcModesPGD(method.m,method.k,problem,calcul,OthoIntern,epsilon);
+        [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax] = CalcModesPGD(method.m,method.k,problem,calcul,method.OrthoIntern,method.OrthoExtern,epsilon);
         Solutions.HistMf = HistMf;
         Solutions.HistMg = HistMg;
         Solutions.Mmax = Mmax;

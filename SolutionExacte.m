@@ -93,8 +93,8 @@ function [HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem)
         
     elseif calcul.cas.type == 5
         % Dans ce cas AmpliF est utilise comme coefficient de la rampe,
-        %  donc dans la bonne unite pour (c*AmpliF)/(Egene*Sec) soit une
-        %  acceleration
+        %  donc dans la bonne unite pour que (c*AmpliF)/(Egene*Sec) soit
+        %  une acceleration
         CoeffChoc = ((c*calcul.cas.AmpliF)/(problem.Egene*problem.Sec));
         for j=1:(size(VectT,2))
             for i=1:size(problem.VectL,2)
@@ -137,6 +137,31 @@ function [HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem)
                 
             end
         end
+    elseif calcul.cas.type == 32424 %LOUF
+       
+       % Demi periode de sinus
+        % n=100;
+        % CoeffChoc = ((2*calcul.cas.AmpliF)/(problem.rho*problem.Sec*L));
+        % T=calcul.cas.T;  % tau
+        % tT=floor(T/calcul.dt);
+        % for i = 1:n
+        %     B= ((2*i-1)*pi)/(2*L);   % beta(n)
+        %     w= B*c;                          % omega(n)
+        %     HistUExact(:,1:tT)=-HistUExact(:,1:tT)+ (( ((-1)^(n+1))/(w^2-(pi/T)^2) ) * ( sin(pi*VectT(1:tT)'/T) - (pi/(T*w))*sin(w*VectT(1:tT)') )*sin(B*problem.VectL))';
+        %     HistUExact(:,(tT+1):end)=-HistUExact(:,(tT+1):end)+ (( ((-1)^(n+1))/(w^2-(pi/T)^2) ) *(pi/(T*w))* ( sin(w*(T-VectT((tT+1):end)')) - sin(w*VectT((tT+1):end)') )*sin(B*problem.VectL))';
+        % end
+        % HistUExact = HistUExact * CoeffChoc;
+       
+       % Echelon
+        % n=100;
+        % CoeffChoc = ((2*calcul.cas.AmpliF)/(problem.rho*problem.Sec*L));
+        % for i = 1:n
+        %     B= ((2*i-1)*pi)/(2*L);   % beta(n)
+        %     w= B*c;                          % omega(n)
+        %     HistUExact=-HistUExact+ (( ((-1)^(n+1))/(w^2) ) * ( 1 - cos(w*VectT') )*sin(B*problem.VectL))';
+        % end
+        % HistUExact = HistUExact * CoeffChoc;
+       
     else
         HistAExact = [];
         HistVExact = [];

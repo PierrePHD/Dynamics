@@ -63,7 +63,7 @@ U0 = zeros(size(M,1),1);
 V0 = zeros(size(M,1),1) ; 
 if (cas.type==1)          % Deformee correspondant a un effort en bout
     if (CL==1)
-        for j=1:size(M,1)       
+        for j=1:(size(M,1)-1)     
             U0(j,1) = 0.1*L*(j-1)/nombreElements;
         end 
     elseif (CL==2)
@@ -73,7 +73,7 @@ if (cas.type==1)          % Deformee correspondant a un effort en bout
     end
 elseif (cas.type==7)          % Vitesse initiale
     if (CL==1)
-        for j=1:size(M,1)       
+        for j=1:(size(M,1)-1)       
             V0(j,1) = 0.1*(L/dt)*(1/100)*(j-1)/nombreElements;
         end 
     elseif (CL==2)
