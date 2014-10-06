@@ -10,3 +10,5 @@
 *.blg
 biblio-mauvais.encodage.bib
 stack/Temp/*
+*.nav
+*.snm
