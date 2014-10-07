@@ -1,13 +1,13 @@
-function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVectL)
+function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q)
 
-    normOrigin = norm(f_q(1:SizeVectL));
+    normOrigin = norm(f_q);
     SomProd=0;
     Somf_q =zeros(size(f_q));
     
     %verification de l ortogonalite des precedants modes
     for i= (mMin+1):(m-1)
         for j= (i+1):(m-1)
-            ortho=HistMf(1:SizeVectL,i)'*HistMf(1:SizeVectL,j) / (norm(HistMf(1:SizeVectL,i))*norm(HistMf(1:SizeVectL,j)));
+            ortho=HistMf(:,i)'*HistMf(:,j) / (norm(HistMf(:,i))*norm(HistMf(:,j)));
             disp(['Verif: i =' num2str(i) ' j =' num2str(j) ' prod = ' num2str(ortho)]);
             if ortho > 1e-12
                 stopppp
@@ -15,10 +15,10 @@ function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVe
         end
     end
             
-    HistVerif = g_q.u(:)*(f_q(1:SizeVectL)');
+    HistVerif = g_q.u(:)*(f_q');
     for k=1:(m-1)
             g=HistMg(k).u(:);
-            HistVerif = HistVerif + g*(HistMf(1:SizeVectL,k)') ;
+            HistVerif = HistVerif + g*(HistMf(:,k)') ;
     end
     
     figure('Name',['Mode ET avant Ortho avec '  num2str(m) ' modes'],'NumberTitle','off');
@@ -26,7 +26,7 @@ function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVe
             subplot(ceil(sqrt(m)),ceil(m/ceil(sqrt(m))),k);
             
             g=HistMg(k).u(:);
-            Hist =  g*(HistMf(1:SizeVectL,k)') ;
+            Hist =  g*(HistMf(:,k)') ;
             ampli = max(Hist(:)) - min(Hist(:));
             zoom = -floor(log(ampli)/log(10)) ;
             surf(Hist'*(10^zoom),'EdgeColor','none');
@@ -34,14 +34,14 @@ function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVe
         end
         subplot(ceil(sqrt(m)),ceil(m/ceil(sqrt(m))),m);
         g=g_q.u(:);
-        Hist =  g*(f_q(1:SizeVectL)') ;
+        Hist =  g*(f_q') ;
         ampli = max(Hist(:)) - min(Hist(:));
         zoom = -floor(log(ampli)/log(10));
         surf(Hist'*(10^zoom),'EdgeColor','none');
         zlabel(['u(x,t)*10^' num2str(zoom) ]);
         
     for i= (mMin+1):(m-1)
-        prod = HistMf(1:SizeVectL,i)'*f_q(1:SizeVectL) / norm(HistMf(1:SizeVectL,i)); % division inutile si norm(f)=1
+        prod = HistMf(:,i)'*f_q / norm(HistMf(:,i)); % division inutile si norm(f)=1
             disp(['Verif: i =' num2str(i) ' f_q(' num2str(m) ') prod = ' num2str(prod)]);
         %if prod > 0.1
             HistMg(:,i).u=HistMg(:,i).u + prod* g_q.u ;
@@ -52,10 +52,10 @@ function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVe
 %         figure;
 %         for k=1:(m-1)
 %             subplot(ceil(sqrt(m)),ceil(m/ceil(sqrt(m))),k);
-%             plot(HistMf(1:SizeVectL,k));
+%             plot(HistMf(:,k));
 %         end
 %         subplot(ceil(sqrt(m)),ceil(m/ceil(sqrt(m))),m);
-%         plot(f_q(1:SizeVectL));
+%         plot(f_q);
 %         figure;
         
         
@@ -64,7 +64,7 @@ function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVe
             subplot(ceil(sqrt(m)),ceil(m/ceil(sqrt(m))),k);
             
             g=HistMg(k).u(:);
-            Hist =  g*(HistMf(1:SizeVectL,k)') ;
+            Hist =  g*(HistMf(:,k)') ;
             ampli = max(Hist(:)) - min(Hist(:));
             zoom = -floor(log(ampli)/log(10)) ;
             surf(Hist'*(10^zoom),'EdgeColor','none');
@@ -72,18 +72,18 @@ function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVe
         end
         subplot(ceil(sqrt(m)),ceil(m/ceil(sqrt(m))),m);
         g=g_q.u(:);
-        Hist =  g*(f_q(1:SizeVectL)') ;
+        Hist =  g*(f_q') ;
         ampli = max(Hist(:)) - min(Hist(:));
         zoom = -floor(log(ampli)/log(10));
         surf(Hist'*(10^zoom),'EdgeColor','none');
         zlabel(['u(x,t)*10^' num2str(zoom) ]);
         
-        HistVerif2 = g_q.u(:)*(f_q(1:SizeVectL)');
+        HistVerif2 = g_q.u(:)*(f_q');
         for k=1:(m-1)
                 g=HistMg(k).u(:);
-                HistVerif2 = HistVerif2 + g*(HistMf(1:SizeVectL,k)') ;
+                HistVerif2 = HistVerif2 + g*(HistMf(:,k)') ;
         end
-        AfficherSolution(HistVerif',HistVerif2',['VerifTotal i='  num2str(i) ],0:4.0e-06:1.0e-03,1:SizeVectL,0);
+        AfficherSolution(HistVerif',HistVerif2',['VerifTotal i='  num2str(i) ],0:4.0e-06:1.0e-03,1:size(f_q,1),0);
         
         
         Somf_q = Somf_q +prod*HistMf(:,i);
@@ -92,15 +92,15 @@ function [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVe
     end
     %f_q = f_q - Somf_q;
     
-     HistVerif2 = g_q.u(:)*(f_q(1:SizeVectL)');
+     HistVerif2 = g_q.u(:)*(f_q');
         for k=1:(m-1)
                 g=HistMg(k).u(:);
-                HistVerif2 = HistVerif2 + g*(HistMf(1:SizeVectL,k)') ;
+                HistVerif2 = HistVerif2 + g*(HistMf(:,k)') ;
         end
-        AfficherSolution(HistVerif',HistVerif2','VerifTotal Finale',0:4.0e-06:1.0e-03,1:SizeVectL,0);
+        AfficherSolution(HistVerif',HistVerif2','VerifTotal Finale',0:4.0e-06:1.0e-03,1:size(f_q,1),0);
         
      
-    normAfter=norm(f_q(1:SizeVectL));
+    normAfter=norm(f_q);
     epsilon = normAfter/normOrigin
     f_q = f_q/normAfter;
     g_q.u=g_q.u*normAfter;
@@ -110,4 +110,4 @@ end
 
 
 %SizeVectL=size(problem.VectL,2)
-%SoluPGD.HistMf(1:SizeVectL,1)'*SoluPGD.HistMf(1:SizeVectL,2)
+%SoluPGD.HistMf(:,1)'*SoluPGD.HistMf(:,2)

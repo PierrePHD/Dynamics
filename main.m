@@ -79,7 +79,7 @@ SoluComplete = Resolution(calcul,problem,method);
 
 method= struct('type',0,'Modes',[],'Apriori',[]);
 method.type = 2;
-method.Modes = 5;%(size(M,1)-size(D,1));
+method.Modes = 3;%(size(M,1)-size(D,1));
 method.Apriori = SoluComplete.f.HistU';
 
 SoluPOD = Resolution(calcul,problem,method);
@@ -90,7 +90,7 @@ SoluPOD = Resolution(calcul,problem,method);
 method= struct('type',0,'k',[],'m',[]);
 method.type = 3;
 method.k = 30;        % Nombre d'iterations max pour obtenir un mode
-method.m = 5;        % Nombre de modes maximum
+method.m = 3;        % Nombre de modes maximum
 method.OrthoExtern = 0;
 method.OrthoIntern = 0;
 

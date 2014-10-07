@@ -2,10 +2,10 @@ function [f_q,condi,erreur] = ProblemEspace(problem, g_q, m, dt, HistMf, HistMg)
 
     erreur=0;
     
-    K = [ problem.K0 problem.D' ; problem.D zeros(size(problem.D,1))];
-    C = [ problem.C zeros(size(problem.D')) ; zeros(size(problem.D)) zeros(size(problem.D,1))];
-    M = [ problem.M zeros(size(problem.D')) ; zeros(size(problem.D)) zeros(size(problem.D,1))];
-    HistF = [ problem.HistF ; problem.conditionU ] ;
+    K = problem.K0;
+    C = problem.C;
+    M = problem.M;
+    HistF = problem.HistF ;
     
     t0 = 0;
     
@@ -15,6 +15,7 @@ function [f_q,condi,erreur] = ProblemEspace(problem, g_q, m, dt, HistMf, HistMg)
     Premier =           IntegrLine(g_q.u, g_q.u,t0,dt) * K ;
     Premier = Premier + IntegrLine(g_q.v, g_q.u,t0,dt) * C ;
     Premier = Premier + IntegrLine(g_q.w ,g_q.u,t0,dt) * M ;
+    Premier = [ Premier problem.D' ; problem.D zeros(size(problem.D,1))];
     condi=rcond(Premier);
 
 %% Second membre
@@ -23,6 +24,11 @@ function [f_q,condi,erreur] = ProblemEspace(problem, g_q, m, dt, HistMf, HistMg)
     for i=1:(m-1)
         g_k_q = HistMg(:,i).u;
         f_k_q = HistMf(:,i);
+%         
+%         size(HistF(:,1))
+%         size(f_k_q)
+%         size(Premier)
+%         fff
         sum = sum + IntegrLine(g_k_q,  g_q.u,t0,dt) * f_k_q;
     end
     Second = Second - K * sum;
@@ -62,6 +68,19 @@ function [f_q,condi,erreur] = ProblemEspace(problem, g_q, m, dt, HistMf, HistMg)
     Second = Second + sum;
     sum4=sum;
     
+    %size(problem.conditionU,1)
+    sumConditionU=0;
+    for i=1:size(size(problem.conditionU,1),1)   % Intralge sur chaque composante de F(t)
+        E_i = zeros( size(problem.conditionU(:,1)) );
+        E_i(i) = 1;
+        C_i = problem.conditionU(i,:)';
+        sumConditionU = sumConditionU + IntegrLine(C_i, (C_i*0)+1,t0,dt) * E_i;
+    end
+    
+    %HistF = [ problem.HistF ; problem.conditionU ] ;
+    %size(Second)
+    Second = [ Second ; sumConditionU ] ;
+    
 %% Resolution
 
     f_q = Premier\Second;
@@ -76,4 +95,6 @@ function [f_q,condi,erreur] = ProblemEspace(problem, g_q, m, dt, HistMf, HistMg)
         condi = 0;
         return
     end
+    f_q = f_q(1:size(K,1));
+    
 end

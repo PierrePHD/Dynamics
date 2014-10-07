@@ -30,7 +30,7 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
         
     end
         
-    HistMf    =zeros(SizeVectL+SizeD,Mmax);
+    HistMf    =zeros(SizeVectL,Mmax);
 
     HistTotf=cell(1,Mmax);
     HistTotg  =cell(1,Mmax);
@@ -63,10 +63,10 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
             initU=0;
             HistKf = [];
             HistKg  = [];
-            f_q = [problem.U0 ; zeros(SizeD,1)] ;
+            f_q = problem.U0 ;
             g_q.u = ones(SizeVectT,1);
-            g_q.u = g_q.u * norm(f_q(1:SizeVectL));
-            f_q = f_q / norm(f_q(1:SizeVectL));
+            g_q.u = g_q.u * norm(f_q);
+            f_q = f_q / norm(f_q);
             g_q.v = zeros(SizeVectT,1);
             g_q.w = zeros(SizeVectT,1);
             
@@ -77,14 +77,14 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
             initV=0;
             HistKf = [];
             HistKg  = [];
-            f_q = [problem.V0 ; zeros(SizeD,1)] ;
+            f_q = problem.V0 ;
             g_q.u = zeros(SizeVectT,1);
             g_q.v = ones(SizeVectT,1);
             %g_q.v = zeros(SizeVectT,1);
             %g_q.v(1) = 1;
-            g_q.v = g_q.v * norm(f_q(1:SizeVectL));
-            g_q.u = (0:calcul.dt:problem.Ttot)' * norm(f_q(1:SizeVectL));
-            f_q = f_q / norm(f_q(1:SizeVectL));
+            g_q.v = g_q.v * norm(f_q);
+            g_q.u = (0:calcul.dt:problem.Ttot)' * norm(f_q);
+            f_q = f_q / norm(f_q);
             g_q.w = zeros(SizeVectT,1);
             
         elseif norm(conditionU(LectureConditionU:end,:)) %&& LectureConditionU <= size(conditionU,1)
@@ -92,10 +92,10 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
                 if norm(conditionU(i,:))               % / eviter les lignes nulles (causee par les encastrement imposes par multiplicateurs
                     HistKf = [];
                     HistKg  = [];
-                    f_q = [problem.D(i,:)' ; zeros(SizeD,1) ];
+                    f_q = problem.D(i,:)' ;
                     g_q.u = conditionU(i,:);
-                    g_q.u = g_q.u * norm(f_q(1:SizeVectL));
-                    f_q = f_q / norm(f_q(1:SizeVectL));
+                    g_q.u = g_q.u * norm(f_q);
+                    f_q = f_q / norm(f_q);
                     g_q.v = zeros(SizeVectT,1);
                     g_q.w = zeros(SizeVectT,1);
             
@@ -137,10 +137,10 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
         %         eviter la polution des petit changements ? O  10%
         % Ne pas tenir compte des multiplicateur en fin de f_q ? N
 %         [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVectL);
-%         f_q = f_q / norm(f_q(1:SizeVectL));
+%         f_q = f_q / norm(f_q);
         
         if (mMin >= 0 && m > (mMin+1) && OrthoExtern)
-            [HistMg,f_q,g_q,epsilon] = Ortho2PGD(HistMf,HistMg,m,mMin,f_q,g_q,SizeVectL);
+            [HistMg,f_q,g_q,epsilon] = OrthoPGD(HistMf,HistMg,m,mMin,f_q,g_q);
         end
         
         if (erreur)

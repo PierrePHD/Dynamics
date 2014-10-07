@@ -1,6 +1,4 @@
 function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = PointFixePGD(Kmax,problem,calcul, m, HistMf, HistMg,OthoIntern,epsilon)
-
-    SizeVectL = size(problem.VectL,2);
         
     erreur = 0;
     
@@ -9,7 +7,8 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
     g_q.v = (0:calcul.dt:problem.Ttot)';
     g_q.u = 1/2*g_q.v.^2;
     
-    K = [ problem.K0 problem.D' ; problem.D zeros(size(problem.D,1))];
+    %K = [ problem.K0 problem.D' ; problem.D zeros(size(problem.D,1))];
+    K = problem.K0;
     
     HistKf  =zeros(size(K,1),Kmax);
     %HistKg 	=zeros(size(g_q.u,1),Kmax);
@@ -29,21 +28,21 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
         end
         if OthoIntern
             for i=1:(m-1)
-                f_q(1:SizeVectL) = f_q(1:SizeVectL) - HistMf(1:SizeVectL,i)*(HistMf(1:SizeVectL,i)'*f_q(1:SizeVectL) );
+                f_q = f_q - HistMf(:,i)*(HistMf(:,i)'*f_q );
             end
         end
         Conditionnement(k) = condi;
         if ~(norm(f_q)==0)
-            f_q = f_q / norm(f_q(1:SizeVectL));
+            f_q = f_q / norm(f_q);
         end
         HistKf(:,k) = f_q;
-        if m>1  % Enlever les multiplicateur de Lagrange
-            HistMfg=HistMf(1:SizeVectL,:);
-        else
-            HistMfg=HistMf;
-        end
+%         if m>1  % Enlever les multiplicateur de Lagrange
+%             HistMfg=HistMf(1:SizeVectL,:);
+%         else
+%             HistMfg=HistMf;
+%         end
         %disp(['---------Probleme en temps------------']);
-        [g_q] = ProblemTemps(problem, f_q(1:SizeVectL,:), m, calcul.dt, HistMfg, HistMg, calcul.schem);
+        [g_q] = ProblemTemps(problem, f_q, m, calcul.dt, HistMf, HistMg, calcul.schem);
 
         HistKg(:,k)   = g_q ;
 
