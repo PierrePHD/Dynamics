@@ -18,6 +18,9 @@ function [Solutions] = Resolution(calcul,problem,method)
         % 2 Rayleigh
         % 3 PGD
         VectN = method.Modes;
+        if (reduc == 1)
+            [Solutions(1).U_SVD,Solutions(1).S_SVD,Solutions(1).V_SVD]=svd(method.Apriori); 
+        end
         for n = VectN  % taille de la base modale
             
             Solutions(n).calcul  = calcul;

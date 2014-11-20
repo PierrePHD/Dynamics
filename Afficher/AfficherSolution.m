@@ -18,8 +18,11 @@ function [erreurMaximale,erreurCarre,erreurAmpTotale] = AfficherSolution(Referen
 
         if ~NoDisplay
             subplot(2,2,i);
-                
-                zoom = -floor(log(s(i).a)/log(10)) ;
+                if s(i).a == 0
+                    zoom=0;
+                else
+                    zoom = -floor(log(s(i).a)/log(10)) ;
+                end
                 surf(VectT,VectL,(s(i).f*(10^zoom)),'EdgeColor','none');
                     
                 xlabel('t');

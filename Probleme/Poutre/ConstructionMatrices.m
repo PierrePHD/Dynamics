@@ -1,10 +1,10 @@
-function [nonLinearite,M,K0,C] = ConstructionMatrices(nombreElements,nombreNoeuds,LElement,Sec,rho,Egene,ENonConstant,Ttot,RepartMasse,nonLine)
+function [nonLinearite,M,K0,C] = ConstructionMatrices(nombreElements,nombreNoeuds,LElement,Sec,rho,Egene,ENonConstant,Ttot,RepartMasse,nonLine,kres)
 
 % M.A + C.V + K.U = F
 
-M = zeros(nombreNoeuds);        % masse
+M  = zeros(nombreNoeuds);        % masse
 K0 = zeros(nombreNoeuds);       % raideur - Sans les elements non-lineaires
-C = K0*0;%.000001;              % Amortissement Test
+C  = zeros(nombreNoeuds);              % Amortissement Test
 
 TempPropa=0;
 
@@ -37,6 +37,13 @@ for i=1:nombreElements
     K0(i:i+1,i:i+1) = K0(i:i+1,i:i+1)+KElem;
     
 end
+
+if nonLine==0
+    KElem = [kres -kres;-kres kres];
+    K0((end-1):end,(end-1):end) = K0((end-1):end,(end-1):end)+KElem;
+end
+
+C = K0*0.000001;
 
 NbOscil=Ttot/(2*TempPropa);
 disp(['Le snapshot de ' num2str(Ttot, '%10.1e\n') 's permet '  num2str(NbOscil, '%10.1e\n') ' oscilations']);

@@ -1,4 +1,4 @@
-function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace,ModesTemps,Resultat,NoDisplayResultat,NoDisplayErreur)
+function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace,ModesTemps,Resultat,NoDisplayResultat,NoDisplayErreur,OutImage)
 
     Methode = Solution(1).method.type;
     VectL = Solution(1).problem.VectL;
@@ -47,7 +47,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
     if (Methode == 2)
         NomMethode = 'POD';
         if (NbModesEspaceTemps || NbModesEspace || NbModesTemps)
-            [U_SVD,S_SVD,V_SVD]=svd(Donnees1);
+            U_SVD = Solution(1).U_SVD;
+            S_SVD = Solution(1).S_SVD;
+            V_SVD = Solution(1).V_SVD;  %[U_SVD,S_SVD,V_SVD]=svd(Donnees1);
         end
     elseif (Methode == 3)
         NomMethode = 'PGD';
@@ -92,6 +94,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                         axis([0 Ttot 0 VectL(end) (Hist(1,1)-1) (Hist(1,1)+1)]);
                     end
             end
+        if (OutImage.MET)
+            saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'ModesEspaceTemps.eps'], 'eps2c');
+        end
     end
                     
     
@@ -107,7 +112,7 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                         Hist =  HistMf(1:size(VectL,2),i);
                     end                
                     ampli = max(Hist(:)) - min(Hist(:));
-                    plot(VectL,Hist');
+                    plot(VectL,Hist','LineWidth',1);
                     if ampli
                         axis([0 VectL(end) min(Hist)-0.1*ampli max(Hist)+0.1*ampli]);
                     else
@@ -115,6 +120,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                     end
                     title(['d ordre '  num2str(i) ' d amplitude ' num2str(ampli, '%10.1e\n') ]);
             end
+        if (OutImage.ME)
+            saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'ModesEspace.eps'], 'eps2c');
+        end
     end
 
     if NbModesTemps
@@ -175,9 +183,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                         end
                         
                     if (Methode == 3 && ~(isa(HistMg(i).u,'numeric') ) )    % Trace discontinu
-                        plot(HistMg(i).VectTplotGD, (HistMg(i).u.plot(:))' )
+                        plot(HistMg(i).VectTplotGD, (HistMg(i).u.plot(:))' ,'LineWidth',1)
                     else
-                        plot(0:dt:Ttot,Hist');
+                        plot(0:dt:Ttot,Hist','LineWidth',1);
                     end
                     
                     %plot(0:dt:Ttot,Hist',dt:dt:Ttot,(sin((dt:dt:Ttot)*(2*pi/periode)))*(ampli/2)');
@@ -188,6 +196,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                     end
                     title(['d ordre ' num2str(i) ' d amplitude ' num2str(ampli, '%10.1e\n') ' de periode ' num2str(periode, '%10.2e\n') 's']);
             end
+        if (OutImage.MT)
+            saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'ModesTemps.eps'], 'eps2c');
+        end
     end
 
 %% Affichage des solutions
@@ -225,6 +236,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                 erreurMaximale(iter)  = out1;
                 erreurCarre(iter)     = out2;
                 erreurAmpTotale(iter)  = out3;
+                if (OutImage.Res)
+                    print('-dpng',['Images/Sortie/mat' OutImage.titre 'Solution' num2str(n)],'-r400')
+                end
             end
     end
     
@@ -248,6 +262,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
         set(gca, 'FontSize', 20);
         
         %matlab2tikz( chainetitre );
+        if (OutImage.Err)
+            saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'Erreur.eps'], 'eps2c');
+        end
     end
 
         % Modification de l'affichage

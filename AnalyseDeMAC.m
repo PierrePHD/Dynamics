@@ -1,4 +1,4 @@
-function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2)
+function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2,OutImage)
 
     for k=1:3    %1:3
         
@@ -51,13 +51,14 @@ function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2)
 
         if norm(MAC)
             if ( k == 1 )
-                figure('Name','Analyse MAC des modes obtenus par POD','NumberTitle','off')
+                NameFigure = 'POD-POD';
             elseif (k == 2 )
-                figure('Name','Analyse MAC entre les modes obtenus par POD et PGD','NumberTitle','off')
+                NameFigure = 'POD-PGD';
             elseif (k == 3 )
-                close all;
-                figure('Name','Analyse MAC entre les modes obtenus par PGD','NumberTitle','off')
+                NameFigure = 'PGD-PGD';
             end
+            
+            figure('Name',['Analyse MAC des modes ' NameFigure],'NumberTitle','off')
             
             h=bar3(MAC);
             
@@ -81,6 +82,10 @@ function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2)
                     end
                 end
                 fclose(fileID);
+            end
+            
+            if (OutImage)
+                print('-dpng',['Images/Sortie/MAC_' NameFigure],'-r400');
             end
 
         end

@@ -9,10 +9,10 @@ function [problem] = Poutre(calcul)
         rho=7.8*10^3;       % kg/m^3
 
     % Ressort
-        % Lres = L/8;
-        % kres = Egene*Sec/Lres;
-        Lres = 0;
-        kres = 0;
+         Lres = L/2;
+         kres = 0;
+        % Lres = 0;
+        % kres = 0;
         nonLine = 0; %1;
         
     if (calcul.CL==1)
@@ -55,9 +55,9 @@ function [problem] = Poutre(calcul)
     nombreNoeuds = calcul.nombreElements + 2;  % avec le noeud derriere le ressort
     LElement = L/calcul.nombreElements;
 
-    [nonLinearite,M,K0,C] = ConstructionMatrices(calcul.nombreElements,nombreNoeuds,LElement,Sec,rho,Egene,ENonConstant,Ttot,RepartMasse,nonLine);
+    [nonLinearite,M,K0,C] = ConstructionMatrices(calcul.nombreElements,nombreNoeuds,LElement,Sec,rho,Egene,ENonConstant,Ttot,RepartMasse,nonLine,kres);
 
-    [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(calcul.CL,M,C,K0,L,calcul.nombreElements,calcul.cas,nombrePasTemps,calcul.dt,Ttot);
+    [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(calcul.CL,M,C,K0,L,calcul.nombreElements,calcul.cas,calcul.dt,Ttot);
       
     
     problem.Egene = Egene ;
