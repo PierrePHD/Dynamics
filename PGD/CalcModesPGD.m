@@ -9,14 +9,7 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
     
     if norm(problem.U0) ;     Mmax = Mmax + 1; end;
     if norm(problem.V0) ;     Mmax = Mmax + 1; end;
-    if norm(conditionU(1:end,:))
-        for i=1:size(conditionU,1) 
-            if norm(conditionU(i,:))  
-                Mmax = Mmax + 1;
-            end
-        end  
-    end
-    
+        
     if norm(conditionU)     
         if ~problem.verif    
             ErreurVerifConditionDeplacementNonPriseEnCompte;

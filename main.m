@@ -26,21 +26,23 @@
     % alpha : -1/3 <= alpha <= 0 
     
    % Solicitation
-    % 1 Deformee de depart correspondant a un effort en bout de poutre puis relachee
-    % 2 Effort sinusoidal en bout de poutre
-    % 3 Deplacement impose en milieu de poutre
-    % 4 Effort continue en bout de poutre
-    % 5 Effort augmentant lineairement en bout de poutre
-    % 6 Effort continue en bout de poutre les premiers pas de temps
-        %cas.T = 2e-4;
-    % 7 Vitesse initiale
-    % 8 Une periode de sinusverse
-        %cas.T = 100*calcul.dt*2;%^iterCase; % 10*calcul.dt < T < Ttot/4  
+    % 1  Deformee de depart correspondant a un effort en bout de poutre puis relachee
+    % 2  Effort sinusoidal en bout de poutre
+    % 3  Deplacement impose en milieu de poutre
+    % 4  Effort continue en bout de poutre
+    % 5  Effort augmentant lineairement en bout de poutre
+    % 6  Effort continue en bout de poutre les premiers pas de temps
+          %cas.T = 2e-4;
+    % 7  Vitesse initiale
+    % 8  Une periode de sinusverse
+          %cas.T = 100*calcul.dt*2;%^iterCase; % 10*calcul.dt < T < Ttot/4  
+    % 9  Cas du cours par Louf
+    % 10 Cas test 1
 
 w = warning ('off','all');
 % w = warning ('on','all');
 
-addpath('Afficher','POD','PGD','Matlab2Tikz','Probleme/Poutre','Probleme/CasTest')
+addpath('Afficher','POD','PGD','Matlab2Tikz','Probleme')
 
 clear all
 clc
@@ -59,13 +61,13 @@ disp('calcul = ParamCalcul(4e-6   ,3,-1/3 );');
         %ParamCalcul(dt     ,schem  ,alpha)
             % *dt *schem *alpha *nombreElements *CL
 
-cas.type=8;
+cas.type=10;
     cas.AmpliF=100;         % N 
-    cas.T = 50*calcul.dt;
+    cas.T = 16e-5;   % rappel : dt:4e-6
 
 calcul.cas = cas;
-problem = Poutre(calcul);
-%problem = MasseRessort(calcul);
+%problem = Poutre(calcul);
+problem = MasseRessort(calcul);
     % *M *C *K0 *Ttot *VectL *D *conditionU *conditionV *conditionA *HistF 
     % *U0 *V0 *nonLinearite *verif
 
@@ -81,10 +83,10 @@ SoluComplete = Resolution(calcul,problem,method);
 
 method= struct('type',0,'Modes',[],'Apriori',[]);
 method.type = 2;
-method.Modes = 1:4;%(size(M,1)-size(D,1));
+method.Modes = 1:2;%(size(M,1)-size(D,1));
 method.Apriori = SoluComplete.f.HistU';
 
-SoluPOD = Resolution(calcul,problem,method);
+%SoluPOD = Resolution(calcul,problem,method);
 
                              %% PGD %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,7 +94,7 @@ SoluPOD = Resolution(calcul,problem,method);
 method= struct('type',0,'k',[],'m',[]);
 method.type = 3;
 method.k = 30;        % Nombre d'iterations max pour obtenir un mode
-method.m = 4;        % Nombre de modes maximum
+method.m = 20;        % Nombre de modes maximum
 method.OrthoExtern = 0;
 method.OrthoIntern = 0;
 
@@ -113,18 +115,18 @@ SoluPGD = Resolution(calcul,problem,method);
 
     Ref     = SoluComplete.f.HistU;
     MET     = [];   %ModesEspaceTemps
-    ME      = 1:method.m;   %ModesEspace
-    MT      = 1:method.m;   %ModesTemps
-    Res     = 1:method.m; %Resultat
-    NDR     = 0;    %NoDisplayResultat 
+    ME      = 1:9;   %ModesEspace
+    MT      = 1:9;   %ModesTemps
+    Res     = 1:20; %Resultat
+    NDR     = 1;    %NoDisplayResultat 
     NDE     = 0;    %NoDisplayErreur
-    OI      = struct('MET',0,'ME',1,'MT',1,'Res',0,'Err',1,'titre',''); %OutImage
+    OI      = struct('MET',0,'ME',0,'MT',0,'Res',0,'Err',0,'titre',''); %OutImage
     %titre = ['POD calcul.schem=' num2str(calcul.schem)];
 
     %OI.titre= 'POD';    
-    ErrPOD = AfficherMethode(Ref,SoluPOD,MET,ME,MT,Res,NDR,NDE,OI);
+    %ErrPOD = AfficherMethode(Ref,SoluPOD,MET,ME,MT,Res,NDR,NDE,OI);
     %OI.titre= 'PGD';    
-    %ErrPGD = AfficherMethode(Ref,SoluPGD,MET,ME,MT,Res,NDR,NDE,OI);
+    ErrPGD = AfficherMethode(Ref,SoluPGD,MET,ME,MT,Res,NDR,NDE,OI);
 %         SoluPGDHist  = zeros(size(problem.VectL,2),size(0:calcul.dt:problem.Ttot,2));
 %         f=SoluPGD.HistMf(1:size(problem.VectL,2),1:SoluPGD.Mmax);
 %         for l=1:SoluPGD.Mmax
@@ -133,7 +135,7 @@ SoluPGD = Resolution(calcul,problem,method);
 %         end   
 %     ErrPGD = AfficherMethode(SoluPGDHist,SoluPGDOrtho,MET,ME,MT,Res,NDR,NDE);
 
-exit;
+%exit;
 return;
 
     OI      = 1;    %OutImage
@@ -185,9 +187,4 @@ for cacher=1:0
         [erreurCarre(i),erreurAmpTotale(i)] = AfficherSolutionDifferenteDiscretisation(Reference,Resultat,NomFigure,VectT,VectL,VectTR,VectLR,NoDisplayResultat);
     end
 end
-
-
-    
-
-
 

@@ -64,7 +64,8 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                 iter=iter+1;
                 subplot(ceil(sqrt(NbModesEspaceTemps)),ceil(NbModesEspaceTemps/ceil(sqrt(NbModesEspaceTemps))),iter);
                     if (Methode == 2) % POD
-                        Hist = U_SVD(:,i)*S_SVD(i,i)*V_SVD(:,i)';
+                        %Hist = U_SVD(:,i)*S_SVD(i,i)*V_SVD(:,i)';
+                        Hist = (Solution(end).p(:,i)*Solution(end).f.HistU(i,:))';
                     elseif (Methode == 3) % PGD
                         if (isa(HistMg(i).u,'numeric') )
                             g=HistMg(i).u(:);
@@ -107,7 +108,8 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                 iter=iter+1;
                 subplot(ceil(sqrt(NbModesEspace)),ceil(NbModesEspace/ceil(sqrt(NbModesEspace))),iter); 
                     if Methode == 2
-                        Hist = S_SVD(i,i)*V_SVD(:,i)';
+                        %Hist = V_SVD(:,i)';
+                        Hist = Solution(end).p(:,i);
                     elseif Methode == 3
                         Hist =  HistMf(1:size(VectL,2),i);
                     end                
@@ -132,7 +134,8 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                 iter=iter+1;
                 subplot(ceil(sqrt(NbModesTemps)),ceil(NbModesTemps/ceil(sqrt(NbModesTemps))),iter);            
                     if Methode == 2
-                        Hist = U_SVD(:,i)*S_SVD(i,i);                        
+                        %Hist = U_SVD(:,i)*S_SVD(i,i);
+                        Hist = Solution(end).f.HistU(i,:);
                     elseif Methode == 3
                         if (isa(HistMg(i).u,'numeric') )
                             Hist =  HistMg(i).u(:);
@@ -194,7 +197,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                     else
                         axis([(-5*dt) Ttot (Hist(1,1)-1) (Hist(1,1)+1)]);
                     end
-                    title(['d ordre ' num2str(i) ' d amplitude ' num2str(ampli, '%10.1e\n') ' de periode ' num2str(periode, '%10.2e\n') 's']);
+                    %t=title(['d ordre ' num2str(i) ' d amplitude ' num2str(ampli, '%10.1e\n') ' de periode ' num2str(periode, '%10.2e\n') 's']);
+                    t=title(['amplitude ' num2str(ampli, '%10.1e\n') ', periode ' num2str(periode, '%10.2e\n') 's']);
+                    set(t, 'FontSize', 8);
             end
         if (OutImage.MT)
             saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'ModesTemps.eps'], 'eps2c');

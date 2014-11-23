@@ -45,9 +45,10 @@ function [PRT] = BaseReduite (reduc,TailleBase,problem,D,Donnees)
                 end
             end
             PRT(:,TailleBase+j)=(D(j,:)/norm(D(j,:)))';
-        end        
+        end    
+        
         % On reorthogonalise les modes altere par la boucle precedente
-        for j=2:TailleBase
+        for j=2:size(PRT,2) %j=2:TailleBase
             x = PRT(:,j);
             for k=1:(j-1)
                 x = x - (PRT(:,k)'* x/norm(PRT(:,k))) * (PRT(:,k)/norm(PRT(:,k)));

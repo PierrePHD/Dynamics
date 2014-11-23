@@ -44,8 +44,9 @@ elseif (CL==2)
 end
 
 
+
 if (cas.type == 2)
-    omega = 1e+04 ; 
+    omega = 2*pi/cas.T ; 
     HistF(NoeudCharge,:) = (1- cos( (0:dt:Ttot)*omega))*cas.AmpliF;
 elseif (cas.type ==4)
     HistF(NoeudCharge,:) = cas.AmpliF;
@@ -58,6 +59,23 @@ elseif (cas.type ==8)
     omega=2*pi/cas.T;
     NbPas = round(cas.T/dt)+1;
     HistF(NoeudCharge,1:NbPas) = (1- cos( (0:dt:cas.T)*omega))*cas.AmpliF;
+elseif (cas.type ==9)
+    omega=2*pi/cas.T;
+    
+    NbPas = round((cas.T/dt)/2)+1;
+    HistF(2,1:NbPas) = (cos( ((1:NbPas)*dt)*omega))*5*cas.AmpliF;
+    HistF(2,(NbPas+1):end) = (cos( ((0:1:(nombrePasTemps-NbPas))*dt)*omega))*5*cas.AmpliF;
+    
+    HistF(3,:) = 2*cas.AmpliF;
+elseif (cas.type ==10)
+    omega0=sqrt(1000);
+    omega = 1.5*omega0 ; 
+    AmpliF = 10;
+    NoeudCharge = 2;
+    HistF(NoeudCharge,:) = (1- cos( (0:dt:Ttot)*omega))*AmpliF;
+    omega = 0.8*omega0 ; 
+    NoeudCharge = 3;
+    HistF(NoeudCharge,:) = (1- cos( (0:dt:Ttot)*omega))*AmpliF;
 end
 
 
@@ -88,7 +106,7 @@ end
 
 %% Deplacement impose au cours du temps
 if (cas.type ==3)
-    omega = 1e+04;
+    omega=2*pi/cas.T;
     noeudAuDepImp= ceil(size(M,1)/2);
     if (CL==1)
         NumeroCondition = 3;
@@ -99,7 +117,20 @@ if (cas.type ==3)
         D(NumeroCondition,noeudAuDepImp)=1;
         conditionA(NumeroCondition,:) = -omega^2 * cos( (0:dt:Ttot)*omega) /100;    
         conditionV(NumeroCondition,:) = -omega   * sin( (0:dt:Ttot)*omega) /100; 
-        conditionU(NumeroCondition,:) = (-1      + cos( (0:dt:Ttot)*omega))/100; 
+        conditionU(NumeroCondition,:) = (-1      + cos( (0:dt:Ttot)*omega))/100;
+elseif (cas.type ==10)
+%     omega=2*pi/cas.T;
+%     noeudAuDepImp= size(M,1);
+%     if (CL==1)
+%         NumeroCondition = 2;
+%     elseif (CL==2)
+%         D = zeros(1,size(M,1));
+%         NumeroCondition = 1;
+%     end        
+%         D(NumeroCondition,noeudAuDepImp)=1;
+%         conditionA(NumeroCondition,:) = -omega^2 * cos( (0:dt:Ttot)*omega) /100;    
+%         conditionV(NumeroCondition,:) = -omega   * sin( (0:dt:Ttot)*omega) /100; 
+%         conditionU(NumeroCondition,:) = (-1      + cos( (0:dt:Ttot)*omega))/100;
 elseif (CL==2)    
         D = [];
         conditionA = [];   

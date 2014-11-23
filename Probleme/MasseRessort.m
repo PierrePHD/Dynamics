@@ -1,30 +1,41 @@
 function [problem] = MasseRessort(calcul)
 
-    nombreElements = 3;
+
     nonLine = 0;
     nonLinearite(1)=struct('scalaires',[],'matriceKUnit',[],'dependanceEnU',[]);
 
+    nombreElements = 3;
+
     m = zeros(1,nombreElements+1);
     VectL = zeros(1,nombreElements+1);
-    
-    m(2) = 10^(-4) * 0.25 * 7.8*10^3 ;     % Masse Kg
-    m(3) = 10^(-4) * 0.25 * 7.8*10^3 ;
 
     k = zeros(1,nombreElements);
     L = zeros(1,nombreElements);
     c = zeros(1,nombreElements);
     
-    L(1) = 0.25;       % Longueur m
-    k(1) = 210*10^9 * 10^(-4) / L(1);      % Raideur N/m
-    c(1) = k(1)*0.000001;       % Viscosite N.s/m
-   
-    L(2) = 0.25;
-    k(2) = 210*10^9 * 10^(-4) / L(2);
-    c(2) = k(2)*0.000001;
-   
-    L(3) = 0.25;
-    k(3) = 210*10^9 * 10^(-4) / L(3);
-    c(3) = k(3)*0.000001;
+    if (calcul.cas.type == 9)
+
+        m(2) = 1;     % Masse Kg
+        m(3) = 1;
+
+        L(1:2) = 1;       % Longueur m
+        k(1:2) = 1;      % Raideur N/m
+        c(1:2) = 0.0001;       % Viscosite N.s/m
+
+    else
+
+        %   Equivalence avec le modele poutre adapte
+        %     m(2:3) = 10^(-4) * 0.25 * 7.8*10^3 ;     % Masse Kg
+        % 
+        %     L(1:3) = 0.25;       % Longueur m
+        %     k(1:3) = 210*10^9 * 10^(-4) / L(1);      % Raideur N/m
+        %     c(1:3) = k(1)*0.000001;       % Viscosite N.s/m
+
+        m(2:3)=1;
+        k(1:3)=1000;
+        c(1:3)= 2 * 0.7 * sqrt(k(1)*m(2));
+        L(1:3)= 1;
+    end
     
     K0 = zeros(4);
     C  = zeros(4);
