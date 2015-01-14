@@ -1,0 +1,25 @@
+
+\pgfplotstableread[row sep=crcr]{ 
+2.61e3 
+9.73e3 
+1.77e4 
+2.40e4 
+3.02e4 
+3.64e4
+4.26e4
+4.85e4
+5.43e4
+5.99e4 
+}\Fpropre
+\pgfplotstableread[row sep=crcr]{ 
+3.00e3 
+4.06e3 
+3.92e3
+1.27e4
+1.74e4
+2.24e4
+2.74e4
+3.27e4
+3.80e4
+4.39e4
+}\Fcharge 

@@ -1,0 +1,73 @@
+\documentclass[a4paper,10pt]{article}
+    \usepackage{alltt}
+    \usepackage{color}
+    \usepackage{fullpage}
+    \definecolor{string}{rgb}{0.7,0.0,0.0}
+    \definecolor{comment}{rgb}{0.13,0.54,0.13}
+    \definecolor{keyword}{rgb}{0.0,0.0,1.0}
+    \title{PFixNL.m}
+    \author{\textsc{Matlab}, The Mathworks, Inc.}
+\begin{document}
+\maketitle
+\begin{alltt}
+01         \textcolor{keyword}{if} (nonLine == 1)      
+02             U\_i = U;
+03             epsilon = 10\^{}-6;
+04             err = 1;
+05             methode = 1;        \textcolor{comment}{% Modification de K a chaque pas de temps}
+06             \textcolor{keyword}{for} cacher = 1
+07                 \textcolor{keyword}{while} err > epsilon
+08                     \textcolor{comment}{% k = kres( U\_i );}
+09                         K = K0;       \textcolor{comment}{% on retire l'ancienne contribution}
+10                         \textcolor{keyword}{for} i = 1:size(nonLinearite,2)
+11                             k = nonLinearite(i).fonction(nonLinearite(i).dependanceEnU,U\_i);
+12                             \textcolor{keyword}{if} (isnan(k))
+13                                 xfgchjkl
+14                             \textcolor{keyword}{end}
+15                             Kres = k*nonLinearite(i).matriceKUnit;
+16                             K = K + Kres;
+17                         \textcolor{keyword}{end}
+18                         S = M + ( 1+alpha )*(C*gamma*dt + K*beta*dt\^{}2);
+19                     \textcolor{comment}{% S(Ui) * Ai = g1( U,Ui,V,F(n+1) );}
+20                         \textcolor{keyword}{if} (size(D,1)) 
+21                              S = M + ( 1+alpha )*(C*gamma*dt + K*beta*dt\^{}2);
+22                              SD  = [S D';D zeros(size(D,1))];
+23                              \textcolor{keyword}{if} (t>0 \&\& methode == 1)
+24                                  F = F - alpha*(K-Kn)*U; \textcolor{comment}{% en HHT on a besoin de l etape precedente}
+25                              \textcolor{keyword}{end}
+26                              Fs  = F - C*Vp - K*Up ;
+27                              Fsb = [Fs ; conditionA(:,t+1)];
+28                              AL  = SD\(\backslash\)Fsb;
+29                              Ai = AL(1:size(A,1),1);
+30                              Landa = AL((size(A,1)+1):\textcolor{keyword}{end},1);
+31                         \textcolor{keyword}{else}
+32                             Ai = S\(\backslash\)( F - C*Vp - K*Up );
+33                         \textcolor{keyword}{end}
+34                     \textcolor{comment}{% Ui = U + g3( V,A,Ai )}
+35                         U\_ip = U\_i;     \textcolor{comment}{% terme precedent}
+36                         U\_i = U +  dt*V + (dt\^{}2)*( (1/2 - beta)*A  + beta*Ai );
+37                     \textcolor{comment}{% convergence}
+38                         \textcolor{keyword}{if} (U\_ip==U\_i)
+39                             err = 0;
+40                         \textcolor{keyword}{else}
+41                             err = norm(U\_i-U\_ip)/ ( norm(U\_i)+norm(U\_ip) );
+42                         \textcolor{keyword}{end}
+43                 \textcolor{keyword}{end}
+44                 U\_i
+45             \textcolor{keyword}{end}
+46 
+47             \textcolor{keyword}{if} (t>0)
+48                  U = U\_i;
+49                  V = V + dt*(1-gamma)*A + dt*gamma*Ai;
+50                  A = Ai;
+51 
+52                  \textcolor{keyword}{if} (verif)     \textcolor{comment}{% correction de l erreur d integration, impossible si les deplacements sont lies}
+53                      [i,\~{}]=find(D');
+54                      V(i,1) = conditionV(:,t+1);
+55                      U(i,1) = conditionU(:,t+1);
+56                  \textcolor{keyword}{end}
+57             \textcolor{keyword}{end}
+58             
+59         \textcolor{keyword}{else}
+\end{alltt}
+\end{document}

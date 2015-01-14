@@ -18,3 +18,13 @@ Executer du code bash a la compilation
 	puis utiliser la commande "\input |" dont voici deux exemples:
 		\input |"ls *.tex"
 		\input |"sed -e 's/width=[0-9]*.[0-9]*in,/width=9cm,/' CalculSchem3.T2.tikz > CalculSchem3.T2.tikzb"
+		
+Rendre le fond d'une image EPS transparant
+	Postscript level 2
+	The file will have the following first line:
+	%!PS-Adobe-2.0 EPSF-1.2
+	Look for four numbers followed by the string PR. Comment that line using %.
+	Postscript level 3
+	The file will have as first line
+	%!PS-Adobe-3.0 EPSF-3.0
+	Look for four numbers followed by the string rf. Comment that line using %

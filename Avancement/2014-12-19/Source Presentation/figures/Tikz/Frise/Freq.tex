@@ -1,0 +1,83 @@
+
+\documentclass{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{pgfplots}
+
+\pgfplotstableread[row sep=crcr]{ 
+1	2.59e3	\\
+1	7.69e3	\\
+1	1.29e4	\\
+1	1.82e4	\\
+1	2.36e4	\\
+1	2.87e4	\\
+}\Fpropre
+\pgfplotstableread[row sep=crcr]{ 
+1	4.00e3	\\
+1	5.00e3	\\
+1	6.25e3	\\
+1	8.33e3	\\
+1	1.25e4	\\
+1	1.67e4	\\
+1	2.50e4	\\
+}\Fcharge 
+
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+    x=1.7cm,            % x unit vector
+    xmin=0.2,xmax=1.8,
+    hide x axis,        % hide the x axis
+    ymode = log,        % logarithmic x axis
+    y=1.7cm,
+    axis y line*=left,% only show the bottom y axis line, without an arrow tip
+    ymin=2e3, ymax=4e4,% range for the x axis
+    ylabel = Frequence en $s^{-1}$
+]
+\addplot [only marks, mark size=2.5, mark=square*, fill=blue , draw=blue] table {\Fpropre};
+\addplot [only marks, mark=square*, fill=red , draw=red] table {\Fcharge};
+
+
+
+%\draw [blue,line width=1pt] ( axis cs:1, 2.59e3) -- ( axis cs:1.1, 2.59e3);
+\node [anchor=east,right,color=blue!60!black] at (axis cs:1, 2.59e3) {2.59e3};
+
+%\draw [blue,line width=1pt] ( axis cs:1, 7.69e3) -- ( axis cs:1.1, 7.69e3);
+\node [anchor=east,right,color=blue!60!black] at (axis cs:1, 7.69e3) {7.69e3};
+
+%\draw [blue,line width=1pt] ( axis cs:1, 1.29e4) -- ( axis cs:1.1, 1.29e4);
+\node [anchor=east,right,color=blue!60!black] at (axis cs:1, 1.29e4) {1.29e4};
+
+%\draw [blue,line width=1pt] ( axis cs:1, 1.82e4) -- ( axis cs:1.1, 1.82e4);
+\node [anchor=east,right,color=blue!60!black] at (axis cs:1, 1.82e4) {1.82e4};
+
+%\draw [blue,line width=1pt] ( axis cs:1, 2.36e4) -- ( axis cs:1.1, 2.36e4);
+\node [anchor=east,right,color=blue!60!black] at (axis cs:1, 2.36e4) {2.36e4};
+
+%\draw [blue,line width=1pt] ( axis cs:1, 2.87e4) -- ( axis cs:1.1, 2.87e4);
+\node [anchor=east,right,color=blue!60!black] at (axis cs:1, 2.87e4) {2.87e4};
+
+%\draw [red,line width=1pt] ( axis cs:1, 4.00e3) -- ( axis cs: 0.9, 4.00e3);
+\node [anchor=east,left,color=red!60!black] at (axis cs:1, 4.00e3) {4.00e3};
+
+%\draw [red,line width=1pt] ( axis cs:1, 5.00e3) -- ( axis cs: 0.9, 5.00e3);
+\node [anchor=east,left,color=red!60!black] at (axis cs:1, 5.00e3) {5.00e3};
+
+%\draw [red,line width=1pt] ( axis cs:1, 6.25e3) -- ( axis cs: 0.9, 6.25e3);
+\node [anchor=east,left,color=red!60!black] at (axis cs:1, 6.25e3) {6.25e3};
+
+%\draw [red,line width=1pt] ( axis cs:1, 8.33e3) -- ( axis cs: 0.9, 8.33e3);
+\node [anchor=east,left,color=red!60!black] at (axis cs:1, 8.33e3) {8.33e3};
+
+%\draw [red,line width=1pt] ( axis cs:1, 1.25e4) -- ( axis cs: 0.9, 1.25e4);
+\node [anchor=east,left,color=red!60!black] at (axis cs:1, 1.25e4) {1.25e4};
+
+%\draw [red,line width=1pt] ( axis cs:1, 1.67e4) -- ( axis cs: 0.9, 1.67e4);
+\node [anchor=east,left,color=red!60!black] at (axis cs:1, 1.67e4) {1.67e4};
+
+%\draw [red,line width=1pt] ( axis cs:1, 2.50e4) -- ( axis cs: 0.9, 2.50e4);
+\node [anchor=east,left,color=red!60!black] at (axis cs:1, 2.50e4) {2.50e4};
+
+\end{axis}
+\end{tikzpicture}
+
+\end{document}
