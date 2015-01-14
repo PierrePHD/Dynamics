@@ -1,0 +1,44 @@
+
+Relancer 2 calcul
+job_cas_2_schem_4_Tcharge_60_Tstep_400.e311638
+job_cas_2_schem_5_Tcharge_40_Tstep_400.e311644
+
+
+Depouiller 2015
+Nombre de possibilites du script :
+	echo "7*2*3*7" | bc
+	294
+Nombre de calcul lancés sur le culster:
+	ls -all job*.e* | wc -l
+	294
+Nombre de calcul sans erreur du cluster:
+	find job_cas*.e* -size 0| wc -l
+	285
+
+Les 9 fichiers erreur
+job_cas_2_schem_4_Tcharge_60_Tstep_400.e311638
+job_cas_2_schem_5_Tcharge_200_Tstep_5.e311917
+job_cas_2_schem_5_Tcharge_250_Tstep_10.e311876-
+job_cas_2_schem_5_Tcharge_250_Tstep_5.e311918
+job_cas_2_schem_5_Tcharge_40_Tstep_400.e311644
+job_cas_2_schem_5_Tcharge_60_Tstep_10.e311871-
+job_cas_2_schem_5_Tcharge_80_Tstep_5.e311914
+job_cas_8_schem_4_Tcharge_250_Tstep_5.e311932
+job_cas_8_schem_5_Tcharge_120_Tstep_5.e311936
+
+Calcul le plus long
+1'056'630s ~= 12 jours
+pour : cas_2_schem_4_Tcharge_200_Tstep_5
+2lse : cas_2_schem_3_Tcharge_60_Tstep_5
+ 872'213s ~= 10 jours
+pour : cas_2_schem_3_Tcharge_60_Tstep_5
+
+tous les autres < 600'000s
+
+
+Calcul stagnant autour de 10^-0.5 d'erreur
+job_cas_2_schem_4_Tcharge_200_Tstep_5
+job_cas_2_schem_4_Tcharge_200_Tstep_10
+job_cas_2_schem_4_Tcharge_200_Tstep_50
+job_cas_2_schem_3_Tcharge_200_Tstep_25
+job_cas_2_schem_3_Tcharge_200_Tstep_50
