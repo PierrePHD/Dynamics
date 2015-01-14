@@ -128,7 +128,7 @@ function [g] = PGD_TDG(problem, f_q, m, dt, HistMf, HistMg)
     concatener = [g.v.m';g.v.m'*NaN;g.v.p'];
     g.v.plot = concatener(:);
     
-    VectTplot = 0:problem.calcul.dt:problem.Ttot;
+    VectTplot = 0:problem.calcul.dt:problem.calcul.Ttot;
     concatener = [VectTplot;VectTplot;VectTplot];
     g.VectTplotGD = concatener(:);
     

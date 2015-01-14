@@ -10,6 +10,7 @@ function [MR,CR,K0R,U0R,V0R,DR,HistFR,nonLineariteR,PresenceNan] = Projection(PR
             nonLineariteR(1).scalaires      = problem.nonLinearite(1).scalaires; 
             nonLineariteR(1).matriceKUnit   = PRT'*problem.nonLinearite(1).matriceKUnit*PRT; 
             nonLineariteR(1).dependanceEnU  = PRT'*problem.nonLinearite(1).dependanceEnU;
+            nonLineariteR(1).fonction       = problem.nonLinearite(1).fonction ;
         else
             nonLineariteR(1) = problem.nonLinearite(1);
         end

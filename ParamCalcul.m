@@ -1,4 +1,4 @@
-function [calcul] = ParamCalcul(dt,schem,alpha)
+function [calcul] = ParamCalcul(dt,schem,NbElem,Ttot)
 
 calcul = struct('dt',0,'schem',0,'alpha',0,'CL',0);
 
@@ -17,7 +17,7 @@ calcul = struct('dt',0,'schem',0,'alpha',0,'CL',0);
         % alpha : -1/3 <= alpha <= 0 
         
     % elements
-        nombreElementsParPartie=160; %80; %5  *2^program;
+        nombreElementsParPartie=NbElem; %80; %5  *2^program;
         nombrePartie=1; %2  ;
         nombreElements = nombrePartie*nombreElementsParPartie; 
             %disp(['nombreElementsParPartie = ' num2str(nombreElementsParPartie)]);
@@ -32,9 +32,9 @@ calcul = struct('dt',0,'schem',0,'alpha',0,'CL',0);
 %             CL=2;
 %         end
         
-    calcul.dt   =dt;
-    calcul.schem=schem;
-    calcul.alpha=alpha;
+    calcul.dt    = dt;
+    calcul.Ttot  = Ttot;
+    calcul.schem = schem;
     calcul.nombreElements=nombreElements;
-    calcul.CL   =CL;
+    calcul.CL    = CL;
 end

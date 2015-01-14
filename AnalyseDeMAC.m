@@ -1,6 +1,6 @@
-function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2,OutImage)
+function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2,Compare,OutImage,titre1,titre2)
 
-    for k=1:3    %1:3
+    for k=Compare    %1:3
         
         if ( k == 1 )
             MAC = zeros(NbModesMethode1,NbModesMethode1);
@@ -51,14 +51,14 @@ function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2,
 
         if norm(MAC)
             if ( k == 1 )
-                NameFigure = 'POD-POD';
+                NameFigure = [titre1 '-' titre1];
             elseif (k == 2 )
-                NameFigure = 'POD-PGD';
+                NameFigure = [titre1 '-' titre2];
             elseif (k == 3 )
-                NameFigure = 'PGD-PGD';
+                NameFigure = [titre2 '-' titre2];
             end
             
-            figure('Name',['Analyse MAC des modes ' NameFigure],'NumberTitle','off')
+            figure('Name',['MAC: ' NameFigure],'NumberTitle','off')
             
             h=bar3(MAC);
             
@@ -68,23 +68,25 @@ function AnalyseDeMAC(NbModesMethode1,NbModesMethode2,ModeMethode1,ModeMethode2,
                  set(h(n),'cdata',cdata,'facecolor','flat')
             end
             
-            for l=1:0 %Creation du fichier pour histogramme 3D tikz
-                fileID = fopen('../Latex/Tikz/TentativesHist3D/DataOutMac.dat','w');
-                MaxMAC = max(MAC(:));
-                fprintf(fileID,'X \t\t Y \t\t Z \n');
-                %Maximums
-                fprintf(fileID,['' num2str(size(MAC,1)) ' \t\t ' num2str(size(MAC,2)) ' \t\t ' num2str(MaxMAC) ' \t\t %% max \n \n']);
-                for i=1:size(MAC,1)
-                    for j=size(MAC,2):-1:1
-                        if MAC(i,j)>(MaxMAC/10000)
-                            fprintf(fileID,['' num2str(i) ' \t\t ' num2str(j) ' \t\t%12.8f \n'], MAC(i,j));%'%12.8f\n'], MAC(i,j));
+            for l=1 %Creation du fichier pour histogramme 3D tikz
+                if k == 2
+                    fileID = fopen(['../Latex/Tikz/TentativesHist3D/DataOutMac' NameFigure '.dat'],'w');
+                    MaxMAC = max(MAC(:));
+                    fprintf(fileID,'X \t\t Y \t\t Z \n');
+                    %Maximums
+                    fprintf(fileID,['' num2str(size(MAC,1)) ' \t\t ' num2str(size(MAC,2)) ' \t\t ' num2str(MaxMAC) ' \t\t %% max \n \n']);
+                    for i=1:size(MAC,1)
+                        for j=size(MAC,2):-1:1
+                            if MAC(i,j)>(MaxMAC/10000)
+                                fprintf(fileID,['' num2str(i) ' \t\t ' num2str(j) ' \t\t%12.8f \n'], MAC(i,j));%'%12.8f\n'], MAC(i,j));
+                            end
                         end
                     end
+                    fclose(fileID);
                 end
-                fclose(fileID);
             end
             
-            if (OutImage)
+            if (OutImage && k==2)
                 print('-dpng',['Images/Sortie/MAC_' NameFigure],'-r400');
             end
 

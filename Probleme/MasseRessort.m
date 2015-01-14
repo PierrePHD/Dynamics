@@ -1,8 +1,10 @@
 function [problem] = MasseRessort(calcul)
 
-
-    nonLine = 0;
-    nonLinearite(1)=struct('scalaires',[],'matriceKUnit',[],'dependanceEnU',[]);
+    if (calcul.cas.type == 10.2)
+        nonLine = 1;
+    else
+        nonLine = 0;
+    end
 
     nombreElements = 3;
 
@@ -13,14 +15,13 @@ function [problem] = MasseRessort(calcul)
     L = zeros(1,nombreElements);
     c = zeros(1,nombreElements);
     
-    if (calcul.cas.type == 9)
+    if ((calcul.cas.type -10) <0.1)
 
-        m(2) = 1;     % Masse Kg
-        m(3) = 1;
+        m(2:3) = 1;     % Masse Kg
 
         L(1:2) = 1;       % Longueur m
         k(1:2) = 1;      % Raideur N/m
-        c(1:2) = 0.0001;       % Viscosite N.s/m
+        c(1:2) = 0.7;       % Viscosite N.s/m
 
     else
 
@@ -37,8 +38,39 @@ function [problem] = MasseRessort(calcul)
         L(1:3)= 1;
     end
     
+    
     K0 = zeros(4);
     C  = zeros(4);
+    
+    nonLinearite(1)=struct('scalaires',[],'matriceKUnit',[],'dependanceEnU',[]);
+    if (nonLine==1)
+        % Ajout du ressort non lineaire
+        k(3)=0;
+        nonLinearite(1).matriceKUnit = zeros(size(K0,1));
+        nonLinearite(1).dependanceEnU = zeros(size(K0,1),1);
+        nonLinearite(1).dependanceEnU((end-1):end,1) = [1 -1];
+        nonLinearite(1).matriceKUnit((end-1):end,(end-1):end) = [1 -1;-1 1];
+        kres        = 1000 ;
+        VarSoupl    = 1000 ;
+        VarJeu      = 0.3e-2 ;
+        nonLinearite(1).scalaires(1) = kres;
+        %nonLinearite(1).fonction = @(x,y) (kres)*(exp(VarSoupl*(x'*y-VarJeu))-1)+kres;
+        DeltaJ = 1e-4;
+        nonLinearite(1).fonction = @(x,y) ButeeParPartie(VarJeu,DeltaJ,kres,x,y);
+        
+        
+%         k(1)=0;
+%         nonLinearite(2).matriceKUnit = zeros(size(K0,1));
+%         nonLinearite(2).dependanceEnU = zeros(size(K0,1),1);
+%         nonLinearite(2).dependanceEnU(1:2,1) = [1 -1];
+%         nonLinearite(2).matriceKUnit(1:2,1:2) = [1 -1;-1 1];
+%         kres        = 1000 ;
+%         VarSoupl    = 1000 ;
+%         VarJeu      = 1e-3 ;
+%         nonLinearite(2).scalaires(1) = kres;
+%         nonLinearite(2).fonction = @(x,y) (kres*VarSoupl)*(exp(VarSoupl*(x'*y-VarJeu))-1)+kres;  
+    end
+    
     
     for i=1:nombreElements
         KElem = [k(i) -k(i);-k(i) k(i)];
@@ -50,18 +82,19 @@ function [problem] = MasseRessort(calcul)
     
     M = diag(m);
     
-    Ttot= 1.0e-03;% * 5^program;% calcul.dt*400; %3.0000e-04;
+    NbOscil=calcul.Ttot*   ((sqrt(k(1)/m(2)))/(2*pi));
+    disp(['Le snapshot de ' num2str(calcul.Ttot, '%10.1e\n') 's permet '  num2str(NbOscil, '%10.1e\n') ' oscilations']);
     
-    NbOscil=Ttot/(2*(sqrt(k(1)/m(2))));
-    disp(['Le snapshot de ' num2str(Ttot, '%10.1e\n') 's permet '  num2str(NbOscil, '%10.1e\n') ' oscilations']);
     
-    [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(calcul.CL,M,C,K0,0.5,nombreElements,calcul.cas,calcul.dt,Ttot);
+    
+    [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(calcul.CL,M,C,K0,VectL(end),nombreElements,calcul.cas,calcul.dt,calcul.Ttot);
     
     problem.M = M ;
     problem.C = C ;
     problem.K0 = K0 ;
+%    problem.kres = kres ;
     
-    problem.Ttot = Ttot ;
+    problem.Ttot = calcul.Ttot ;
     problem.VectL = VectL ;
     problem.D = D ;
     problem.conditionU = conditionU ;

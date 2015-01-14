@@ -10,7 +10,7 @@ function [problem] = Poutre(calcul)
 
     % Ressort
          Lres = L/2;
-         kres = 0;
+         kres = 0;%(Egene*Sec/L)*4;
         % Lres = 0;
         % kres = 0;
         nonLine = 0; %1;
@@ -22,12 +22,11 @@ function [problem] = Poutre(calcul)
     end
 
     % temps
-        Ttot= 1.0e-03;% * 5^program;% calcul.dt*400; %3.0000e-04;
 
         %c=(Egene/rho)^(0.5);
-        %NbOscil=Ttot/(2*L/c);          % correct si E constant / recalcule plus loin
-        nombrePasTemps=round(Ttot/calcul.dt); % Attention doit etre entier car ceil pose des problemes
-        %VectT=0:calcul.dt:Ttot;
+        %NbOscil=calcul.Ttot/(2*L/c);          % correct si E constant / recalcule plus loin
+        nombrePasTemps=round(calcul.Ttot/calcul.dt); % Attention doit etre entier car ceil pose des problemes
+        %VectT=0:calcul.dt:calcul.Ttot;
 
     % Solicitaion :
         disp(['cas = ' num2str(calcul.cas.type)]);
@@ -40,7 +39,7 @@ function [problem] = Poutre(calcul)
             %cas.T = 2e-4;
         % 7 Vitesse initiale
         % 8 Une periode de sinusverse
-            %cas.T = 100*calcul.dt*2;%^iterCase; % 10*calcul.dt < T < Ttot/4  
+            %cas.T = 100*calcul.dt*2;%^iterCase; % 10*calcul.dt < T < calcul.Ttot/4  
             
             %fileID = fopen('PGD.Conv.dat','a');
             %fprintf(fileID,' \t');
@@ -55,9 +54,9 @@ function [problem] = Poutre(calcul)
     nombreNoeuds = calcul.nombreElements + 2;  % avec le noeud derriere le ressort
     LElement = L/calcul.nombreElements;
 
-    [nonLinearite,M,K0,C] = ConstructionMatrices(calcul.nombreElements,nombreNoeuds,LElement,Sec,rho,Egene,ENonConstant,Ttot,RepartMasse,nonLine,kres);
+    [nonLinearite,M,K0,C] = ConstructionMatrices(calcul.nombreElements,nombreNoeuds,LElement,Sec,rho,Egene,ENonConstant,calcul.Ttot,RepartMasse,nonLine,kres);
 
-    [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(calcul.CL,M,C,K0,L,calcul.nombreElements,calcul.cas,calcul.dt,Ttot);
+    [D,conditionU,conditionV,conditionA,M,C,K0,HistF,U0,V0,verif] = CondiLimit(calcul.CL,M,C,K0,L,calcul.nombreElements,calcul.cas,calcul.dt,calcul.Ttot);
       
     
     problem.Egene = Egene ;
@@ -70,7 +69,7 @@ function [problem] = Poutre(calcul)
     problem.M = M ;
     problem.C = C ;
     problem.K0 = K0 ;
-    problem.Ttot = Ttot ;
+    problem.calcul.Ttot = calcul.Ttot ;
     problem.VectL = VectL ;
     problem.D = D ;
     problem.conditionU = conditionU ;

@@ -1,8 +1,8 @@
-function [g] = ProblemTemps(problem, f_q, m, dt, HistMf, HistMg, schem)
+function [g,Premier_gpp,Premier_g] = ProblemTemps(problem, f_q, m, dt, HistMf, HistMg, schem)
     % [g_q]  = ProblemTemps(problem, f_q(1:SizeVectL,:), m, calcul.dt, HistMfg, HistMg, calcul.schem);
 
     HistF = problem.HistF;
-    K = problem.K0; 
+    K = problem.K0;
 %         [ K0 D' ; D zeros(size(D,1))];
 %     C = [ C zeros(size(D')) ; zeros(size(D)) zeros(size(D,1))];
 %     M = [ M zeros(size(D')) ; zeros(size(D)) zeros(size(D,1))];
@@ -11,28 +11,30 @@ function [g] = ProblemTemps(problem, f_q, m, dt, HistMf, HistMg, schem)
     
 %%  Schemas d'integration
 
-    if (schem == 1)             % Newmark - Difference centree
+    if (schem.type == 1)             % Newmark - Difference centree
         alpha = 0;
         beta = 0;
         gamma = 1/2;
-    elseif (schem == 2)         % Newmark - Acceleration lineaire
+    elseif (schem.type == 2)         % Newmark - Acceleration lineaire
         alpha = 0;
         beta = 1/12;
         gamma = 1/2; 
-    elseif (schem == 3)         % Newmark - Acceleration moyenne
+    elseif (schem.type == 3)         % Newmark - Acceleration moyenne
         alpha = 0;
         beta = 1/4;
         gamma = 1/2;
-    elseif (schem == 4)        % Newmark - Acceleration moyenne modifiee
+    elseif (schem.type == 4)        % Newmark - Acceleration moyenne modifiee
+        alpha = schem.alpha;
         alpha = -1/9;      % -1/3 <= alpha <= 0 
         gamma = 1/2 - alpha;
         beta  = ((1-alpha)^2)/4;  
         alpha = 0;
-    elseif (schem == 5)         % HHT-alpha
+    elseif (schem.type == 5)         % HHT-alpha
+        alpha = schem.alpha;
         alpha = -1/9;      % -1/3 <= alpha <= 0 
         gamma = 1/2 - alpha;        % alpha = -1/3 -> amortissement maximal
         beta  = ((1-alpha)^2)/4;
-    elseif (schem == 6)         % HHT-alpha
+    elseif (schem.type == 6)         % HHT-alpha
         g = PGD_TDG(problem, f_q, m, dt, HistMf, HistMg);
         return;
     end

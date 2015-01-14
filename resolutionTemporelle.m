@@ -1,13 +1,12 @@
 function [sortie] = resolutionTemporelle(calcul,problem)
 %%  Schemas d'integration
 schem = calcul.schem;
-alpha = calcul.alpha;
 dt = calcul.dt;
 
+Ttot        = calcul.Ttot;
 M           = problem.M;
 C           = problem.C;
 K0          = problem.K0;
-Ttot        = problem.Ttot;
 HistF       = problem.HistF;
 U0          = problem.U0;
 V0          = problem.V0;
@@ -19,26 +18,28 @@ nonLine     = problem.nonLine;
 nonLinearite = problem.nonLinearite;
 verif       = problem.verif;
 
-    if (schem == 1)             % Newmark - Difference centree
+    if (schem.type == 1)             % Newmark - Difference centree
         beta = 0;
         gamma = 1/2;
         alpha = 0;
-    elseif (schem == 2)         % Newmark - Acceleration lineaire
+    elseif (schem.type == 2)         % Newmark - Acceleration lineaire
         beta = 1/12;
         gamma = 1/2; 
         alpha = 0;
-    elseif (schem == 3)         % Newmark - Acceleration moyenne
+    elseif (schem.type == 3)         % Newmark - Acceleration moyenne
         beta = 1/4;
         gamma = 1/2;
         alpha = 0;
-    elseif (schem == 4)        % Newmark - Acceleration moyenne modifiee
+    elseif (schem.type == 4)        % Newmark - Acceleration moyenne modifiee
+        alpha = calcul.schem.alpha;
         gamma = 1/2 - alpha;
         beta  = ((1-alpha)^2)/4;  
         alpha = 0;
-    elseif (schem == 5)         % HHT-alpha
+    elseif (schem.type == 5)         % HHT-alpha
+        alpha = calcul.schem.alpha;
         gamma = 1/2 - alpha;        % alpha = -1/3 -> amortissement maximal
         beta  = ((1-alpha)^2)/4;
-    elseif (schem == 6)
+    elseif (schem.type == 6)
         sortie = resolutionTDG(M,C,K0,dt,Ttot,HistF,U0,V0,conditionU,conditionV,conditionA,D,nonLine,nonLinearite,verif);
         return;
     end
@@ -78,18 +79,21 @@ verif       = problem.verif;
     F = HistF(:,1);     
     nombrePasTemps=round(Ttot/dt); % Attention doit etre entier car ceil pose des problemes
     
-    if (nonLine==1)
-        % Ajout du ressort
-        kres =  nonLinearite(1).scalaires(1);
-        KresU = nonLinearite(1).matriceKUnit;
-        UresU = nonLinearite(1).dependanceEnU;
-    end
+%     if nonLine
+%         % Ajout du ressort
+%         %kres =  nonLinearite(1).scalaires(1);
+%         KresU(size(nonLinearite,2)) = struct('M',[]);
+%         UresU(size(nonLinearite,2)) = struct('M',[]);
+%         Fonction
+%         for i = 1:size(nonLinearite,2)
+%             KresU(i).M = nonLinearite(i).matriceKUnit;
+%             UresU(i).M = nonLinearite(i).dependanceEnU;
+%         end
+%     end
 
 %% Iterations Temporelles
     
-    
     for t=0:nombrePasTemps
-
         if (t>0)
             % prediction
              F = (1+alpha)*HistF(:,t+1) - alpha*HistF(:,t);
@@ -117,21 +121,27 @@ verif       = problem.verif;
                 while err > epsilon
                         for cacher2 = 1
                             % k = kres( U_i );
-                            k = kres* (abs(UresU'*U_i))^(0.5) ;
-                            Kres = k*KresU;
+                            %k = kres* (abs(UresU'*U_i))^(0.5) ;
                             if (methode == 1)
                                 K = K0;       % on retire l'ancienne contribution
-                                K = K + Kres;
+                                for i = 1:size(nonLinearite,2)
+                                    k = nonLinearite(i).fonction(nonLinearite(i).dependanceEnU,U_i);
+                                    if (isnan(k))
+                                        xfgchjkl
+                                    end
+                                    Kres = k*nonLinearite(i).matriceKUnit;
+                                    K = K + Kres;
+                                end
                                 S = M + ( 1+alpha )*(C*gamma*dt + K*beta*dt^2);
                             elseif (methode == 2)                        
-                                if (t>0)
-                                    FnonlineaireN = Fnonlineaire;
-                                    Fnonlineaire = Kres*U_i;
-                                    F = F -( (1+alpha)*Fnonlineaire - alpha*FnonlineaireN);
-                                else
-                                    Fnonlineaire = Kres*U_i;
-                                    F = F - Fnonlineaire ;
-                                end
+                                % if (t>0)
+                                %     FnonlineaireN = Fnonlineaire;
+                                %     Fnonlineaire = Kres*U_i;
+                                %     F = F -( (1+alpha)*Fnonlineaire - alpha*FnonlineaireN);
+                                % else
+                                %     Fnonlineaire = Kres*U_i;
+                                %     F = F - Fnonlineaire ;
+                                % end
                             end
                         end
                     % S(Ui) * Ai = g1( U,Ui,V,F(n+1) );
@@ -206,9 +216,9 @@ verif       = problem.verif;
             HistEc(t) = Ec;
             Ep = 1/2 * U'*K0*U;
             if nonLine ==1
-                Enl = kres*(2/5)*(abs(UresU'*U))^(5/2);
-                HistEnl(t) = Enl;
-                Ep = (Ep + Enl);
+%                 Enl = kres*(2/5)*(abs(UresU'*U))^(5/2);
+%                 HistEnl(t) = Enl;
+%                 Ep = (Ep + Enl);
             end
             HistEp(t) = Ep;
             Ef = Ef + HistF(:,t+1)'*V*dt;

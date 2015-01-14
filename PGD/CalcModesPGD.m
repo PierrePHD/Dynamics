@@ -1,5 +1,5 @@
 function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(Mmax,Kmax,problem,calcul,OthoIntern,OrthoExtern,epsilon)
-        
+
     SizeVectL = size(problem.VectL,2); 
     SizeVectT = size(problem.HistF,2);
     SizeD =   size(problem.D,1);
@@ -110,7 +110,7 @@ function [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(
             end
         end
         
-        if (mMin<0 && calcul.schem==6)
+        if (mMin<0 && calcul.schem.type==6)
             g_q.u.m=g_q.u;
             g_q.u.p=g_q.u.m;
             g_q.u.moy=g_q.u.m;

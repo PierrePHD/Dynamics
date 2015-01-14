@@ -18,19 +18,15 @@ function [Solutions] = Resolution(calcul,problem,method)
         % 2 Rayleigh
         % 3 PGD
         VectN = method.Modes;
+        Solutions(1).method = method;
         if (reduc == 1)
             [Solutions(1).U_SVD,Solutions(1).S_SVD,Solutions(1).V_SVD]=svd(method.Apriori); 
         end
         for n = VectN  % taille de la base modale
-            
-            Solutions(n).calcul  = calcul;
-            Solutions(n).problem = problem;
-            method.Modes = n;
-            Solutions(n).method = method;
+            n
             
             % Creation de la base reduite d une matrice de passage
                 [PRT] = BaseReduite (reduc,n,problem,problem.D,method.Apriori);
-                Solutions(n).p = PRT;
 
             % Projection
 
@@ -39,6 +35,7 @@ function [Solutions] = Resolution(calcul,problem,method)
                     disp('Presence of a NaN - Resolution.m');
                     break;
                 end
+                
 
             % Resolution Temporelle sur base Reduite
             
@@ -52,14 +49,33 @@ function [Solutions] = Resolution(calcul,problem,method)
                 problemReduit.D = DR;
                 problemReduit.HistF = HistFR;
                 problemReduit.nonLinearite = nonLineariteR;
+                Solutions(n).calcul  = calcul;
+                Solutions(n).problem = problem;
+                Solutions(n).p = PRT;
                 Solutions(n).f=resolutionTemporelle(calcul,problemReduit);
                 
+%                 M9= MR(1:n,1:n)*10000
+%                 K9=K0R(1:n,1:n)/100000
+%                 NN=zeros(1,n);
+%                 for i=1:n
+%                     NN(1,i)=sqrt(K0R(i,i)/MR(i,i));
+%                 end
+%                 NN
         end
         
         if (n~=VectN(end))
                     n=n-1;
                     disp(['Arret des resolution POD au mode= ' num2str(n) ' sur ' num2str(VectN(end))]);
-                    method.VectN=1:n;
+                    j=0;
+                    for i = method.Modes
+                        if i > n
+                            method.Modes = method.Modes(1:j);
+                            Solutions(1).method = method;
+                            break;
+                        end
+                        j=j+1;
+                    end
+                    method.Modes=1:n;
         end
     end
     
@@ -74,7 +90,7 @@ function [Solutions] = Resolution(calcul,problem,method)
         epsilon = 10^-6;
 
         % Fonction f(X), g(t) %, h(theta)
-        [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax] = CalcModesPGD(method.m,method.k,problem,calcul,method.OrthoIntern,method.OrthoExtern,epsilon);
+        [HistMf,HistMg,HistTotf,HistTotg,TableConv,Mmax,erreur] = CalcModesPGD(method.m,method.k,problem,calcul,method.OrthoIntern,method.OrthoExtern,epsilon);
         Solutions.HistMf = HistMf;
         Solutions.HistMg = HistMg;
         Solutions.Mmax = Mmax;

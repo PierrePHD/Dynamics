@@ -3,8 +3,8 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
     erreur = 0;
     
     % Initialiser g(t) %, h(theta)
-    g_q.w = ones(size( 0:calcul.dt:problem.Ttot ))';
-    g_q.v = (0:calcul.dt:problem.Ttot)';
+    g_q.w = ones(size( 0:calcul.dt:calcul.Ttot ))';
+    g_q.v = (0:calcul.dt:calcul.Ttot)';
     g_q.u = 1/2*g_q.v.^2;
     
     %K = [ problem.K0 problem.D' ; problem.D zeros(size(problem.D,1))];
@@ -14,6 +14,8 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
     %HistKg 	=zeros(size(g_q.u,1),Kmax);
     ConvergPointFixe = zeros(1,Kmax);
     Conditionnement  = zeros(1,Kmax);
+    
+    coeffFreq=[];
         
     for k=1:Kmax
         [f_q,condi,erreur] = ProblemEspace(problem, g_q, m, calcul.dt, HistMf, HistMg);
@@ -42,8 +44,8 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
 %             HistMfg=HistMf;
 %         end
         %disp(['---------Probleme en temps------------']);
-        [g_q] = ProblemTemps(problem, f_q, m, calcul.dt, HistMf, HistMg, calcul.schem);
-
+        [g_q,Mtemps,Ktemps] = ProblemTemps(problem, f_q, m, calcul.dt, HistMf, HistMg, calcul.schem);
+        coeffFreq = [ coeffFreq sqrt(Ktemps/Mtemps)];
         HistKg(:,k)   = g_q ;
 
         if (k>1) 
@@ -66,9 +68,11 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
             end
         end
         if k==Kmax        
-            disp(['ne convergence pas apres ' num2str(k) ' iterations']);
+            disp(['ne converge pas apres ' num2str(k) ' iterations']);
         end
     end
     
-    
+    figure('Name',['Evolution de sqrt(K/M) pour le mode ' num2str(m) ],'NumberTitle','off');
+    plot(coeffFreq);
+    coeffFreq(end)
 end

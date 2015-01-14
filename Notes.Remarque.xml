@@ -1,0 +1,101 @@
+<X type="Remarque" field="Code">
+	Dans CalcModesPGD(L 120) : Il y a une condition opposant Mmin > 0 et schem = 6
+		donc opposant un mode hors point fixe et TDG
+</X>
+
+<X type="Question" field="ProjPerso">
+	Trouver un outil de représentation d'organigramme interactif et avec sortie imprimable
+</X>
+
+<X type="Question" field="Code">
+	La réortogonalisation des modes POD après ajout des modes de déplacements imposés est elle doublée ?
+</X>
+
+<X type="Question" field="ProjPerso">
+	Trouver une méthode d'enregistrement des résultats qui soit pérène + ajout au diapo.
+</X>
+
+<X type="Remarque" field="Results">
+	Les schémas d'intégration 4 et 5 semblent stagner et ne plus faire diminuer l'erreur à partir d'une précision non satisfaisante.
+	Le schéma 3 semble moins poser se problème mais peux présenter un arret de la méthode
+</X>
+
+<X type="Remarque" field="Code">
+	L'utilisation de condition limite par substituion pose un problème au niveau des non-linéarités,
+		puisqu'il faudrait les réapliquer à chaque reconstruction des matrices.
+</X>
+
+<X type="Remarque" field="Code">
+	Eviter un fichier "Lancement" pour garder l'accés au variables
+</X>
+
+<X type="Test" field="Code">
+	Refaire un test:
+		Grandes différences de résultat entre méthode complète et POD à l'ajout de non-linéarités,
+			Éventuellement proposer des modes correspondant aux noeuds liés aux non-linéarités.
+</X>
+
+<X type="Question" field="NonLine">
+	Faut-il borner les fonctions de butée pour éviter des ordre de grandeur trop important ou un changement de signe dans le cas #2
+</X>
+
+<X type="Remarque" field="Results">
+	Une fois en butée le noeud de semble pas revenir en arrière, (à cause du point fixe ?)
+</X>
+
+<X type="Remarque" field="Results">
+	L'application de la non linéarité avant le calcul de K0 fait apparaitre la butée dès le départ,
+		mais fait apparaitre des oscillations haute fréquence (choc contre la butée)
+</X>
+
+<X type="Remarque" field="Code">
+	Afficher une solution sur un domaine restrenit en temps et espace
+</X>
+
+<X type="Remarques" field="Results">
+	Manque d'éléments de comparaison en non linéaire
+</X>
+
+<X type="Remarques" field="Code">
+	Faire fonctionner le report des non linéarités sur le second membre
+</X>
+
+<X type="Remarque" field="Code">
+	Choisir un schémas d'intégration cohérent avec la dérivation
+</X>
+
+<X type="Remarques" field="Results">
+	Dans la PDG TDG le point fixe semble alterner entre une convergence à 3 itération et une absence de convergence.
+</X>
+
+<X type="Question" field="Sujet">
+	La PGD redréssée présente-t-elle un avantage par rapport à la POD.
+		Piste : la présence de différente échelle de temps dans la réponse du système peux echapper à un snapshot de la POD.
+</X>
+
+<X type="Question" field="ProjPerso">
+	Proposer mon code à PFG-Plot
+</X>
+
+<X type="Remarque" field="Code">
+	Orthogonalisation de la PGD
+		-2 modes OK, 3 modes erreur
+		-2 premiers modes orthogonaux
+			*ne change pas la solution
+		-La recherche d'une troisième mode est faussée et répercute son erreur sur les modes précédents dans l'ortogonalisation
+			car le mode trouvé et trop grand
+</X>
+
+<X type="Remarque" field="Code">
+	Est-ce que le code dans la résolution temporelle est répété
+</X>
+
+<X type= field=>
+</X>
+
+<X type= field=>
+</X>
+
+<X type= field=>
+</X>
+

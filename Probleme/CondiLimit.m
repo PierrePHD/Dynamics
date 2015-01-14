@@ -43,7 +43,7 @@ elseif (CL==2)
     NoeudCharge = size(M,1);
 end
 
-
+NbPas = 0;
 
 if (cas.type == 2)
     omega = 2*pi/cas.T ; 
@@ -58,26 +58,33 @@ elseif (cas.type ==6)
 elseif (cas.type ==8)
     omega=2*pi/cas.T;
     NbPas = round(cas.T/dt)+1;
-    HistF(NoeudCharge,1:NbPas) = (1- cos( (0:dt:cas.T)*omega))*cas.AmpliF;
-elseif (cas.type ==9)
+    HistF(NoeudCharge,1:NbPas) = (1- cos( ((1:NbPas)*dt)*omega))*cas.AmpliF;
+elseif (cas.type ==10.01)
     omega=2*pi/cas.T;
     
     NbPas = round((cas.T/dt)/2)+1;
-    HistF(2,1:NbPas) = (cos( ((1:NbPas)*dt)*omega))*5*cas.AmpliF;
-    HistF(2,(NbPas+1):end) = (cos( ((0:1:(nombrePasTemps-NbPas))*dt)*omega))*5*cas.AmpliF;
+    HistF(2,1:NbPas) = (sin( ((1:NbPas)*dt)*omega))*0.5*cas.AmpliF;
+    HistF(2,(NbPas+1):end) = (((((NbPas+1):nombrePasTemps+1)*dt)-5)/10)*cas.AmpliF;
     
-    HistF(3,:) = 2*cas.AmpliF;
-elseif (cas.type ==10)
-    omega0=sqrt(1000);
+    HistF(3,:) = 0.2*cas.AmpliF;
+elseif (cas.type ==10.02)
+    omega=2*pi/cas.T;
+    
+    HistF(3,:) = (sin(omega*(0:dt:Ttot))).*(sin(7*omega*(0:dt:Ttot)))*cas.AmpliF;
+elseif (cas.type ==10.1 || cas.type ==10.2)
+    omega0=2*pi/cas.T;
     omega = 1.5*omega0 ; 
-    AmpliF = 10;
     NoeudCharge = 2;
-    HistF(NoeudCharge,:) = (1- cos( (0:dt:Ttot)*omega))*AmpliF;
+    HistF(NoeudCharge,:) = (sin( (0:dt:Ttot)*omega))*cas.AmpliF;
     omega = 0.8*omega0 ; 
     NoeudCharge = 3;
-    HistF(NoeudCharge,:) = (1- cos( (0:dt:Ttot)*omega))*AmpliF;
+    HistF(NoeudCharge,:) = (sin( (0:dt:Ttot)*omega))*cas.AmpliF;
 end
 
+if (NbPas > nombrePasTemps); Erreur; end;
+
+NbOscil=Ttot/cas.T;
+disp(['Le snapshot de ' num2str(Ttot, '%10.1e\n') 's permet '  num2str(NbOscil, '%10.1e\n') ' oscilations du chargement']);
 
 %% Position et Vitesse initiales   
 U0 = zeros(size(M,1),1);
@@ -180,8 +187,6 @@ end
              break;
         end
      end
-     
-     % Si on souhaite voir les erreur impliquees
      
      
     end    

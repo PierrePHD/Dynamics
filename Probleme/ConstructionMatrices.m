@@ -4,7 +4,7 @@ function [nonLinearite,M,K0,C] = ConstructionMatrices(nombreElements,nombreNoeud
 
 M  = zeros(nombreNoeuds);        % masse
 K0 = zeros(nombreNoeuds);       % raideur - Sans les elements non-lineaires
-C  = zeros(nombreNoeuds);              % Amortissement Test
+%C  = zeros(nombreNoeuds);              % Amortissement Test
 
 TempPropa=0;
 
@@ -43,10 +43,10 @@ if nonLine==0
     K0((end-1):end,(end-1):end) = K0((end-1):end,(end-1):end)+KElem;
 end
 
-C = K0*0.000001;
+C = K0*0.001;
 
 NbOscil=Ttot/(2*TempPropa);
-disp(['Le snapshot de ' num2str(Ttot, '%10.1e\n') 's permet '  num2str(NbOscil, '%10.1e\n') ' oscilations']);
+disp(['Le snapshot de ' num2str(Ttot, '%10.1e\n') 's permet '  num2str(NbOscil, '%10.1e\n') ' propagations']);
 
 nonLinearite(1)=struct('scalaires',[],'matriceKUnit',[],'dependanceEnU',[]);
 if (nonLine==1)
@@ -56,6 +56,21 @@ if (nonLine==1)
     nonLinearite(1).dependanceEnU((end-1):end,1) = [1 -1];
     nonLinearite(1).matriceKUnit((end-1):end,(end-1):end) = [1 -1;-1 1];
     nonLinearite(1).scalaires(1) = kres;
+    %nonLinearite(1).fonction = @(x,y) kres*(abs((x'*y)))^0.5;
+    VarSoupl    = 1000 ;
+    VarJeu      = 1e-7 ;
+    nonLinearite(1).fonction = @(x,y) (kres*VarSoupl)*(exp(VarSoupl*(x'*y-VarJeu))-1)+kres;   
+    %nonLinearite(1).fonction = @(x,y) (kres/VarSoupl)*(exp(VarSoupl*(x'*y-VarJeu))-1)+kres*(x'*y);   
+        %     VarSoupl    = 10 ;
+        %     VarJeu      = 0.8 ;
+        %     kres = 1 ;
+        %     f =@(x) ((kres/VarSoupl)*(exp(VarSoupl*(x-VarJeu))-1)+kres*VarJeu);
+        %     plot(0:0.01:1,f(0:0.01:1));
+        
+        %     J      = 0.7;
+        %     dJ = 0.1;
+        %     kres = 1 ;
+        %     nonLinearite(1).fonction = @(x,y) ((kres*dJ^2)/(((x'*y)-J)-dJ) + kres*(J-dJ)); 
 end
 
 end

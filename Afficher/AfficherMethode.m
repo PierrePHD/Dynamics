@@ -3,7 +3,7 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
     Methode = Solution(1).method.type;
     VectL = Solution(1).problem.VectL;
     dt = Solution(1).calcul.dt;
-    Ttot = Solution(1).problem.Ttot;
+    Ttot = Solution(1).calcul.Ttot;
     D = Solution(1).problem.D;
     
 %% Verification
@@ -157,7 +157,7 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                         end
                         compt = 0;
                         top = (1:3)*0;
-                        for j=2:size(Signal)
+                        for j=2:max(size(Signal))
                             if  (compt == 0)  
                                 if (Signal(j) > (moy+ampli/4))
                                     compt = 1;
@@ -199,7 +199,7 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                     end
                     %t=title(['d ordre ' num2str(i) ' d amplitude ' num2str(ampli, '%10.1e\n') ' de periode ' num2str(periode, '%10.2e\n') 's']);
                     t=title(['amplitude ' num2str(ampli, '%10.1e\n') ', periode ' num2str(periode, '%10.2e\n') 's']);
-                    set(t, 'FontSize', 8);
+                    %set(t, 'FontSize', 8);
             end
         if (OutImage.MT)
             saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'ModesTemps.eps'], 'eps2c');
@@ -269,6 +269,7 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
         %matlab2tikz( chainetitre );
         if (OutImage.Err)
             saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'Erreur.eps'], 'eps2c');
+            print('-dpng',['Images/Sortie/mat' OutImage.titre 'Erreur'],'-r400')
         end
     end
 
