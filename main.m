@@ -37,10 +37,11 @@
     % 10.01  Cas du cours par Louf
     % 10.1   Cas test 1
     % 10.2   Cas test 2 : Non lineaire
+    
 
 
 clear all
-clc
+%clc
 tic;
 FRC = 1 ;       % Faire une Resolution Complete
 FRPOD = 1 ;     % Faire une Resolution POD
@@ -50,17 +51,17 @@ SolEx = 0 ;     % Utiliser une solution exacte connues
 AffPOD = 1;
 AffPGD = 1;
 
-dt = 400e-8;%4e-6 ;
+dt = 10e-8;%4e-6 ;
 Ttot = 1000e-6 ;
 schem.type = 3;
-NbElem = 160;      % Nombre d element par partie de poutre
+NbElem = 640;      % Nombre d element par partie de poutre
 
 cas.type = 2;
     cas.AmpliF = 100 ;
-    cas.T = 40e-6 ; 
+    cas.T = 250e-6 ; 
     
-M_POD = 1:12;         % Nombres de modes pour chaque resolution POD
-M_PGD = 10;           % Nombres de modes pour     la resolution PGD
+M_POD = 1:100;         % Nombres de modes pour chaque resolution POD
+M_PGD = 100;           % Nombres de modes pour     la resolution PGD
 
 %% Cas Particulier
 
@@ -117,6 +118,23 @@ if FRC
     method.type = 1;
     SoluComplete = Resolution(calcul,problem,method);
 end
+
+% figure
+% plot(SoluComplete.f.HistU(end-1,:))
+% hold on;
+% plot(SoluComplete.problem.HistF(end-1,:)/max(SoluComplete.problem.HistF(end-1,:))*max(SoluComplete.f.HistU(end-1,:)),'r')
+% 
+% 
+% figure;
+% plot(HistUExact(end-1,:));
+% hold on;
+% plot(SoluComplete.f.HistU(end-1,:),'r--');
+
+
+
+%[HistUExact,HistVExact,HistAExact] = SolutionExacte(problem);
+
+
                       %% Reduction du modele %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if FRPOD && FRC
@@ -154,12 +172,23 @@ end
     Ref     = SoluComplete.f.HistU;
     MET     = [];   %ModesEspaceTemps
     ME      = [];   %ModesEspace
-    MT      = 1:16;   %ModesTemps
+    MT      = [];   %ModesTemps
     Res     = []; %Resultat
-    NDR     = 0;    %NoDisplayResultat 
+    NDR     = 1;    %NoDisplayResultat 
     NDE     = 1;    %NoDisplayErreur
-    OI      = struct('MET',0,'ME',1,'MT',1,'Res',0,'Err',1,'titre',''); %OutImage
+    OI      = struct('MET',0,'ME',0,'MT',0,'Res',0,'Err',0,'titre',''); %OutImage
     %titre = ['POD calcul.schem=' num2str(calcul.schem)];
+    
+    problemOrigin = problem;
+    load('../Autres/Cluster/Rapatriement/Rapatri21/Exact640Ref1e7.mat', 'HistUExact', 'problem');
+    Ref.f = HistUExact;
+    VectT.Reference = 0:problem.calcul.dt:problem.calcul.Ttot;
+    VectL.Reference = problem.VectL;
+    Ref.VectT = 0:problem.calcul.dt:problem.calcul.Ttot;
+    Ref.VectL = problem.VectL;
+    
+    VectT.Resultat = 0:dt:problemOrigin.calcul.Ttot ;
+    VectL.Resultat = problemOrigin.VectL ;
 
     if (FRPOD && AffPOD)
         OI.titre = 'POD';
@@ -205,7 +234,7 @@ end
 %         end
 %     end
 
-save('OutPut')
+%save('OutPut')
 toc
 %exit;
 return;

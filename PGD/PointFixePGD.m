@@ -15,7 +15,7 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
     ConvergPointFixe = zeros(1,Kmax);
     Conditionnement  = zeros(1,Kmax);
     
-    coeffFreq=[];
+    %coeffFreq=[];
         
     for k=1:Kmax
         [f_q,condi,erreur] = ProblemEspace(problem, g_q, m, calcul.dt, HistMf, HistMg);
@@ -45,12 +45,13 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
 %         end
         %disp(['---------Probleme en temps------------']);
         [g_q,Mtemps,Ktemps] = ProblemTemps(problem, f_q, m, calcul.dt, HistMf, HistMg, calcul.schem);
-        coeffFreq = [ coeffFreq sqrt(Ktemps/Mtemps)];
+        %coeffFreq = [ coeffFreq sqrt(Ktemps/Mtemps)];
         HistKg(:,k)   = g_q ;
 
         if (k>1) 
             if (isa(g_q.u,'numeric') )
-                ConvergPointFixe(k) = IntegrLine((g_q.u-HistKg(:,k-1).u),(g_q.u-HistKg(:,k-1).u),0,calcul.dt) * (f_q-HistKf(:,k-1))' *K* (f_q-HistKf(:,k-1));
+                %ConvergPointFixe(k) = IntegrLine((g_q.u-HistKg(:,k-1).u),(g_q.u-HistKg(:,k-1).u),0,calcul.dt) * (f_q-HistKf(:,k-1))' *K* (f_q-HistKf(:,k-1));
+                ConvergPointFixe(k) = sum(sum(abs( g_q.u*(f_q') - HistKg(:,k-1).u*(HistKf(:,k-1)') ) ));
             else
                 Var1.m=g_q.u.m-HistKg(:,k-1).u.m;
                 Var1.p=g_q.u.p-HistKg(:,k-1).u.p;
@@ -58,8 +59,9 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
                 Var2.p=g_q.u.p-HistKg(:,k-1).u.p;
                 ConvergPointFixe(k) = IntegrLine(Var1,Var2,0,calcul.dt) * (f_q-HistKf(:,k-1))' *K* (f_q-HistKf(:,k-1));
             end
-            ConvergPointFixe(k) = ConvergPointFixe(k) / (IntegrLine( g_q.u,g_q.u ,0,calcul.dt) * f_q' *K* f_q);
-            ConvergPointFixe(k) = sqrt(ConvergPointFixe(k)) ;
+            %ConvergPointFixe(k) = ConvergPointFixe(k) / (IntegrLine( g_q.u,g_q.u ,0,calcul.dt) * f_q' *K* f_q);
+            %ConvergPointFixe(k) = sqrt(ConvergPointFixe(k)) ;
+            ConvergPointFixe(k) = ConvergPointFixe(k) / sum(sum(abs( g_q.u*(f_q') ) ));
             if (k>2)
                 if (ConvergPointFixe(k) < epsilon && ConvergPointFixe(k-1) < epsilon)
                     disp(['convergence apres ' num2str(k) ' iterations']);
@@ -72,7 +74,7 @@ function [HistKf,HistKg,ConvergPointFixe,Conditionnement,f_q,g_q,erreur] = Point
         end
     end
     
-    figure('Name',['Evolution de sqrt(K/M) pour le mode ' num2str(m) ],'NumberTitle','off');
-    plot(coeffFreq);
-    coeffFreq(end)
+    %figure('Name',['Evolution de sqrt(K/M) pour le mode ' num2str(m) ],'NumberTitle','off');
+    %plot(coeffFreq);
+    %coeffFreq(end)
 end

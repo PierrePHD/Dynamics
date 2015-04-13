@@ -43,7 +43,7 @@ if nonLine==0
     K0((end-1):end,(end-1):end) = K0((end-1):end,(end-1):end)+KElem;
 end
 
-C = K0*0.001;
+C = K0*0;%0.0000001;
 
 NbOscil=Ttot/(2*TempPropa);
 disp(['Le snapshot de ' num2str(Ttot, '%10.1e\n') 's permet '  num2str(NbOscil, '%10.1e\n') ' propagations']);

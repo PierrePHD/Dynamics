@@ -47,9 +47,9 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
     if (Methode == 2)
         NomMethode = 'POD';
         if (NbModesEspaceTemps || NbModesEspace || NbModesTemps)
-            U_SVD = Solution(1).U_SVD;
-            S_SVD = Solution(1).S_SVD;
-            V_SVD = Solution(1).V_SVD;  %[U_SVD,S_SVD,V_SVD]=svd(Donnees1);
+            % U_SVD = Solution(1).U_SVD;
+            % S_SVD = Solution(1).S_SVD;
+            % V_SVD = Solution(1).V_SVD;  %[U_SVD,S_SVD,V_SVD]=svd(Donnees1);
         end
     elseif (Methode == 3)
         NomMethode = 'PGD';
@@ -217,6 +217,7 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
             iter=0;
             for n=Resultat
                 iter= iter+1;
+                disp(['mode ' num2str(n) ]);
                           
                 if Methode == 2
                     ResultatSol  = (Solution(n).p*Solution(n).f.HistU) ;
@@ -236,8 +237,17 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
                 NomFigure = ['Calcul sur base reduite par ' NomMethode ' a ' num2str(n, '%10.u\n') ' modes'];
                 %VectT
                 %VectL
-
-                [out1,out2,out3] = AfficherSolution(Reference,ResultatSol,NomFigure,0:dt:Ttot,VectL,NoDisplayResultat);
+                
+                VectTAff.Reference = Reference.VectT;
+                VectLAff.Reference = Reference.VectL;
+                VectTAff.Resultat  = 0:Solution(1).calcul.dt:Solution(1).calcul.Ttot ;
+                VectLAff.Resultat  = Solution(1).problem.VectL;
+                [out1,out2,out3] = AfficherSolution(Reference.f,ResultatSol,NomFigure,VectTAff,VectLAff,NoDisplayResultat);
+                % if (size(Reference)==size(ResultatSol))
+                %     [out1,out2,out3] = AfficherSolutionSameSize(Reference,ResultatSol,NomFigure,0:dt:Ttot,VectL,NoDisplayResultat);
+                % else
+                %     [out1,out2,out3] = AfficherSolutionDifferenteDiscretisation(Reference,ResultatSol,NomFigure,Reference.VectT,Reference.VectL,0:dt:Ttot,VectL,NoDisplayResultat);
+                % end
                 erreurMaximale(iter)  = out1;
                 erreurCarre(iter)     = out2;
                 erreurAmpTotale(iter)  = out3;
@@ -269,7 +279,7 @@ function [Err] = AfficherMethode(Reference,Solution,ModesEspaceTemps,ModesEspace
         %matlab2tikz( chainetitre );
         if (OutImage.Err)
             saveas(gcf, ['Images/Sortie/mat' OutImage.titre 'Erreur.eps'], 'eps2c');
-            print('-dpng',['Images/Sortie/mat' OutImage.titre 'Erreur'],'-r400')
+            % print('-dpng',['Images/Sortie/mat' OutImage.titre 'Erreur'],'-r400')
         end
     end
 

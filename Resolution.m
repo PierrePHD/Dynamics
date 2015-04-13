@@ -23,7 +23,8 @@ function [Solutions] = Resolution(calcul,problem,method)
             [Solutions(1).U_SVD,Solutions(1).S_SVD,Solutions(1).V_SVD]=svd(method.Apriori); 
         end
         for n = VectN  % taille de la base modale
-            n
+            
+            disp(['POD mod ' num2str(n) ])
             
             % Creation de la base reduite d une matrice de passage
                 [PRT] = BaseReduite (reduc,n,problem,problem.D,method.Apriori);

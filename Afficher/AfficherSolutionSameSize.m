@@ -1,4 +1,4 @@
-function [erreurMaximale,erreurCarre,erreurAmpTotale] = AfficherSolution(Reference,Resultat,NomFigure,VectT,VectL,NoDisplay)
+function [erreurMaximale,erreurVol,erreurAmpTotale] = AfficherSolutionSameSize(Reference,Resultat,NomFigure,VectT,VectL,NoDisplay)
 
     s(3)=struct('f',[],'a',0);
                                  
@@ -48,8 +48,10 @@ function [erreurMaximale,erreurCarre,erreurAmpTotale] = AfficherSolution(Referen
 
     erreurMaximale = max(abs(s(3).f(:)))/s(1).a;
     DiffAmp = (s(1).a - s(2).a)/s(1).a;
-    DiffVol = sum(sum((s(3).f).^2))/sum(sum((s(1).f).^2));
-    erreurCarre = abs(DiffVol);
+    %DiffVol = sqrt(sum(sum((s(3).f).^2))/sum(sum((s(1).f).^2)));
+    %erreurCarre = abs(DiffVol);
+    DiffVol = sum(sum(abs(s(3).f)))/sum(sum(abs(s(1).f)));
+    erreurVol = abs(DiffVol);
     erreurAmpTotale = abs(DiffAmp);
     
     if ~NoDisplay    

@@ -1,7 +1,8 @@
-function [HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem)
+function [HistUExact,HistVExact,HistAExact] = SolutionExacte(problem)
 
+    calcul = problem.calcul;
     L = problem.L ;
-    VectT = 0:calcul.dt:problem.Ttot ;
+    VectT = 0:calcul.dt:calcul.Ttot ;
     c=(problem.Egene/problem.rho)^(0.5);
     
     HistAExact=zeros( size(problem.VectL,2),size(VectT,2) );
@@ -64,6 +65,9 @@ function [HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem)
         end
         
         NbPas6 = round(calcul.cas.T/calcul.dt);
+        if ( (calcul.cas.T-NbPas6*calcul.dt) ~= 0)
+            disp('cas.T n est pas un multiple de dt')
+        end
         for j=(NbPas6+1):(size(VectT,2))
             for i=1:size(problem.VectL,2)
                 x= problem.VectL(i);
@@ -137,6 +141,75 @@ function [HistUExact,HistVExact,HistAExact] = SolutionExacte(calcul,problem)
                 
             end
         end
+%     elseif calcul.cas.type == 2
+%         
+%         Tau = problem.calcul.cas.T;
+%         t   = VectT;
+%         x   = problem.VectL;
+% 
+%         U=0*t;
+%         N=[];
+%         for j=0:50
+% 
+%             wj=(2*j+1)*pi*c/(2*L);
+%             q = ((-1)^(j+1))*( (1/(wj^2-(2*pi/Tau)^2) - 1/(wj^2))*cos(wj*t) - (1/(wj^2-(2*pi/Tau)^2))*cos(2*pi*t/Tau) + 1/wj^2  );
+%             u = sin(((2*j+1)/2)*pi*x/L); % x/L = 1
+%             U1=q*u;
+%             
+%             U  =  U + U1;
+%             N= [N max(U1)-min(U1)];
+%         end
+%         
+%         HistUExact = cas.AmpliF * 2/(rho*S*L) * U;
+    elseif (calcul.cas.type == 8 || calcul.cas.type == 2)
+        
+        Tau = problem.calcul.cas.T;
+        %Tau = (4/9) * L/c;
+        cas = calcul.cas.type;
+        if cas == 8
+            NbPas = round(Tau/calcul.dt);
+            if ( (Tau-NbPas*calcul.dt) ~= 0)
+                disp('cas.T n est pas un multiple de dt')
+            end
+            if (size(VectT,2)>(NbPas+1))
+                t1  = VectT(1:(NbPas+1));
+                t2  = VectT((NbPas+2):end);
+            else
+                cas = 2;
+            end
+        end
+        if cas == 2
+            t1 = VectT;
+            t2 = [];
+            U2 = [];
+        end
+        x   = problem.VectL';
+        
+        nMax=5000;
+        
+        U=0*(x*VectT);
+        
+        for j=0:nMax
+
+            wj=(2*j+1)*pi*c/(2*L);
+            q1 = ((-1)^(j+1))*( (1/(wj^2-(2*pi/Tau)^2) - 1/(wj^2))*cos(wj*t1) - (1/(wj^2-(2*pi/Tau)^2))*cos(2*pi*t1/Tau) + 1/wj^2  );
+            u = sin(((2*j+1)/2)*pi*x/L);
+            U1=u*q1;
+            
+            
+            if size(t2,2)
+                q2 = ((-1)^(j+1))*( (1/(wj^2-(2*pi/Tau)^2) - 1/(wj^2))*(cos(wj*t2) - cos(wj*(t2-Tau))) );
+                U2=u*q2;
+            end
+            
+            
+            U0 = [U1 U2];
+            U  =  U + U0;
+        end
+        HistUExact = -calcul.cas.AmpliF * 2/(problem.rho * problem.Sec *L) * U;
+        HistUExact(end,:)=0;
+    
+        
     elseif calcul.cas.type == 32424 %LOUF
        
        % Demi periode de sinus
