@@ -1,0 +1,47 @@
+AABZ
+PR_ProblemeEspace
+DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m
+FamiF/Table FamiG/Table ;
+    Int1 = PR_IntegrProdLine g.u g.u dt ;
+    Int2 = PR_IntegrProdLine g.v g.u dt ;
+    Int3 = PR_IntegrProdLine g.w g.u dt ;
+
+    Premier = (Int1*K) et (Int2*C) et (Int3*M);
+
+* Second La somme sur les modes precedents
+
+  *Second = 0.*FOR0;
+  Bool = EXISTE FamiF;
+  Si Bool;
+    Mess 'Met a jour cette part';
+  FinSi;
+
+* Contribution des efforts
+
+  NbCharg = DIMENSION CHA ;
+  REPETER It NbCharg ;
+    CHA_i = EXTR CHA CHAR &It ;
+    CHP = EXTR CHA_i CHAM ;
+    EVO = EXTR CHA_i EVOL ;
+    CH_ord = EXTR EVO ORDO ;
+    CH_abs = EXTR EVO ABSC ;
+    Int = PR_IntegrProdLine CH_ord g.u CH_abs ;
+
+    Si (&It ega 1) ;
+      Second = (CHP*Int) ;
+    Sinon ;
+      Second = Second + (CHP*Int) ;
+    FinSi ;
+  FIN It ;
+
+* Contribution des deplacements imposes
+* A FAIRE !!!!!!!!!!!!
+
+* Resolution
+
+  Premier = Premier ET CL_A;
+  f = RESO Premier Second;
+  RESPRO f;
+
+
+FINPROC;

@@ -1,0 +1,20 @@
+AACZ
+PR_IntegrLineSeul
+DEBPROC PR_IntegrLineSeul g dt;
+
+  Longueur=DIMENSION g;
+  interval= Longueur - 1;
+
+  Integral = 0.;
+  g_prec = EXTR g 1;
+
+  REPETER It interval;
+    suiv = &It + 1;
+    g_suiv = EXTR g suiv;
+    Integral = Integral + ((g_prec+g_suiv)*(dt/2));
+    g_prec = g_suiv;
+  FIN It;
+
+  RESPRO Integral;
+
+FINPROC;

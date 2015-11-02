@@ -1,0 +1,236 @@
+$$$$ AACZ
+DEBPROC AACZ g dt;
+Longueur=DIMENSION g;
+interval= Longueur - 1;
+Integral = 0.;
+g_prec = EXTR g 1;
+REPETER It interval;
+suiv = &It + 1;
+g_suiv = EXTR g suiv;
+Integral = Integral + ((g_prec+g_suiv)*(dt/2));
+g_prec = g_suiv;
+FIN It;
+RESPRO Integral;
+FINPROC;
+$$$$ AADZ
+DEBPROC AADZ g1*Listreel g2*listreel dt/flottant Vec_T/listreel;
+Long1=DIMENSION g1;
+Long2=DIMENSION g2;
+Bool = Long1 NEG Long2;
+SI Bool;
+Mess 'Produit de fonctions de differentes longueurs';
+Mess 'taille g1:' Long1 '   taille g2:' Long2;
+opti donn 5;
+list (EXTR 'kk' 7);
+FINSI;
+Integral = 0.;
+interval= Long1 - 1 ;
+g1_prec = EXTR g1 1;
+g2_prec = EXTR g2 1;
+Bool = EXISTE Vec_T;
+Si Bool;
+dt_prec = EXTR Vec_T 1;
+FinSi;
+REPETER It interval;
+suiv = &It + 1;
+g1_suiv = EXTR g1 suiv;
+g2_suiv = EXTR g2 suiv;
+Si Bool;
+dt_suiv = EXTR Vec_T suiv;
+dt = dt_suiv - dt_prec;
+FinSi;
+a= ( g1_suiv - g1_prec )/dt;
+e= ( g2_suiv - g2_prec )/dt;
+Integral = Integral + (  ( ((dt**3)/3) * (a*e) )
++( ((dt**2)/2) * ((a*g2_prec)+(e*g1_prec)) )
++(   dt        * g2_prec * g1_prec )
+);
+g1_prec = g1_suiv;
+g2_prec = g2_suiv;
+Si Bool;
+dt_prec = dt_suiv ;
+FinSi;
+FIN It;
+RESPRO Integral;
+FINPROC;
+$$$$ CARRE
+DEBPROC CARRE A ;
+CARRE = MULTIPLI A A ;
+FINPROC CARRE ;
+$$$$ MULTIPLI
+DEBPROC MULTIPLI ENTREE_1 ENTREE_2 ;
+MULTIPLI = ENTREE_1 * ENTREE_2 ;
+FINPROC MULTIPLI ;
+$$$$ AABZ
+DEBPROC AABZ M C K CL_A CHA dt g It_m
+FamiF/Table FamiG/Table ;
+Int1 = AADZ g.u g.u dt ;
+Int2 = AADZ g.v g.u dt ;
+Int3 = AADZ g.w g.u dt ;
+Premier = (Int1*K) et (Int2*C) et (Int3*M);
+* Second La somme sur les modes precedents
+*Second = 0.*FOR0;
+Bool = EXISTE FamiF;
+Si Bool;
+Mess 'Met a jour cette part';
+FinSi;
+* Contribution des efforts
+NbCharg = DIMENSION CHA ;
+REPETER It NbCharg ;
+CHA_i = EXTR CHA CHAR &It ;
+CHP = EXTR CHA_i CHAM ;
+EVO = EXTR CHA_i EVOL ;
+CH_ord = EXTR EVO ORDO ;
+CH_abs = EXTR EVO ABSC ;
+Int = AADZ CH_ord g.u CH_abs ;
+Si (&It ega 1) ;
+Second = (CHP*Int) ;
+Sinon ;
+Second = Second + (CHP*Int) ;
+FinSi ;
+FIN It ;
+* Contribution des deplacements imposes
+* A FAIRE !!!!!!!!!!!!
+* Resolution
+Premier = Premier ET CL_A;
+f = RESO Premier Second;
+RESPRO f;
+FINPROC;
+$$$$ AAEZ
+DEBPROC AAEZ M C K Ttot schema CHA dt f It_m
+FamiF/Table FamiG/Table ;
+* Creer un procedure pour le schema
+alpha = 0.;
+beta = 1./4;
+gamma = 1./2;
+* Cette partie ne pourra plus etre hors de la boucle en non lineaire
+Prem_g = XTMX f_espa K ;
+Prem_gp = XTMX f_espa C ;
+Prem_gpp = XTMX f_espa M ;
+Fl_Nb_Pa = Ttot/dt + 0.1;
+Fl_Nb_Re = Fl_Nb_Pa + 1.;
+En_Nb_Re = ENTI Fl_Nb_Re ;
+g = PROG ;
+gp = PROG ;
+gpp = PROG ;
+NbCharg = DIMENSION CHA ;
+REPETER It NbCharg ;
+CHA_i = EXTR CHA CHAR &It ;
+CHP = EXTR CHA_i CHAM ;
+LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
+L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
+FOR_proj = XTY CHP f LFOR L_f;
+EVO = EXTR CHA_i EVOL ;
+Si (&It ega 1) ;
+FOR_EVO = EVO*FOR_proj ;
+Sinon ;
+FOR_EVO = FOR_EVO + (EVO * FOR_proj) ;
+FinSi ;
+FIN It ;
+* Verifier que l evolution final amene a Ttot avec En_Nb_Re composantes
+F_Hist = EXTR FOR_EVO ORDO ;
+REPETER It En_Nb_Re;
+Si (&It ega 1);
+g_t = 0. ;
+gp_t = 0. ;
+gpp_t = 0. ;
+g_pred = 0. ;
+gp_pred = 0. ;
+F_t = EXTR F_Hist &It;
+Second = F_t;
+SiNon;
+g_pred = g_t + ((1+alpha)*((dt*gp_t) + ((dt**2)*(0.5-beta)*gpp_t)));
+gp_pred = gp_t + ((1+alpha)*dt*(1-gamma)*gpp_t ) ;
+F_t_m = F_t;
+F_t = EXTR F_Hist &It;
+Second = ((1+alpha)*F_t) - (alpha*F_t_m);
+FinSi;
+*Second = F_t;
+* Contribution des modes precendents a faire
+gpp_t_pr = gpp_t;
+gpp_t = (Second - ((Prem_g*g_pred)+(Prem_gp*gp_pred)))/Prem_gpp;
+Si (&It neg 1) ;
+g_t = g_t + (dt*gp_t)
++ ((dt**2)*(0.5-beta)*gpp_t_pr)
++ (beta*(dt**2)*gpp_t) ;
+gp_t = gp_t + (dt*(1-gamma)*gpp_t_pr) + (dt*gamma*gpp_t) ;
+FinSi;
+g =   g   et (PROG g_t  ) ;
+gp =  gp  et (PROG gp_t ) ;
+gpp = gpp et (PROG gpp_t) ;
+Fin It ;
+g_tmps = TABLE;
+g_tmps.u = g;
+g_tmps.v = gp;
+g_tmps.w = gpp;
+RESPRO g_tmps;
+FINPROC;
+$$$$ _RESO_T
+DEBPROC _RESO_T M C K CL_A F alpha beta gamma dt U_tm1 V_tm1 A_tm1;
+Vp = V_tm1 + ((( 1+alpha )*dt*(1-gamma))*A_tm1);
+Up = U_tm1 + (  ( 1+alpha ) * ( (dt*V_tm1)
++ ( ( (dt**2) * (0.5-beta) )  * A_tm1 )
+)
+);
+S = M ET (
+( 1. + alpha ) *
+( (C*(gamma*dt)) ET (K*(beta*(dt**2))) )
+);
+S = S ET CL_A;
+A_t = RESO S ( F - (C*Vp) - (K*Up) );
+V_t =   V_tm1
++ ((dt*(1-gamma))*A_tm1)
++ ((dt*gamma)*A_t);
+U_t = U_tm1 + (dt*V_tm1)
++ ((dt**2)*( ((0.5-beta)*A_tm1) + (beta*A_t) ));
+RESPRO A_t ;
+RESPRO V_t;
+RESPRO U_t;
+FINPROC;
+$$$$ AAAZ
+DEBPROC AAAZ M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
+Fl_Nb_Pa = Ttot/dt + 0.1;
+Fl_Nb_Re = Fl_Nb_Pa + 1.;
+En_Nb_Re = ENTI Fl_Nb_Re ;
+U_t  = U0;
+V_t  = V0;
+A_t  = U0 * 0;
+U_sol = TABLE;
+V_sol = TABLE;
+A_sol = TABLE;
+U_sol.0 = U0;
+V_sol.0 = V0;
+NbCharg = DIMENSION CHA ;
+REPETER It En_Nb_Re;
+It_T = &It - 1;
+REPETER It2 NbCharg ;
+CHA_i = EXTR CHA CHAR &It2 ;
+CHP = EXTR CHA_i CHAM ;
+EVO = EXTR CHA_i EVOL ;
+CHA_ord = EXTR EVO ORDO;
+Val = EXTR CHA_ord &It;
+Si (&It neg 1);
+Val_t_m = EXTR CHA_ord (&It-1);
+Val = ((1+alpha)*Val) - (alpha*Val_t_m) ;
+FinSi;
+Si (&It2 ega 1) ;
+FOR = CHP * Val ;
+Sinon ;
+FOR = FOR + (CHP * Val) ;
+FinSi ;
+FIN It2 ;
+A_t V_t U_t= _RESO_T M C K CL_A FOR alpha beta gamma dt U_t V_t A_t;
+BOOL = It_T > 0 ;
+SI BOOL;
+U_sol.It_T = U_t;
+V_sol.It_T = V_t;
+FINSI;
+A_sol.It_T = A_t;
+FIN It;
+Solution = TABLE;
+Solution.U = U_sol;
+Solution.V = V_sol;
+Solution.A = A_sol;
+RESPRO Solution ;
+FINPROC;
+$$$$

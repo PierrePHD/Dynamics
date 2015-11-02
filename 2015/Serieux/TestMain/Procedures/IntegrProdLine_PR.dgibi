@@ -1,0 +1,54 @@
+AADZ
+PR_IntegrProdLine
+DEBPROC PR_IntegrProdLine g1*Listreel g2*listreel dt/flottant Vec_T/listreel;
+
+
+  Long1=DIMENSION g1;
+  Long2=DIMENSION g2;
+
+  Bool = Long1 NEG Long2;
+  SI Bool;
+    Mess 'Produit de fonctions de differentes longueurs';
+    Mess 'taille g1:' Long1 '   taille g2:' Long2;
+    opti donn 5;
+    list (EXTR 'kk' 7);
+  FINSI;
+
+  Integral = 0.;
+
+  interval= Long1 - 1 ;
+  g1_prec = EXTR g1 1;
+  g2_prec = EXTR g2 1;
+  Bool = EXISTE Vec_T;
+  Si Bool;
+    dt_prec = EXTR Vec_T 1;
+  FinSi;
+
+  REPETER It interval;
+
+    suiv = &It + 1;
+    g1_suiv = EXTR g1 suiv;
+    g2_suiv = EXTR g2 suiv;
+    Si Bool;
+      dt_suiv = EXTR Vec_T suiv;
+      dt = dt_suiv - dt_prec;
+    FinSi;
+
+    a= ( g1_suiv - g1_prec )/dt;
+    e= ( g2_suiv - g2_prec )/dt;
+
+    Integral = Integral + (  ( ((dt**3)/3) * (a*e) )
+                            +( ((dt**2)/2) * ((a*g2_prec)+(e*g1_prec)) )
+                            +(   dt        * g2_prec * g1_prec )
+                          );
+    g1_prec = g1_suiv;
+    g2_prec = g2_suiv;
+    Si Bool;
+      dt_prec = dt_suiv ;
+    FinSi;
+
+  FIN It;
+
+  RESPRO Integral;
+
+FINPROC;

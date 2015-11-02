@@ -1,0 +1,158 @@
+OPTI DIME 3 ELEM SEG2 MODE TRID;
+*---------------------DONNEES---------------------*
+*Unites SI
+AMP1 = 100.0 ;
+LON1 = 0.5 ;
+SEC1 = 1.e-4 ;
+IY1 = 10.0 ;
+IZ1 = 10.0 ;
+NUP = 0.3 ;
+YOP = 2.1E11 ;
+RHOP = 7800.0 ;
+*--------------------GEOMETRIE--------------------*
+P1 = 0.   0. 0. ;
+P2 = LON1 0. 0. ;
+L1 = D 5 P1 P2 ;
+P3 = L1 POIN PROC ((LON1/2) 0. 0.);
+ELIM L1 0.00000001;
+*opti trac X ;
+*TRAC L1 ;
+*------DEFINITION DU MODELE ET DU MATERIAU--------*
+MOD1 = MODEL L1 MECANIQUE ELASTIQUE POUT ;
+MAT1 = MATER MOD1 YOUN YOP NU NUP RHO RHOP ;
+CAR1 = CARAC MOD1 SECT SEC1 INRY IY1 INRZ IZ1
+       TORS 1. VECT (0. 1. 0.) ;
+MATTOT = MAT1 ET CAR1 ;
+*--------------CONDITIONS LIMITES-----------------*
+CL1 = BLOQ P1 UY UX RZ ;
+CL2 = BLOQ L1 UZ RX RY ;
+CLTOT= CL1 ET CL2 ;
+*-------MATRICES DE RIGIDITE ET DE MASSE----------*
+RIG1 = RIGI MOD1 MATTOT ;
+RIG1 = RIG1 ET CLTOT ;
+MAS1 = MASS MOD1 MATTOT ;
+*------------EVOLUTION TEMPORELLE-----------------*
+dt = 5e-7;
+Ttot = 5e-4;
+T_period = 2.5e-4 ;
+Fl_Nb_Pa = Ttot/dt + 0.1;
+Fl_Nb_Re = Fl_Nb_Pa + 1.;
+En_Nb_Re = ENTI Fl_Nb_Re ;
+
+Vec_T = PROG 0. PAS dt Ttot ;
+LIS1 = (PROG sinu (1/T_period) PHAS 270 Vec_T) ;
+LIS1 = LIS1 + (PROG Fl_Nb_Re*1.);
+LIS2 = PROG 0. PAS dt Ttot;
+EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
+EVT2 = EVOL MANU T Vec_T G(T) (LIS2*2) ;
+*-----------------CHARGEMENT----------------------*
+FOR1 = FORCE FX AMP1 P2 ;
+FOR2 = FORCE FX 0. P3 ;
+CHA1 = CHAR FORC FOR1 EVT1 ;
+CHA2 = CHAR FORC FOR2 EVT2 ;
+CHA3 = CHA1 et CHA2 ;
+
+M = MAS1;
+K = RIGI MOD1 MATTOT ;
+C = 0*K;
+CL_A = CLTOT;
+F = FOR1 et FOR2;
+schema = 3 ;
+alpha = 0.0;
+beta = 0.25;
+gamma = 0.5;
+
+dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
+* Attention il faudra peutetre definir plus completement dep0
+  * pour qu'il contienne lui aussi RX RY RZ LX LX LX LX...
+
+U0  = dep0;
+V0  = dep0;
+
+* La resolution est faite avec une FORCE non un CHARGEMENT,
+*   Donc a modifier
+
+Solu1 = PR_ResolutionTtot M C K CL_A CHA3
+                alpha beta gamma dt Ttot U0 V0;
+
+*Solu2 = PR_ResolutionTtot M C K CL_A FOR2 alpha beta gamma dt Ttot U0 V0;
+*list Solu1;
+
+*p = dt/Ttot;
+
+g_init = TABLE;
+g_init.w = PROG En_Nb_Re*1.;
+g_init.v = Vec_T;
+g_init.u = ((g_init.v)**2)/2;
+
+It_m = 1 ;
+
+gex = Table;
+gex.u = (PROG sinu (1/(3.8e-4)) PHAS 270 Vec_T) ;
+gex.u = gex.u + (PROG Fl_Nb_Re*1.);
+gex.u = gex.u * ((4.75e-6)/2);
+gex.v = (PROG sinu (1/(3.8e-4)) PHAS (270+270) Vec_T) ;
+gex.v = gex.v * ((4.75e-6)/2) * 2*PI*(1/(3.8e-4));
+gex.w = (PROG sinu (1/(3.8e-4)) PHAS (270+270+270) Vec_T) ;
+gex.w = gex.w * ((4.75e-6)/2) * 2*PI*(1/(3.8e-4)) * 2*PI*(1/(3.8e-4));
+
+g_tmps = g_init;
+gev_ = TABLE;
+fev_ = TABLE;
+REPETER It 6;
+    *erreur a 7
+    f_espa = PR_ProblemeEspace M C K CL_A CHA3 dt g_tmps It_m ;
+    f_espa = f_espa/((XTX f_espa)**0.5);
+    fev_.&It = f_espa;
+    *Mess 'Norme ='((XTX f_espa)**0.5);
+
+    g_tmps = PR_ProblemeTemps M C K Ttot schema CHA3 dt f_espa It_m ;
+    gev_.&It = g_tmps;
+Fin It;
+
+
+Sol_dir = PROG;
+Sol_k = TABLE;
+Val = EXTR f_espa UX P2;
+REPE It En_Nb_Re;
+  It_T = &It - 1;
+  Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.It_T UX P2));
+  *Sol_PGD = Sol_PGD ET (PROG (Val* (EXTR g_tmps.u &It)));
+FIN It;
+
+REPETER It2 6;
+    Sol_PGD = PROG;
+    Val = EXTR fev_.&It2 UX P2;
+    REPE It En_Nb_Re;
+      It_T = &It - 1;
+      Sol_PGD = Sol_PGD ET (PROG (Val* (EXTR gev_.&It2.u &It) *
+                                    (1.+((0.005)*&It2))));
+    FIN It;
+    Sol_k.&It2 = Sol_PGD;
+FIN It2;
+
+Evol_dir = EVOL MANU Vec_T Sol_dir ;
+Evo_k = TABLE;
+
+    Evo_k.1 = EVOL BLEU MANU Vec_T Sol_k.1 .u ;
+    Evo_k.2 = EVOL ROUG MANU Vec_T Sol_k.2 .u ;
+    Evo_k.3 = EVOL VERT MANU Vec_T Sol_k.3 .u ;
+    Evo_k.4 = EVOL JAUN MANU Vec_T Sol_k.4 .u ;
+    Evo_k.5 = EVOL VIOL MANU Vec_T Sol_k.5 .u ;
+    Evo_k.6 = EVOL TURQ MANU Vec_T Sol_k.6 .u ;
+
+    *Evo_k.7 = EVOL ROSE MANU Vec_T gex.u ;
+    *f_espa = PR_ProblemeEspace M C K CL_A CHA3 dt gex It_m ;
+    *Val = EXTR f_espa UX P2;
+    *Evo_k.8 = EVOL JAUNE MANU Vec_T (gex.u*Val) ;
+    *Mess 'Norme =' ((XTX f_espa)**0.5);
+
+DESS (Evol_dir et Evo_k.1 et Evo_k.2 et Evo_k.3 et Evo_k.4 et
+    Evo_k.5 et Evo_k.6);
+
+opti donn 5;
+
+*
+**opti sort bla;
+**sort EXCE Sol_dir SEPA ESPA;
+*
