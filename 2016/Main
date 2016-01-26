@@ -1,10 +1,7 @@
 
 
     Pb V0001 = PR_CreationProb;
-    list Pb;
-    List V0001;
 
-    mess 'aaaaaaaaa';
     K = Pb.K;
     M = Pb.M;
     CL_TOT = Pb.CL_TOT;

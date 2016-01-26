@@ -2,8 +2,6 @@ AAAZ
 PR_ResolutionTtot
 DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
 
-  En_Nb_Re = PR_TailVectTemp dt Ttot;
-
   U_t  = U0;
   V_t  = V0;
   A_t  = U0 * 0;

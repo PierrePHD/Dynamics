@@ -1,0 +1,11 @@
+AAGZ
+PR_TailVectTemp
+DEBPROC PR_TailVectTemp dt Ttot;
+
+Fl_Nb_Pa = Ttot/dt + 0.1;
+Fl_Nb_Re = Fl_Nb_Pa + 1.;
+En_Nb_Re = ENTI Fl_Nb_Re ;
+
+RESPRO En_Nb_Re;
+
+FINPROC;

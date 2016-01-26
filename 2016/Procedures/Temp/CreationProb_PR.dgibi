@@ -1,0 +1,128 @@
+AANZ
+PR_CreationProb
+DEBPROC PR_CreationProb;
+
+OPTI DIME 3 ;
+OPTI ELEM SEG2 ;
+*
+OPTI 'ACQU' 'Maillage_Treillis.txt' ;
+*
+* Noeuds
+*
+NOE1 = TABLE ;
+REPE BCL1N 45 ;
+  ACQU XY1*LISTREEL 4 ;
+  LIST XY1 ;
+  ACQU XY2*LISTREEL 2 ;
+  LIST XY2 ;
+  X1 = (EXTR 2 XY1)/1000. ;
+  Y1 = (EXTR 3 XY1)/1000. ;
+  Z1 = (EXTR 2 XY2)/1000. ;
+  NOE1 . &BCL1N = X1 Y1 Z1 ;
+FIN BCL1N ;
+*
+* Elements barre
+*
+BAR1 = TABLE ;
+N1E = 90 ;
+REPE BCL1E N1E ;
+  ACQU XY1*LISTENTI 4 ;
+  N1 = EXTR 3 XY1 ;
+  N2 = EXTR 4 XY1 ;
+  BAR1 . &BCL1E = DROI 10 NOE1 . N1 NOE1 . N2 ;
+  SI (&BCL1E EGA 1) ;
+    MAI1 = BAR1 . &BCL1E ;
+  SINON ;
+    MAI1 = MAI1 ET BAR1 . &BCL1E ;
+  FINSI ;
+FIN BCL1E ;
+*
+* Tracé du maillage
+*
+TRAC MAI1 ;
+*
+* Proprietes des poutres
+*
+D1E = 0.030  ;
+D1I = 0.027  ;
+IY1 = PI*((D1E**4)-(D1I**4))/64 ;
+IZ1 = PI*((D1E**4)-(D1I**4))/64 ;
+I01 = PI*((D1E**4)-(D1I**4))/32 ;
+S1 =  PI*((D1E**2)-(D1I**2))/4  ;
+YOU1 = 7.E10 ;
+RHO1 = 2700. ;
+*
+REPE BCL1E N1E ;
+*
+  MOD1 = MODE BAR1 . &BCL1E MECANIQUE ELASTIQUE POUTRE ;
+  MAT1 = MATE MOD1 'YOUNG' YOU1 'NU' 0.3 'RHO' RHO1 ;
+  CAR1 = CARA MOD1 SECT S1 'INRY' IY1 'INRZ' IY1 'TORS' I01 ;
+  RIG1 = RIGI MOD1 (MAT1 ET CAR1);
+  MAS1 = MASS MOD1 (MAT1 ET CAR1);
+  SI (&BCL1E EGA 1) ;
+    MAS1TOT = MAS1 ;
+    RIG1TOT = RIG1 ;
+  SINON ;
+    RIG1TOT = RIG1TOT ET RIG1 ;
+    MAS1TOT = MAS1TOT ET MAS1 ;
+  FINSI ;
+*
+FIN BCL1E ;
+*
+* Conditions aux limites
+* Front - Rear - Left - Right
+CL1FR = NOE1 . 20 ;
+CL1FL = NOE1 . 25 ;
+CL1RR = NOE1 . 30 ;
+CL1RL = NOE1 . 35 ;
+*
+K1 = 1.E6 ;
+BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
+       (BLOQ CL1FL UY UX UZ RX RY RZ) ET
+       (BLOQ CL1RR  UY UX UZ RX RY RZ) ET
+       (BLOQ CL1RL UY UX UZ RX RY RZ) ;
+
+       Pb = TABLE;
+       V0001 = TABLE;
+       *---------------------DONNEES---------------------*
+       *Unites SI
+       AMP1 = -100.0 ;
+       *-------MATRICES DE RIGIDITE ET DE MASSE----------*
+       Pb.K = RIG1TOT;
+       Pb.M = MAS1TOT ;
+       Pb.Mob = MOD1;
+
+       *--------------CONDITIONS LIMITES-----------------*
+       Pb.CL_TOT= BLO1 ;
+       P3 = MAI1 POIN PROC (250. 500. 950.);
+       P4 = MAI1 POIN PROC (250. -500. 950.);
+       Pb.geo = MAI1;
+       *--------------Parametres de calcul---------------*
+       V0001.dt = 8e-5;
+       V0001.Ttot = 4e-2;
+       Pb.T_period = 2e-2 ;
+       En_Nb_Re = PR_TailVectTemp V0001.dt V0001.Ttot;
+       Vec_T = PROG 0. PAS V0001.dt V0001.Ttot ;
+
+       *------------EVOLUTION TEMPORELLE-----------------*
+       LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+       LIS1 = LIS1 + (PROG En_Nb_Re*1.);
+       EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
+       EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
+       *-----------------CHARGEMENT----------------------*
+       FOR1 = FORCE FZ AMP1 P3 ;
+       FOR2 = FORCE FZ AMP1 P4 ;
+       CHA1 = CHAR FORC FOR1 EVT1 ;
+       CHA2 = CHAR FORC FOR2 EVT1 ;
+       Pb.CHA_TOT = CHA1 et CHA2;
+
+       dep0 = MANU CHPO MAI1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
+       Pb.U0  = dep0;
+       Pb.V0  = dep0;
+
+       Pb.P_intere = P3;
+
+    RESPRO Pb;
+    RESPRO V0001;
+
+FINPROC;

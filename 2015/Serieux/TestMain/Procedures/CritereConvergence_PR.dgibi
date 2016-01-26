@@ -1,0 +1,22 @@
+AAHZ
+PR_CritereConvergence
+DEBPROC PR_CritereConvergence f1 g1 f2 g2;
+
+    * Norme L2
+
+    * uKu + uCv + uMa
+
+        Res1 Res2 = PR_CritereEnergie;
+
+    * Approximation
+
+        *Res1 Res2 = PR_CritereNormeModes;
+
+    epsilon = 1e-10 ;
+
+    BOOL = (Res2/Res1) < epsilon ;
+    *BOOL = ((Res1 < epsilon) et (Res2 < epsilon)) ;
+
+    RESPRO BOOL ;
+
+FINPROC;

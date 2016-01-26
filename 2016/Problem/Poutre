@@ -1,0 +1,63 @@
+    OPTI DIME 3 ELEM SEG2 MODE TRID;
+    Pb = TABLE;
+    V0001 = TABLE;
+    *---------------------DONNEES---------------------*
+    *Unites SI
+    AMP1 = 100.0 ;
+    LON1 = 0.5 ;
+    SEC1 = 2.e-4 ;
+    IY1 = (8/12.)*1e-8 ;
+    IZ1 = (2/12.)*1e-8 ;
+    NUP = 0.3 ;
+    YOP = 2.1E11 ;
+    RHOP = 7800.0 ;
+    *--------------------GEOMETRIE--------------------*
+    P1 = 0.   0. 0. ;
+    P2 = LON1 0. 0. ;
+    L1 = D 20 P1 P2 ;
+    P3 = L1 POIN PROC ((LON1/2) 0. 0.);
+    ELIM L1 0.00000001;
+    Pb.geo = L1;
+    *opti trac X ;
+    *TRAC L1 ;
+    *------DEFINITION DU MODELE ET DU MATERIAU--------*
+    MOD1 = MODEL L1 MECANIQUE ELASTIQUE POUT ;
+    MAT1 = MATER MOD1 YOUN YOP NU NUP RHO RHOP ;
+    CAR1 = CARAC MOD1 SECT SEC1 INRY IY1 INRZ IZ1
+           TORS 1. VECT (0. 1. 0.) ;
+    MATTOT = MAT1 ET CAR1 ;
+    *-------MATRICES DE RIGIDITE ET DE MASSE----------*
+    Pb.K = RIGI MOD1 MATTOT ;
+    Pb.M = MASS MOD1 MATTOT ;
+
+    *--------------CONDITIONS LIMITES-----------------*
+    CL1 = BLOQ P1 UY UX RZ UZ RX RY ;
+    *CL2 = BLOQ L1 UZ RX RY ;
+    Pb.CL_TOT= CL1;
+    * ET CL2 ;
+
+    *--------------Parametres de calcul---------------*
+    V0001.dt = 1e-6;
+    V0001.Ttot = 5e-4;
+    Pb.T_period = 2.5e-4 ;
+    En_Nb_Re = PR_TailVectTemp V0001.dt V0001.Ttot;
+    Vec_T = PROG 0. PAS V0001.dt V0001.Ttot ;
+
+    *------------EVOLUTION TEMPORELLE-----------------*
+    LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+    LIS1 = LIS1 + (PROG En_Nb_Re*1.);
+    EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
+    EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
+    *DESS EVT1;
+    *-----------------CHARGEMENT----------------------*
+    FOR1 = FORCE FX (AMP1) P2 ;
+    FOR2 = FORCE FX 0. P3 ;
+    CHA1 = CHAR FORC FOR1 EVT1 ;
+    CHA2 = CHAR FORC FOR2 EVT2 ;
+    Pb.CHA_TOT = CHA1 et CHA2 ;
+
+    dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
+    Pb.U0  = dep0;
+    Pb.V0  = dep0;
+
+    Pb.P_intere = P2;

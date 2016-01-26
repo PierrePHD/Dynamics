@@ -1,0 +1,84 @@
+AAKZ
+PR_AffichageDepNoeud
+DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
+
+    NbMod = DIMENSION FamiF.Cal;
+
+    NbMax = MAXI (AffMods et AffSolu);
+    SI (NbMax > NbMod);
+        Mess 'Il n y a que ' NbMod ' modes';
+        opti donn 5;
+    FinSi;
+
+
+    FamiFTot FamiGTot = PR_ConcatenerFami NbMax ;
+
+    Sol_dir = PROG;
+    REPE It En_Nb_Re;
+      It_T = &It - 1;
+      Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.It_T Coord P));
+    FIN It;
+
+    Sol_k = TABLE;
+    Mod_k = TABLE;
+    REPETER It2 NbMax;
+        Sol_PGD = PROG;
+        Val = EXTR FamiFTot.&It2 Coord P;
+        REPE It En_Nb_Re;
+          It_T = &It - 1;
+          Sol_PGD = Sol_PGD ET (PROG (Val* (EXTR FamiGTot.&It2.u &It) ));
+        FIN It;
+        Sol_k.&It2 = Sol_PGD;
+        Mod_k.&It2 = Sol_PGD;
+
+        SI (&It2 > 1);
+            REPETER It3 (&It2-1);
+                Sol_k.&It2 = Sol_k.&It2 + Mod_k.&It3 ;
+            Fin It3;
+        FinSi;
+    FIN It2;
+
+    Evol_dir = EVOL MANU Vec_T Sol_dir ;
+    Evo_k = TABLE;
+    LMot = MOTS 'ROUG' 'BLEU' 'VERT' 'JAUN' 'VIOL' 'TURQ';
+
+    * Affichage des Solutions
+
+    Si ( (DIMENSION AffSolu) > 0);
+        REPETER It (MINI ((DIMENSION AffSolu) et 6));
+            col = EXTR LMot &It;
+            num = (EXTR AffSolu &It)
+                    + (DIME FamiF.Ini)
+                    + (DIME FamiF.Imp);
+            Evo_k.&It = EVOL col MANU Vec_T Sol_k.num .u;
+            Si (&It ega 1) ;
+                Tot = Evol_dir et Evo_k.&It;
+            Sinon ;
+                Tot = Tot et Evo_k.&It;
+            FinSi ;
+        Fin It;
+
+        DESS Tot ;
+        *XBOR 0. 5e-4 YBOR -3e-6 7e-6;
+    FinSi;
+
+
+    * Affichage des modes
+
+    Si ( (DIMENSION AffMods) > 0);
+        REPETER It (MINI ((DIMENSION AffMods) et 6));
+            col = EXTR LMot &It;
+            num = EXTR AffMods &It;
+            Evo_k.&It = EVOL col MANU Vec_T Mod_k.num .u;
+            Si (&It ega 1) ;
+                Tot = Evol_dir et Evo_k.&It;
+            Sinon ;
+                Tot = Tot et Evo_k.&It;
+            FinSi ;
+        Fin It;
+
+        DESS Tot;
+    Finsi;
+
+
+FINPROC;

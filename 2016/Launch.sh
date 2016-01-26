@@ -1,12 +1,12 @@
 #!/bin/bash
 
-head -n 4 Procedures/ProblemVide > Procedures/CreationProb_PR.dgibi
-cat $2 >> Procedures/CreationProb_PR.dgibi
-tail -n 5 Procedures/ProblemVide >> Procedures/CreationProb_PR.dgibi
+head -n 4 Procedures/ProblemVide > Procedures/Temp/CreationProb_PR.dgibi
+cat $2 >> Procedures/Temp/CreationProb_PR.dgibi
+tail -n 5 Procedures/ProblemVide >> Procedures/Temp/CreationProb_PR.dgibi
 
 printf "" > ConcatTemp
 
-for FichierProc in Procedures/*_PR.dgibi
+for FichierProc in Procedures/*/*_PR.dgibi
 do
 	printf '$$$$ ' >> ConcatTemp
 	# Castem Compatible
@@ -16,7 +16,7 @@ do
 done
 
 cp $1 TempMain
-for FichierProc in Procedures/*_PR.dgibi
+for FichierProc in Procedures/*/*_PR.dgibi
 do
 	NomCastem=`head -n 1 "$FichierProc"`
 	NomClair=`sed \1d "$FichierProc" | head -n 1`
@@ -37,7 +37,6 @@ do
 	cat Temp3 > TempMain
 done < TempVariables
 
-rm TempVariables
 
 printf '$$$$' >> ConcatTemp
 
@@ -64,4 +63,5 @@ castem14 ScriptUtil.dgibi > /dev/null
 echo ""
 echo "Main"
 castem14 $1.dgibi
-echo "FIN Script"
+
+echo "Fin Script"

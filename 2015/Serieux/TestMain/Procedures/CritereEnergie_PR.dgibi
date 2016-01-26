@@ -1,0 +1,43 @@
+AAIZ
+PR_CritereEnergie
+DEBPROC PR_CritereEnergie ;
+
+    * Equation dans LaTeX
+    * si K C et M non symetriques recalculer f2*.*f1
+
+    f1Kf1 = XTMX f1 K;
+    f1Kf2 = YTMX f1 f2 K;
+    f2Kf2 = XTMX f2 K;
+
+    f1Cf1 = XTMX f1 C;
+    f1Cf2 = YTMX f1 f2 C;
+    f2Cf2 = XTMX f2 C;
+
+    f1Mf1 = XTMX f1 M;
+    f1Mf2 = YTMX f1 f2 M;
+    f2Mf2 = XTMX f2 M;
+
+    g1_g1 = PR_IntegrProdLine g1.u g1.u dt ;
+    g1_g2 = PR_IntegrProdLine g1.u g2.u dt ;
+    g2_g2 = PR_IntegrProdLine g2.u g2.u dt ;
+
+    g1_g1p = PR_IntegrProdLine g1.u g1.v dt ;
+    g1_g2p = PR_IntegrProdLine g1.u g2.v dt ;
+    g1p_g2 = PR_IntegrProdLine g1.v g2.u dt ;
+    g2_g2p = PR_IntegrProdLine g2.u g2.v dt ;
+
+    g1_g1pp = PR_IntegrProdLine g1.u g1.w dt ;
+    g1_g2pp = PR_IntegrProdLine g1.u g2.w dt ;
+    g1pp_g2 = PR_IntegrProdLine g1.w g2.u dt ;
+    g2_g2pp = PR_IntegrProdLine g2.u g2.w dt ;
+
+    Res2 = ((g1_g1*f1Kf1) - (2*(g1_g2)*f1Kf2)) + (g2_g2*f2Kf2)
+            + ((g1_g1p *f1Cf1) -((g1_g2p +g1p_g2 )*f1Cf2) ) + (g2_g2p *f2Cf2)
+            + ((g1_g1pp*f1Mf1) -((g1_g2pp+g1pp_g2)*f1Mf2) ) + (g2_g2pp*f2Mf2) ;
+
+    Res1 = (g1_g1*f1Kf1) + (g1_g1p *f1Cf1) + (g1_g1pp*f1Mf1) ;
+
+    RESPRO Res1;
+    RESPRO Res2;
+
+FINPROC;
