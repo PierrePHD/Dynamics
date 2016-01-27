@@ -1,6 +1,6 @@
     OPTI DIME 3 ELEM SEG2 MODE TRID;
     Pb = TABLE;
-    V0001 = TABLE;
+    Cal_T = TABLE;
     *---------------------DONNEES---------------------*
     *Unites SI
     AMP1 = -100.0 ;
@@ -53,24 +53,28 @@
     * ET CL2 ;
 
     *--------------Parametres de calcul---------------*
-    V0001.dt = 2e-5;
-    V0001.Ttot = 10e-3;
+    Cal_T.dt = 2e-5;
+    Cal_T.Ttot = 10e-3;
     Pb.T_period = 5e-3 ;
-    En_Nb_Re = PR_TailVectTemp V0001.dt V0001.Ttot;
-    Vec_T = PROG 0. PAS V0001.dt V0001.Ttot ;
+    En_Nb_Re = PR_TailVectTemp Cal_T.dt Cal_T.Ttot;
+    Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
 
-    *------------EVOLUTION TEMPORELLE-----------------*
-    LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
-    LIS1 = LIS1 + (PROG En_Nb_Re*1.);
-    EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
-    EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
     *DESS EVT1;
     *-----------------CHARGEMENT----------------------*
-    FOR1 = FORCE FZ (AMP1*2.) P2 ;
-    FOR2 = FORCE FX 0. P3 ;
-    CHA1 = CHAR FORC FOR1 EVT1 ;
-    CHA2 = CHAR FORC FOR2 EVT2 ;
-    Pb.CHA_TOT = CHA1 et CHA2 ;
+
+        *----------EVOLUTION TEMPORELLE-----------*
+        *LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+        *LIS1 = LIS1 + (PROG En_Nb_Re*1.);
+        *EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
+        *EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
+
+    *FOR1 = FORCE FZ (AMP1*2.) P2 ;
+    *FOR2 = FORCE FX 0. P3 ;
+    *CHA1 = CHAR FORC FOR1 EVT1 ;
+    *CHA2 = CHAR FORC FOR2 EVT2 ;
+    *Pb.CHA_TOT = CHA1 et CHA2 ;
+    Pb.CHA_TOT = TABLE ;
+
 
     dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
     Pb.U0  = dep0;

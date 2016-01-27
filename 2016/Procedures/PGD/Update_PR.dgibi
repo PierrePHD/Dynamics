@@ -77,8 +77,6 @@ Cha_proj.Ff_init = TABLE;
         FIN It_1 ;
     FINSI;
 
-RESPRO Cha_proj;
-
 
 * Matrice Pij =
 * [  fi*K*fj     fi*C*fj     fi*M*fj ;
@@ -137,12 +135,6 @@ PremInit = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE' MAI1 LISU_ini
 
 PremMemb = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE' MAI1 LISU_tot
 'DUAL' LISF_tot 'QUEL' Lis1Up ;
-
-
-RESPRO PremInit;
-RESPRO PremMemb;
-
-RESPRO P_1;
 
     New_Fami = TABLE;
 

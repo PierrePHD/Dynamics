@@ -1,7 +1,0 @@
-MULTIPLI
-Multiplier
-	DEBPROC Multiplier V_entree_1 V_entree_2 ;
-	
-	   
-Multiplier = V_entree_1 * V_entree_2 ;
-FINPROC Multiplier ;

@@ -11,28 +11,38 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
 
 * Contribution des efforts
   NbCharg = DIMENSION CHA ;
-  REPETER It NbCharg ;
-    CHA_i = EXTR CHA CHAR &It ;
-    CHP = EXTR CHA_i CHAM ;
-    EVO = EXTR CHA_i EVOL ;
-    CH_ord = EXTR EVO ORDO ;
-    CH_abs = EXTR EVO ABSC ;
-    Int = PR_IntegrProdLine CH_ord g.u CH_abs ;
+  Bool1 = (NbCharg > 0);
 
-    Si (&It ega 1) ;
-      Second = (CHP*Int) ;
-    Sinon ;
-      Second = Second + (CHP*Int) ;
-    FinSi ;
-  FIN It ;
+  SI Bool1;
+      REPETER It NbCharg ;
+        CHA_i = EXTR CHA CHAR &It ;
+        CHP = EXTR CHA_i CHAM ;
+        EVO = EXTR CHA_i EVOL ;
+        CH_ord = EXTR EVO ORDO ;
+        CH_abs = EXTR EVO ABSC ;
+        Int = PR_IntegrProdLine CH_ord g.u CH_abs ;
+
+        Si (&It ega 1) ;
+          Second = (CHP*Int) ;
+        Sinon ;
+          Second = Second + (CHP*Int) ;
+        FinSi ;
+      FIN It ;
+  FINSI;
 
 * La somme sur les modes precedents
 
     FamiFTot FamiGTot = PR_ConcatenerFami (It_m-1) ;
 
-    Bool = (DIMENSION FamiFTot) > 0;
-    Si Bool;
-        TailFami = DIMENSION FamiFTot;
+    TailFami = DIMENSION FamiFTot;
+    Bool2 = TailFami > 0;
+
+    Si Bool2;
+
+        Som1 = 0;
+        Som2 = 0;
+        Som3 = 0;
+
         REPETER Mod TailFami;
             gk = FamiGTot.&Mod;
             fk = FamiFTot.&Mod;
@@ -41,23 +51,25 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
             g_gkp  = PR_IntegrProdLine g.u gk.v dt ;
             g_gkpp = PR_IntegrProdLine g.u gk.w dt ;
 
-            Si (&Mod ega 1) ;
-                Som1 = g_gk   * fk;
-                Som2 = g_gkp  * fk;
-                Som3 = g_gkpp * fk;
-            Sinon ;
-                Som1 = Som1 + (g_gk   * fk);
-                Som2 = Som2 + (g_gkp  * fk);
-                Som3 = Som3 + (g_gkpp * fk);
-            FinSi ;
+            Som1 = Som1 + (g_gk   * fk);
+            Som2 = Som2 + (g_gkp  * fk);
+            Som3 = Som3 + (g_gkpp * fk);
+
         Fin Mod;
 
+        Si Bool1;
+            Second = Second - ( (K*Som1) + (C*Som2) + (M*Som3) ) ;
+        SiNon;
+            Second =  (-1) * ( (K*Som1) + (C*Som2) + (M*Som3) ) ;
+        FinSi;
 
-      Second = Second - ( (K*Som1) + (C*Som2) + (M*Som3) ) ;
     FinSi;
 
-* Contribution des deplacements imposes
-* A FAIRE !!!!!!!!!!!!
+Si ((NON Bool1) ET (NON Bool2));
+    Mess 'il n y a ni effort ni deplacements imposes';
+    Mess '--------------------------------------------';
+    list CHA.1;
+FinSi;
 
 * Resolution
 

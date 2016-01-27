@@ -1,5 +1,0 @@
-CARRE
-MiseAuCarre
-	DEBPROC MiseAuCarre A ;
-	MiseAuCarre = Multiplier A A ;
-FINPROC MiseAuCarre ;

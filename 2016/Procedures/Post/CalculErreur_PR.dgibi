@@ -3,7 +3,12 @@ PR_CalculErreur
 DEBPROC PR_CalculErreur Coord/MOT BOOL2/LOGIQUE;
 
 BOOL1 = EXISTE Coord;
-BOOL3 = OU (NON BOOL1) (EXISTE BOOL2);
+SI (EXISTE BOOL2);
+    BOOL3=BOOL2;
+SINON;
+    BOOL3=(NON BOOL1);
+FINSI;
+
 
     ErrDepMo = PROG;
     ErrParMo = PROG;
@@ -13,38 +18,19 @@ BOOL3 = OU (NON BOOL1) (EXISTE BOOL2);
         rec_sol = PR_PGD_to_Full &It_m;
         Err = PR_Difference_Solu Solu1.u rec_sol.u;
         ErrMax = PROG;
-        ErrTotM = -0.1;
-        REPE IT_T En_Nb_Re;
-            in_T = &IT_T - 1;
-            SI BOOL1;
-                ErrTotM = MAXI ( PROG
-                                    (MAXI (ABS ((EXCO Coord Err.in_T))))
-                                    ErrTotM
-                                );
-                SoluT = EXCO Coord Solu1.u.in_T;
-                Si (&IT_T ega 1) ;
-                    Max_Dep = MAXI SoluT;
-                    Min_Dep = MINI SoluT;
-                SINON;
-                    Max_Dep = MAXI ( PROG (MAXI SoluT) Max_Dep );
-                    Min_Dep = MINI ( PROG (MINI SoluT) Min_Dep );
-                FINSI;
-            FINSI;
-            SI BOOL3;
-                ErrMaxT = XTMX Err.in_T K;
-                ErrMax = ErrMax et ErrMaxT;
-                Si (&It_m ega 1) ;
-                    EneTotT = XTMX Solu1.u.in_T K;
-                    EneTot = EneTot et EneTotT;
-                FINSI;
-            FINSI;
-        FIN IT_T;
+        Sor_Err = PR_CalculErreurMode (&It_m ega 1);
+
         SI BOOL1;
-            ErrDepMo = ErrDepMo ET ErrTotM;
+            ErrDepMo = ErrDepMo ET Sor_Err.1;
+            SI (&It_m ega 1);
+                Ampli = Sor_Err.Max - Sor_Err.Min;
+            FINSI;
         FINSI;
         SI BOOL3;
-            ErrTotEV = EVOL MANU T Vec_T Errr ErrMax ;
-            EneTotEV = EVOL MANU T Vec_T Errr EneTot ;
+            Si (&It_m ega 1) ;
+                EneTotEV = EVOL MANU T Vec_T Errr Sor_Err.Tot ;
+            FINSI;
+            ErrTotEV = EVOL MANU T Vec_T Errr Sor_Err.3 ;
             ErrParMo = ErrParMo ET (SOMM ErrTotEV);
         FINSI;
     FIN It_m;
@@ -57,11 +43,11 @@ BOOL3 = OU (NON BOOL1) (EXISTE BOOL2);
     FINSI;
 
     SI BOOL1;
-        Ampli = Max_Dep - Min_Dep;
-        Mess 'Max_Dep' Max_Dep 'Min_Dep' Min_Dep 'Ampli' Ampli;
+        Mess 'Ampli' Ampli;
         ErrDepMo = ErrDepMo / Ampli;
         Mess 'Erreur Relative en Deplacement sur ' Coord
             ' en fonction du nombre de mode';
+        Mess '___________________________________ :';
         list (EVOL MANU Mode LMod Erreur ErrDepMo);
 
         RESPRO ErrDepMo;
@@ -69,6 +55,7 @@ BOOL3 = OU (NON BOOL1) (EXISTE BOOL2);
     SI BOOL3;
         ErrParMo = ErrParMo / (EXTR (SOMM EneTotEV) 1) ;
         Mess 'Erreur Energetique en fonction du nombre de mode';
+        Mess '___________________________________ :';
         list (EVOL MANU Mode LMod Erreur ErrParMo);
 
         RESPRO ErrParMo;

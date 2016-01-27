@@ -12,42 +12,47 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
   Prem_gp = XTMX f_espa C ;
   Prem_gpp = XTMX f_espa M ;
 
-    g = PROG ;
-    gp = PROG ;
-    gpp = PROG ;
-
     NbCharg = DIMENSION CHA ;
-    REPETER It NbCharg ;
-      CHA_i = EXTR CHA CHAR &It ;
-      CHP = EXTR CHA_i CHAM ;
+    Bool1 = (NbCharg > 0);
 
-      LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
-      L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
-      FOR_proj = XTY CHP f LFOR L_f;
+    SI Bool1;
+        REPETER It NbCharg ;
+          CHA_i = EXTR CHA CHAR &It ;
+          CHP = EXTR CHA_i CHAM ;
 
-      EVO = EXTR CHA_i EVOL ;
+          LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
+          L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
+          FOR_proj = XTY CHP f LFOR L_f;
 
-      Si (&It ega 1) ;
-        FOR_EVO = EVO*FOR_proj ;
-      Sinon ;
-        FOR_EVO = FOR_EVO + (EVO * FOR_proj) ;
-      FinSi ;
-    FIN It ;
+          EVO = EXTR CHA_i EVOL ;
+
+          Si (&It ega 1) ;
+            FOR_EVO = EVO*FOR_proj ;
+          Sinon ;
+            FOR_EVO = FOR_EVO + (EVO * FOR_proj) ;
+          FinSi ;
+        FIN It ;
+
+        F_Hist = EXTR FOR_EVO ORDO ;
+
+        F_Hist2 = (PROG (EXTR F_Hist 1)) et F_Hist;
+        F_Hist2 = ENLEVER F_Hist2 (DIMENSION F_Hist2);
+
+        Second = ((1+alpha)*F_Hist) - (alpha*F_Hist2);
+    FINSI;
 
 * Verifier que l evolution final amene a Ttot avec En_Nb_Re composantes
+* !!!!!!!!
 
-    F_Hist = EXTR FOR_EVO ORDO ;
-
-    F_Hist2 = (PROG (EXTR F_Hist 1)) et F_Hist;
-    F_Hist2 = ENLEVER F_Hist2 (DIMENSION F_Hist2);
-
-    Second = ((1+alpha)*F_Hist) - (alpha*F_Hist2);
 
     FamiFTot FamiGTot = PR_ConcatenerFami (It_m-1) ;
 
-    Bool = (DIMENSION FamiFTot) > 0;
-    Si Bool;
-        TailFami = DIMENSION FamiFTot;
+* Contribution des modes precendents
+
+    TailFami = DIMENSION FamiFTot;
+    Bool2 = TailFami > 0;
+
+    Si Bool2;
         REPETER Mod TailFami;
             gk = FamiGTot.&Mod;
             fk = FamiFTot.&Mod;
@@ -62,12 +67,23 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
                             (f_K_fk * gk.u) + (f_C_fk * gk.v) + (f_M_fk * gk.w);
             FinSi ;
         Fin Mod;
+
+        Si Bool1;
+            Second = Second - ModsPrec;
+        SiNon;
+            Second = (-1) * ModsPrec;
+        FinSi;
     FinSi;
 
-    * Contribution des modes precendents
-    Si (It_m > 1);
-      Second = Second - ModsPrec;
+    Si ((NON Bool1) ET (NON Bool2));
+        Mess 'il n y a ni effort ni deplacements imposes';
+        Mess '--------------------------------------------';
+        list CHA.1;
     FinSi;
+
+    g = PROG ;
+    gp = PROG ;
+    gpp = PROG ;
 
     REPETER It En_Nb_Re;
 

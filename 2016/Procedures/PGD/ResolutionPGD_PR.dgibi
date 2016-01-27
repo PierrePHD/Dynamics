@@ -3,10 +3,11 @@ PR_ResolutionPGD
 DEBPROC PR_ResolutionPGD NbModCal*Entier;
 
     REPETER It_m NbModCal;
+    BOOL = (OPT0.Orth) ET (&It_m > 1);
+
         REPETER Ort -1;
             f_espa g_tmps = PR_PointFixePGD M C K CL_A Ttot schema CHA_TOT dt &It_m;
 
-            BOOL = (OPT0.Orth) ET (&It_m > 1);
             SI BOOL;
                 f_espa FamiG = PR_Orthogonalisation;
 
@@ -23,7 +24,12 @@ DEBPROC PR_ResolutionPGD NbModCal*Entier;
         Fin Ort;
 
         FamiF.Cal.&It_m = f_espa;
-        FamiG.Cal.&It_m = g_tmps;
+
+        SI BOOL;
+            FamiG.Cal= PR_Update;
+        SINON;
+            FamiG.Cal.&It_m = g_tmps;
+        FINSI;
 
     Fin It_m;
 

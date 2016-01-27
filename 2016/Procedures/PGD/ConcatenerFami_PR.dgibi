@@ -21,9 +21,12 @@ DEBPROC PR_ConcatenerFami NbMod*Entier;
                     FamiGTot.NumeCoup = FamiG.Categori.&ItCoupl;
                 FIN ItCoupl;
             SINON;
-                * Si NbMod > NbModCat !!!!!!!!!!!!!!!!!!
                 SI (NbMod > 0);
-                    REPETER ItCoupl NbModCat;
+                    Si (NbMod > NbModCat);
+                        Mess 'Il n y a que ' NbModCat ' modes, pas ' NbMod;
+                        list FamiF.Categori.NbMod;
+                    FINSI;
+                    REPETER ItCoupl NbMod;
                         NumeCoup = NumeCoup + 1;
                         FamiFTot.NumeCoup = FamiF.Categori.&ItCoupl;
                         FamiGTot.NumeCoup = FamiG.Categori.&ItCoupl;

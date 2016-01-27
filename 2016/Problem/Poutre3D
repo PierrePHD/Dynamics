@@ -1,6 +1,6 @@
     OPTI DIME 3 ELEM CUB8 ;
     Pb = TABLE;
-    V0001 = TABLE;
+    Cal_T = TABLE;
     *---------------------DONNEES---------------------*
     *Unites SI
     AMP1 = 100.0 ;
@@ -41,12 +41,12 @@
     Pb.M = MASS MOD1 MATTOT ;
 
     *------------EVOLUTION TEMPORELLE-----------------*
-    V0001.dt = 1e-6;
-    V0001.Ttot = 5e-4;
+    Cal_T.dt = 1e-6;
+    Cal_T.Ttot = 5e-4;
     Pb.T_period = 2.5e-4 ;
-    En_Nb_Re = PR_TailVectTemp V0001.dt V0001.Ttot;
+    En_Nb_Re = PR_TailVectTemp Cal_T.dt Cal_T.Ttot;
 
-    Vec_T = PROG 0. PAS V0001.dt V0001.Ttot ;
+    Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
     LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
     LIS1 = LIS1 + (PROG En_Nb_Re*1.);
     LIS2 = PROG (DIMENSION Vec_T)*1;

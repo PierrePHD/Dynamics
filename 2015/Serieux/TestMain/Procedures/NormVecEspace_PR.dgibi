@@ -1,9 +1,0 @@
-AASZ
-PR_NormVecEspace
-DEBPROC PR_NormVecEspace f_espa;
-
-
-    Nor_Esp = (PR_ProdScalaireEspace f_espa f_espa)**0.5;
-    RESPRO Nor_Esp;
-
-FINPROC;

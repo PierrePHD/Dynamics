@@ -1,6 +1,6 @@
 
 
-    Pb V0001 = PR_CreationProb;
+    Pb Cal_T = PR_CreationProb;
 
     K = Pb.K;
     M = Pb.M;
@@ -10,8 +10,8 @@
     V0 = Pb.V0;
     P_intere = Pb.P_intere;
 
-    dt = V0001.dt;
-    Ttot = V0001.Ttot;
+    dt = Cal_T.dt;
+    Ttot = Cal_T.Ttot;
 
     En_Nb_Re = PR_TailVectTemp dt Ttot;
     Vec_T = PROG 0. PAS dt Ttot ;
@@ -79,12 +79,12 @@
         *trac (ABS BLA) Def1;
 
 
-    ErrDepMo ErrParMo = PR_CalculErreur DirPriv VRAI;
+    ErrDep ErrEner = PR_CalculErreur DirPriv VRAI;
 
     *AffMods = LECT 1 ;
     *PR_AffichageModesEspace AffMods;
 
-    Cha_p PremIni PremTot P_1 New_G= PR_Update;
+    *New_G= PR_Update;
 
     opti donn 5;
 

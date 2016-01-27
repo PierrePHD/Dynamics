@@ -79,7 +79,7 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
        (BLOQ CL1RL UY UX UZ RX RY RZ) ;
 
        Pb = TABLE;
-       V0001 = TABLE;
+       Cal_T = TABLE;
        *---------------------DONNEES---------------------*
        *Unites SI
        AMP1 = -100.0 ;
@@ -94,11 +94,11 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
        P4 = MAI1 POIN PROC (250. -500. 950.);
        Pb.geo = MAI1;
        *--------------Parametres de calcul---------------*
-       V0001.dt = 8e-5;
-       V0001.Ttot = 4e-2;
+       Cal_T.dt = 8e-5;
+       Cal_T.Ttot = 4e-2;
        Pb.T_period = 2e-2 ;
-       En_Nb_Re = PR_TailVectTemp V0001.dt V0001.Ttot;
-       Vec_T = PROG 0. PAS V0001.dt V0001.Ttot ;
+       En_Nb_Re = PR_TailVectTemp Cal_T.dt Cal_T.Ttot;
+       Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
 
        *------------EVOLUTION TEMPORELLE-----------------*
        LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
