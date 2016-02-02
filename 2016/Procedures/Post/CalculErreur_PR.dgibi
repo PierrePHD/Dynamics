@@ -43,7 +43,6 @@ FINSI;
     FINSI;
 
     SI BOOL1;
-        Mess 'Ampli' Ampli;
         ErrDepMo = ErrDepMo / Ampli;
         Mess 'Erreur Relative en Deplacement sur ' Coord
             ' en fonction du nombre de mode';

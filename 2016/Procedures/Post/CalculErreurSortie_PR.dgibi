@@ -16,16 +16,16 @@ FINSI;
     Sor_Err = PR_CalculErreurMode VRAI;
 
     SI BOOL1;
-        ErrDepMo = Sor_Err.1;
+        ErrDepl = Sor_Err.1;
         Ampli = Sor_Err.Max - Sor_Err.Min;
-        ErrDepMo = ErrDepMo / Ampli;
-        RESPRO ErrDepMo;
+        ErrDepl = ErrDepl / Ampli;
+        RESPRO ErrDepl;
     FINSI;
     SI BOOL3;
         EneTotEV = EVOL MANU T Vec_T Errr Sor_Err.Tot ;
         ErrTotEV = EVOL MANU T Vec_T Errr Sor_Err.3 ;
-        ErrParMo = (SOMM ErrTotEV) / (EXTR (SOMM EneTotEV) 1) ;
-        RESPRO ErrParMo;
+        ErrGlob = (EXTR (SOMM ErrTotEV) 1) / (EXTR (SOMM EneTotEV) 1) ;
+        RESPRO ErrGlob;
     FINSI;
 
 FINPROC;

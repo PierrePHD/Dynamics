@@ -9,7 +9,9 @@ DEBPROC PR_PGD_to_Full It_m*Entier;
 
     FamiFTot FamiGTot = PR_ConcatenerFami It_m ;
 
-    REPETER It2 It_m;
+    NbMod = (DIME FamiFTot);
+
+    REPETER It2 NbMod;
 
         REPETER It En_Nb_Re;
             It_T = &It - 1;

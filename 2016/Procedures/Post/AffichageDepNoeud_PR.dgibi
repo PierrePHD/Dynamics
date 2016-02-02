@@ -2,16 +2,19 @@ AAKZ
 PR_AffichageDepNoeud
 DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
 
-    NbMod = DIMENSION FamiF.Cal;
+    NbMod = DIMENSION FamiF.Cal
+            + (DIME FamiF.Ini)
+            + (DIME FamiF.Imp);
 
     NbMax = MAXI (AffMods et AffSolu);
+
     SI (NbMax > NbMod);
         Mess 'Il n y a que ' NbMod ' modes';
         opti donn 5;
     FinSi;
 
-
-    FamiFTot FamiGTot = PR_ConcatenerFami NbMax ;
+    NbModCal = (NbMax - (DIME FamiF.Ini)) - (DIME FamiF.Imp);
+    FamiFTot FamiGTot = PR_ConcatenerFami NbModCal ;
 
     Sol_dir = PROG;
     REPE It En_Nb_Re;
@@ -47,9 +50,8 @@ DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
     Si ( (DIMENSION AffSolu) > 0);
         REPETER It (MINI ((DIMENSION AffSolu) et 6));
             col = EXTR LMot &It;
-            num = (EXTR AffSolu &It)
-                    + (DIME FamiF.Ini)
-                    + (DIME FamiF.Imp);
+            num = (EXTR AffSolu &It);
+
             Evo_k.&It = EVOL col MANU Vec_T Sol_k.num .u;
             Si (&It ega 1) ;
                 Tot = Evol_dir et Evo_k.&It;

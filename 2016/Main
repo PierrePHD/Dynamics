@@ -47,9 +47,12 @@
         FamiF.Ini = TABLE;
         FamiG.Ini = TABLE;
 
-    NbModCal = 5;
+    NbModCal = 1;
     OPT0 = TABLE;
-    OPT0.Orth = VRAI;
+    OPT0.Orth = FAUX;
+
+
+    DirPriv = 'UZ';
 
     PR_ResolutionPGD NbModCal;
 
@@ -57,9 +60,8 @@
 
     TEMPS;
 
-    AffMods = LECT 1 2 3;
-    AffSolu = LECT 1 2 3;
-    DirPriv = 'UX';
+    AffMods = LECT 1 2 ;
+    AffSolu = LECT 1 2 ;
     *OPTI TRAC PSC;
     PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv;
     * Attention multiplier par 2 ampli pour corespondance avec matlab.

@@ -2,6 +2,27 @@ AARZ
 PR_ResolutionPGD
 DEBPROC PR_ResolutionPGD NbModCal*Entier;
 
+Val_INI = 0;
+SI ((XTMX U0 K) neg 0);
+    Val_INI = Val_INI + 1;
+    FamiF.INI.Val_INI = U0;
+    FamiG.INI.Val_INI = TABLE;
+    FamiG.INI.Val_INI .u = PROG En_Nb_Re * 1. ;
+    FamiG.INI.Val_INI .v = PROG En_Nb_Re * 0. ;
+    FamiG.INI.Val_INI .w = PROG En_Nb_Re * 0. ;
+FinSi;
+SI ((XTMX V0 K) neg 0);
+    Val_INI = Val_INI + 1;
+    FamiF.INI.Val_INI = V0;
+    FamiG.INI.Val_INI = TABLE;
+    FamiG.INI.Val_INI .u = PROG 0. PAS dt Ttot ;
+    FamiG.INI.Val_INI .v = PROG En_Nb_Re * 1. ;
+    FamiG.INI.Val_INI .w = PROG En_Nb_Re * 0. ;
+FinSi;
+
+
+
+
     REPETER It_m NbModCal;
     BOOL = (OPT0.Orth) ET (&It_m > 1);
 
@@ -30,6 +51,10 @@ DEBPROC PR_ResolutionPGD NbModCal*Entier;
         SINON;
             FamiG.Cal.&It_m = g_tmps;
         FINSI;
+
+        ErrDepl ErrGlob = PR_CalculErreurSortie DirPriv VRAI &It_m;
+
+        Mess 'ErrDepl=' ErrDepl 'ErrGlob=' ErrGlob;
 
     Fin It_m;
 
