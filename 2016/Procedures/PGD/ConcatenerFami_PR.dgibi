@@ -13,27 +13,27 @@ DEBPROC PR_ConcatenerFami NbMod*Entier;
         Categori = EXTR LisMotFa &Catego;
         NbModCat =(DIME FamiF.Categori);
 
-        SI (NbModCat > 0);
-            SI (neg Categori 'CAL');
+        Si (NbModCat > 0);
+            Si (neg Categori 'CAL');
                 REPETER ItCoupl NbModCat;
                     NumeCoup = NumeCoup + 1;
                     FamiFTot.NumeCoup = FamiF.Categori.&ItCoupl;
                     FamiGTot.NumeCoup = FamiG.Categori.&ItCoupl;
                 FIN ItCoupl;
-            SINON;
-                SI (NbMod > 0);
+            SiNon ;
+                Si (NbMod > 0);
                     Si (NbMod > NbModCat);
                         Mess 'Il n y a que ' NbModCat ' modes, pas ' NbMod;
                         list FamiF.Categori.NbMod;
-                    FINSI;
+                    FinSi ;
                     REPETER ItCoupl NbMod;
                         NumeCoup = NumeCoup + 1;
                         FamiFTot.NumeCoup = FamiF.Categori.&ItCoupl;
                         FamiGTot.NumeCoup = FamiG.Categori.&ItCoupl;
                     FIN ItCoupl;
-                FINSI;
-            FINSI;
-        FINSI;
+                FinSi ;
+            FinSi ;
+        FinSi ;
 
 
 

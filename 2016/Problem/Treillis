@@ -26,11 +26,11 @@ REPE BCL1E N1E ;
   N1 = EXTR 3 XY1 ;
   N2 = EXTR 4 XY1 ;
   BAR1 . &BCL1E = DROI 10 NOE1 . N1 NOE1 . N2 ;
-  SI (&BCL1E EGA 1) ;
+  Si (&BCL1E EGA 1) ;
     MAI1 = BAR1 . &BCL1E ;
-  SINON ;
+  SiNon ;
     MAI1 = MAI1 ET BAR1 . &BCL1E ;
-  FINSI ;
+  FinSi ;
 FIN BCL1E ;
 *
 * Tracé du maillage
@@ -55,13 +55,13 @@ REPE BCL1E N1E ;
   CAR1 = CARA MOD1 SECT S1 'INRY' IY1 'INRZ' IY1 'TORS' I01 ;
   RIG1 = RIGI MOD1 (MAT1 ET CAR1);
   MAS1 = MASS MOD1 (MAT1 ET CAR1);
-  SI (&BCL1E EGA 1) ;
+  Si (&BCL1E EGA 1) ;
     MAS1TOT = MAS1 ;
     RIG1TOT = RIG1 ;
-  SINON ;
+  SiNon ;
     RIG1TOT = RIG1TOT ET RIG1 ;
     MAS1TOT = MAS1TOT ET MAS1 ;
-  FINSI ;
+  FinSi ;
 *
 FIN BCL1E ;
 *

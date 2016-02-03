@@ -21,13 +21,13 @@ DEBPROC PR_PointFixePGD M C K CL_A Ttot schema CHA dt It_m ;
         g_tmps = PR_ProblemeTemps M C K Ttot schema CHA dt f_espa It_m ;
         *gev_.&It = g_tmps ;
 
-        BOOL = &It > 1 ;
-        SI BOOL;
+        Bool = &It > 1 ;
+        Si Bool;
           BoolConv = PR_CritereConvergence f_espa g_tmps f_prec g_prec;
-          SI BoolConv;
+          Si BoolConv;
             QUIT It;
-          FINSI;
-        FINSI;
+          FinSi ;
+        FinSi ;
 
         f_prec = f_espa;
         g_prec = g_tmps;

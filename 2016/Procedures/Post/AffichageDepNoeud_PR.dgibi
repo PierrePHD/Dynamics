@@ -8,10 +8,10 @@ DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
 
     NbMax = MAXI (AffMods et AffSolu);
 
-    SI (NbMax > NbMod);
+    Si (NbMax > NbMod);
         Mess 'Il n y a que ' NbMod ' modes';
         opti donn 5;
-    FinSi;
+    FinSi ;
 
     NbModCal = (NbMax - (DIME FamiF.Ini)) - (DIME FamiF.Imp);
     FamiFTot FamiGTot = PR_ConcatenerFami NbModCal ;
@@ -34,11 +34,11 @@ DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
         Sol_k.&It2 = Sol_PGD;
         Mod_k.&It2 = Sol_PGD;
 
-        SI (&It2 > 1);
+        Si (&It2 > 1);
             REPETER It3 (&It2-1);
                 Sol_k.&It2 = Sol_k.&It2 + Mod_k.&It3 ;
             Fin It3;
-        FinSi;
+        FinSi ;
     FIN It2;
 
     Evol_dir = EVOL MANU Vec_T Sol_dir ;
@@ -55,14 +55,14 @@ DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
             Evo_k.&It = EVOL col MANU Vec_T Sol_k.num .u;
             Si (&It ega 1) ;
                 Tot = Evol_dir et Evo_k.&It;
-            Sinon ;
+            SiNon ;
                 Tot = Tot et Evo_k.&It;
             FinSi ;
         Fin It;
 
         DESS Tot ;
         *XBOR 0. 5e-4 YBOR -3e-6 7e-6;
-    FinSi;
+    FinSi ;
 
 
     * Affichage des modes
@@ -74,13 +74,13 @@ DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
             Evo_k.&It = EVOL col MANU Vec_T Mod_k.num .u;
             Si (&It ega 1) ;
                 Tot = Evol_dir et Evo_k.&It;
-            Sinon ;
+            SiNon ;
                 Tot = Tot et Evo_k.&It;
             FinSi ;
         Fin It;
 
         DESS Tot;
-    Finsi;
+    FinSi ;
 
 
 FINPROC;

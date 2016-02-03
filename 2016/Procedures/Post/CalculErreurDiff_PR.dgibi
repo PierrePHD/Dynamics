@@ -1,54 +1,58 @@
 AAWZ
-PR_CalculErreurMode
-DEBPROC PR_CalculErreurMode BOOL4*LOGIQUE;
+PR_CalculErreurDiff
+DEBPROC PR_CalculErreurDiff Bool4*LOGIQUE;
 
-Sor_Err = TABLE;
+* Reference : Solu.u
+* Difference : Err
+
+* Bool4 : Si Vrai, calcul sur la Reference : Amplitude et energie Totale
+
+Out_Err = TABLE;
 ErrEne = PROG;
 ErrTotM = -0.1;
 REPE IT_T En_Nb_Re;
     in_T = &IT_T - 1;
-    SI BOOL1;
+    Si Bool1;
         ErrTotM = MAXI ( PROG
                             (MAXI (ABS ((EXCO Coord Err.in_T))))
                             ErrTotM
                         );
-        SI BOOL4;
+        Si Bool4;
             SoluT = EXCO Coord Solu1.u.in_T;
             Si (&IT_T ega 1) ;
                 Max_Dep = MAXI SoluT;
                 Min_Dep = MINI SoluT;
-            SINON;
+            SiNon ;
                 Max_Dep = MAXI ( PROG (MAXI SoluT) Max_Dep );
                 Min_Dep = MINI ( PROG (MINI SoluT) Min_Dep );
-            FINSI;
-        FINSI;
-    FINSI;
-    SI BOOL3;
+            FinSi ;
+        FinSi ;
+    FinSi ;
+    Si Bool3;
         ErrEneT = XTMX Err.in_T K;
         ErrEne = ErrEne et ErrEneT;
-        Si BOOL4 ;
+        Si Bool4 ;
             EneTotT = XTMX Solu1.u.in_T K;
             EneTot = EneTot et EneTotT;
-        FINSI;
-    FINSI;
+        FinSi ;
+    FinSi ;
 FIN IT_T;
 
 
-SI BOOL1;
-    Sor_Err.1 = ErrTotM;
-    Si BOOL4 ;
-        Sor_Err.Max = Max_Dep;
-        Sor_Err.Min = Min_Dep;
-    FINSI;
-FINSI;
-SI BOOL3;
-    Si BOOL4 ;
-        Sor_Err.Tot = EneTot;
-    FINSI;
-    Sor_Err.3 = ErrEne;
-FINSI;
+Si Bool1;
+    Out_Err.MaxErr = ErrTotM;
+    Si Bool4 ;
+        Out_Err.SolAmpli = Max_Dep - Min_Dep;
+    FinSi ;
+FinSi ;
+Si Bool3;
+    Si Bool4 ;
+        Out_Err.Tot = EneTot;
+    FinSi ;
+    Out_Err.3 = ErrEne;
+FinSi ;
 
-RESPRO Sor_Err;
+RESPRO Out_Err;
 
 
 FINPROC;

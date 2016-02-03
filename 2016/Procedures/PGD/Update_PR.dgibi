@@ -10,11 +10,11 @@ DEBPROC PR_Update;
 
 * Maillage necessaire pour creer les objets de calculs
 *   Rigidite et Second membre
-SI ((VALE 'DIME') > 2) ;
+Si ((VALE 'DIME') > 2) ;
   P_1 = 0. 0. 0. ;
-SINON ;
+SiNon ;
   P_1 = 0. 0. ;
-FINSI ;
+FinSi ;
 MAI1 = MANU POI1 P_1  ;
 
 TaiSys = DIMENSION FamiF.Cal;
@@ -49,7 +49,7 @@ Cha_proj.Ff_init = TABLE;
 
 * Projection F . f_espa_i
     NbCharg = DIMENSION CHA_TOT ;
-    SI (NbCharg > 0);
+    Si (NbCharg > 0);
 
         LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
         L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
@@ -75,7 +75,7 @@ Cha_proj.Ff_init = TABLE;
             Cha_proj.Ffi.&It_1 = CHP1;
 
         FIN It_1 ;
-    FINSI;
+    FinSi ;
 
 
 * Matrice Pij =
@@ -87,43 +87,43 @@ Cha_proj.Ff_init = TABLE;
 REPETER It_1 TaiSys;
     REPETER It_2 3;
         Ind_Lign = ((&It_1-1)*3) + (&It_2-1) + 1;
-        SI (&It_2 ega 1);
+        Si (&It_2 ega 1);
             REPETER It_3 TaiSys;
                 f_ligne = FamiF.Cal.&It_1;
                 REPETER It_4 3;
                     f_colo = FamiF.Cal.&It_3;
                     ind_List = (Ind_Lign-1)*(TaiSys*3)
                     + ((&It_3-1)*3) + &It_4;
-                    SI (&It_4 ega 1);
+                    Si (&It_4 ega 1);
                         Val1 = YTMX f_colo f_ligne M ;
-                    FINSI;
-                    SI (&It_4 ega 2);
+                    FinSi ;
+                    Si (&It_4 ega 2);
                         Val1 = YTMX f_colo f_ligne C ;
-                    FINSI;
-                    SI (&It_4 ega 3);
+                    FinSi ;
+                    Si (&It_4 ega 3);
                         Val1 = YTMX f_colo f_ligne K ;
                         ind_Init = ((&It_1 - 1) *TaiSys)
                         + (&It_3 - 1) + 1 ;
                         REMPLACER Lis1Init ind_Init Val1;
-                    FINSI;
+                    FinSi ;
                     REMPLACER Lis1Up ind_List Val1;
                 FIN It_4;
             FIN It_3;
-        FINSI;
-        SI (&It_2 ega 2);
+        FinSi ;
+        Si (&It_2 ega 2);
             ind_List = (Ind_Lign-1)*(TaiSys*3) + (Ind_Lign-2) + 1;
             Val1 = (-1)*(dt*gamma);
             REMPLACER Lis1Up ind_List Val1;
             ind_List = ind_List + 1;
             REMPLACER Lis1Up ind_List 1.;
-        FINSI;
-        SI (&It_2 ega 3);
+        FinSi ;
+        Si (&It_2 ega 3);
             ind_List = (Ind_Lign-1)*(TaiSys*3) + (Ind_Lign-3) + 1;
             Val1 = (-1)*(beta*(dt**2));
             REMPLACER Lis1Up ind_List Val1;
             ind_List = ind_List + 2;
             REMPLACER Lis1Up ind_List 1.;
-        FINSI;
+        FinSi ;
 
     FIN It_2;
 FIN It_1;
@@ -150,10 +150,10 @@ REPETER It_T En_Nb_Re;
         REPETER It_1 (DIMENSION Cha_proj.F_t);
             Si (&It_1 ega 1);
                 SecoMemb = (EXTR (Cha_proj.F_t.&It_1) 1) * (Cha_proj.Ff_init.&It_1);
-            SINON;
+            SiNon ;
                 SecoMemb = SecoMemb +
                             ((EXTR (Cha_proj.F_t.&It_1) 1) * (Cha_proj.Ff_init.&It_1)) ;
-            FINSI;
+            FinSi ;
         FIN It_1;
 
         Vec_GIni = RESO PremInit SecoMemb;
@@ -164,15 +164,15 @@ REPETER It_T En_Nb_Re;
             New_Fami.&It_1.v = PROG 0;
             New_Fami.&It_1.u = PROG 0;
         FIN It_1;
-    SiNon;
+    SiNon ;
         * Creer fonction pour eviter la repetition de l'assemblage
         REPETER It_1 (DIMENSION Cha_proj.F_t);
             Si (&It_1 ega 1);
                 SecoMemb = (EXTR (Cha_proj.F_t.&It_1) &It_T) * (Cha_proj.Ffi.&It_1);
-            SINON;
+            SiNon ;
                 SecoMemb = SecoMemb +
                             ((EXTR (Cha_proj.F_t.&It_1) &It_T) * (Cha_proj.Ffi.&It_1)) ;
-            FINSI;
+            FinSi ;
         FIN It_1;
 
         Lis_Seco = PROG;
@@ -205,7 +205,7 @@ REPETER It_T En_Nb_Re;
             New_Fami.&It_1.u = New_Fami.&It_1.u ET (PROG (EXTR Vec_G_T mot1 P_1));
         FIN It_1;
 
-    FINSI;
+    FinSi ;
 Fin It_T ;
 
 RESPRO New_Fami;

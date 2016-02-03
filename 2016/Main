@@ -81,7 +81,7 @@
         *trac (ABS BLA) Def1;
 
 
-    ErrDep ErrEner = PR_CalculErreur DirPriv VRAI;
+    ErrDep ErrEner = PR_CalculErreurAffichGlobal DirPriv VRAI;
 
     *AffMods = LECT 1 ;
     *PR_AffichageModesEspace AffMods;

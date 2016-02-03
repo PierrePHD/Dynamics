@@ -1,0 +1,30 @@
+AAXZ
+PR_CalculErreurOutput
+DEBPROC PR_CalculErreurOutput Coord/MOT Bool2/LOGIQUE Mode*ENTIER;
+
+Bool1 = EXISTE Coord;
+Si (EXISTE Bool2);
+    Bool3=Bool2;
+SiNon ;
+    Bool3=(NON Bool1);
+FinSi ;
+
+    EneTot = PROG;
+
+    rec_sol = PR_PGD_to_Full Mode;
+    Err = PR_Difference_Solu Solu1.u rec_sol.u;
+    Out_Err = PR_CalculErreurDiff VRAI;
+
+    Si Bool1;
+        ErrDepl = Out_Err.MaxErr;
+        ErrDepl = ErrDepl / Out_Err.SolAmpli;
+        RESPRO ErrDepl;
+    FinSi ;
+    Si Bool3;
+        EneTotEV = EVOL MANU T Vec_T Errr Out_Err.Tot ;
+        ErrTotEV = EVOL MANU T Vec_T Errr Out_Err.3 ;
+        ErrGlob = (EXTR (SOMM ErrTotEV) 1) / (EXTR (SOMM EneTotEV) 1) ;
+        RESPRO ErrGlob;
+    FinSi ;
+
+FINPROC;

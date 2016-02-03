@@ -14,9 +14,9 @@ DEBPROC PR_CritereConvergence f1 g1 f2 g2;
 
     epsilon = 1e-10 ;
 
-    BOOL = (Res2/Res1) < epsilon ;
-    *BOOL = ((Res1 < epsilon) et (Res2 < epsilon)) ;
+    Bool = (Res2/Res1) < epsilon ;
+    *Bool = ((Res1 < epsilon) et (Res2 < epsilon)) ;
 
-    RESPRO BOOL ;
+    RESPRO Bool ;
 
 FINPROC;

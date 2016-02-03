@@ -6,13 +6,13 @@ DEBPROC PR_IntegrProdLine g1*Listreel g2*listreel dt/flottant Vec_LocT/listreel;
   Long2=DIMENSION g2;
 
   Bool = Long1 NEG Long2;
-  SI Bool;
+  Si Bool;
     Mess 'Produit de fonctions de differentes longueurs';
     Mess 'taille g1:' Long1 '   taille g2:' Long2;
     opti donn 5;
     * Couper le programme
     list (EXTR kk 7);
-  FINSI;
+  FinSi ;
 
 
   g1_p = ENLEVER g1 1;
@@ -25,7 +25,7 @@ DEBPROC PR_IntegrProdLine g1*Listreel g2*listreel dt/flottant Vec_LocT/listreel;
     Vec_LT_p = ENLEVER Vec_LocT 1;
     Vec_LT_m = ENLEVER Vec_LocT (DIMENSION Vec_LocT);
     dt = Vec_LT_p - Vec_LT_m;
-  FinSi;
+  FinSi ;
 
   L_a = (g1_p-g1_m)/dt;
   L_e = (g2_p-g2_m)/dt;
@@ -49,13 +49,13 @@ DEBPROC PR_IntegrProdLine g1*Listreel g2*listreel dt/flottant Vec_LocT/listreel;
                  + ( (EXTR Int_list (DIMENSION Int_list)) *
                      (EXTR dt (DIMENSION dt))   )
                 )/2) ;
-  SiNon;
+  SiNon ;
     Int_EVO = EVOL MANU (ENLEVER Vec_T (DIMENSION Vec_T))  Int_list ;
     Int_b = (EXTR (SOMME Int_EVO) 1)
             + (( (EXTR Int_list 1)
                  +(EXTR Int_list (DIMENSION Int_list))
                 )*(dt/2));
-  FinSi;
+  FinSi ;
 
 
   RESPRO Int_b;

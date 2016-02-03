@@ -15,7 +15,7 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
     NbCharg = DIMENSION CHA ;
     Bool1 = (NbCharg > 0);
 
-    SI Bool1;
+    Si Bool1;
         REPETER It NbCharg ;
           CHA_i = EXTR CHA CHAR &It ;
           CHP = EXTR CHA_i CHAM ;
@@ -28,7 +28,7 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
 
           Si (&It ega 1) ;
             FOR_EVO = EVO*FOR_proj ;
-          Sinon ;
+          SiNon ;
             FOR_EVO = FOR_EVO + (EVO * FOR_proj) ;
           FinSi ;
         FIN It ;
@@ -39,7 +39,7 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
         F_Hist2 = ENLEVER F_Hist2 (DIMENSION F_Hist2);
 
         Second = ((1+alpha)*F_Hist) - (alpha*F_Hist2);
-    FINSI;
+    FinSi ;
 
 * Verifier que l evolution final amene a Ttot avec En_Nb_Re composantes
 * !!!!!!!!
@@ -62,7 +62,7 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
 
             Si (&Mod ega 1) ;
                 ModsPrec = (f_K_fk * gk.u) + (f_C_fk * gk.v) + (f_M_fk * gk.w) ;
-            Sinon ;
+            SiNon ;
                 ModsPrec = ModsPrec +
                             (f_K_fk * gk.u) + (f_C_fk * gk.v) + (f_M_fk * gk.w);
             FinSi ;
@@ -70,16 +70,16 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
 
         Si Bool1;
             Second = Second - ModsPrec;
-        SiNon;
+        SiNon ;
             Second = (-1) * ModsPrec;
-        FinSi;
-    FinSi;
+        FinSi ;
+    FinSi ;
 
     Si ((NON Bool1) ET (NON Bool2));
         Mess 'il n y a ni effort ni deplacements imposes';
         Mess '--------------------------------------------';
         list CHA.1;
-    FinSi;
+    FinSi ;
 
     g = PROG ;
     gp = PROG ;
@@ -93,10 +93,10 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
         gpp_t = 0. ;
         g_pred = 0. ;
         gp_pred = 0. ;
-      SiNon;
+      SiNon ;
         g_pred = g_t + ((1+alpha)*((dt*gp_t) + ((dt**2)*(0.5-beta)*gpp_t)));
         gp_pred = gp_t + ((1+alpha)*dt*(1-gamma)*gpp_t ) ;
-      FinSi;
+      FinSi ;
 
       SecondT = EXTR Second &It ;
 
@@ -108,7 +108,7 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
                 + ((dt**2)*(0.5-beta)*gpp_t_pr)
                 + (beta*(dt**2)*gpp_t) ;
         gp_t = gp_t + (dt*(1-gamma)*gpp_t_pr) + (dt*gamma*gpp_t) ;
-      FinSi;
+      FinSi ;
 
         g =   g   et (PROG g_t  ) ;
         gp =  gp  et (PROG gp_t ) ;

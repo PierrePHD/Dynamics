@@ -13,7 +13,7 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
   NbCharg = DIMENSION CHA ;
   Bool1 = (NbCharg > 0);
 
-  SI Bool1;
+  Si Bool1;
       REPETER It NbCharg ;
         CHA_i = EXTR CHA CHAR &It ;
         CHP = EXTR CHA_i CHAM ;
@@ -24,11 +24,11 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
 
         Si (&It ega 1) ;
           Second = (CHP*Int) ;
-        Sinon ;
+        SiNon ;
           Second = Second + (CHP*Int) ;
         FinSi ;
       FIN It ;
-  FINSI;
+  FinSi ;
 
 * La somme sur les modes precedents
 
@@ -59,17 +59,17 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
 
         Si Bool1;
             Second = Second - ( (K*Som1) + (C*Som2) + (M*Som3) ) ;
-        SiNon;
+        SiNon ;
             Second =  (-1) * ( (K*Som1) + (C*Som2) + (M*Som3) ) ;
-        FinSi;
+        FinSi ;
 
-    FinSi;
+    FinSi ;
 
 Si ((NON Bool1) ET (NON Bool2));
     Mess 'il n y a ni effort ni deplacements imposes';
     Mess '--------------------------------------------';
     list CHA.1;
-FinSi;
+FinSi ;
 
 * Resolution
 

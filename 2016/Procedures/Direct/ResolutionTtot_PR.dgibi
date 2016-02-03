@@ -19,7 +19,7 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
   REPETER It En_Nb_Re;
     It_T = &It - 1;
 
-    SI Bool1;
+    Si Bool1;
         REPETER It2 NbCharg ;
             CHA_i = EXTR CHA CHAR &It2 ;
             CHP = EXTR CHA_i CHAM ;
@@ -30,25 +30,25 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
             Si (&It neg 1);
               Val_t_m = EXTR CHA_ord (&It-1);
               Val = ((1+alpha)*Val) - (alpha*Val_t_m) ;
-            FinSi;
+            FinSi ;
 
             Si (&It2 ega 1) ;
               FOR = CHP * Val ;
-            Sinon ;
+            SiNon ;
               FOR = FOR + (CHP * Val) ;
             FinSi ;
         FIN It2 ;
-    SiNon;
+    SiNon ;
         FOR = U0 * 0;
-    FINSI;
+    FinSi ;
 
     A_t V_t U_t= PR_ResolutionInstantT M C K CL_A FOR alpha beta gamma dt U_t V_t A_t;
 
     Bool2 = It_T > 0 ;
-    SI Bool2;
+    Si Bool2;
       U_sol.It_T = U_t;
       V_sol.It_T = V_t;
-    FINSI;
+    FinSi ;
     A_sol.It_T = A_t;
 
   FIN It;

@@ -20,7 +20,7 @@ DEBPROC PR_PGD_to_Full It_m*Entier;
                 U_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It) ;
                 V_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It) ;
                 A_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It) ;
-            Sinon ;
+            SiNon ;
                 U_sol.It_T = U_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It)) ;
                 V_sol.It_T = V_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It)) ;
                 A_sol.It_T = A_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It)) ;

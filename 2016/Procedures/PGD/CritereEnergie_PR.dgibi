@@ -3,7 +3,7 @@ PR_CritereEnergie
 DEBPROC PR_CritereEnergie ;
 
     * Equation dans LaTeX
-    * si K C et M non symetriques recalculer f2*.*f1
+    * Si K C et M non symetriques recalculer f2*.*f1
 
     f1Kf1 = XTMX f1 K;
     f1Kf2 = YTMX f1 f2 K;
