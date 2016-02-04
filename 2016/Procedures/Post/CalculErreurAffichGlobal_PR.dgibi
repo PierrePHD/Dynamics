@@ -30,6 +30,9 @@ FinSi ;
             ErrTotEV = EVOL MANU T Vec_T Errr Out_Err.3 ;
             ErrParMo = ErrParMo ET (SOMM ErrTotEV);
         FinSi ;
+        Si (&It_m ega 1) ;
+            SolAmpli = Out_Err.SolAmpli ;
+        FinSi ;
     FIN It_m;
 
 
@@ -40,7 +43,7 @@ FinSi ;
     FinSi ;
 
     Si Bool1;
-        ErrDepMo = ErrDepMo / Out_Err.SolAmpli;
+        ErrDepMo = ErrDepMo / SolAmpli;
         Mess 'Erreur Relative en Deplacement sur ' Coord
             ' en fonction du nombre de mode';
         Mess '___________________________________ :';

@@ -72,13 +72,15 @@
     *CHA1 = CHAR FORC FOR1 EVT1 ;
     *CHA2 = CHAR FORC FOR2 EVT2 ;
     *Pb.CHA_TOT = CHA1 et CHA2 ;
+    *Pb.CHA_TOT = CHA2 ;
     Pb.CHA_TOT = TABLE ;
 
 
     dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
     FOR1 = FORCE FZ (AMP1*2.) P2 ;
-    Pb.U0  = dep0;
-        *RESO (Pb.K ET Pb.CL_Tot) For1;
-    Pb.V0  = (RESO (Pb.K ET Pb.CL_Tot) For1)/0.01;
+    Pb.U0  =
+        RESO (Pb.K ET Pb.CL_Tot) For1;
+    Pb.V0  = dep0;
+        *(RESO (Pb.K ET Pb.CL_Tot) For1)/0.01;
 
     Pb.P_intere = P2;

@@ -1,0 +1,16 @@
+AAYZ
+PR_AjoutEffortSecondMembreUpdate
+DEBPROC PR_AjoutEffortSecondMembreUpdate It_T*ENTIER Prod*TABLE;
+
+    REPETER It_1 (DIMENSION Cha_proj.F_t);
+        Si (&It_1 ega 1);
+            SM = (EXTR (Cha_proj.F_t.&It_1) It_T) * (Prod.&It_1);
+        SiNon ;
+            SM = SM +
+                        ((EXTR (Cha_proj.F_t.&It_1) It_T) * (Prod.&It_1)) ;
+        FinSi ;
+    FIN It_1;
+
+    RESPRO SM ;
+
+FINPROC;

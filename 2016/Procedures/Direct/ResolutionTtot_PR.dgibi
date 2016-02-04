@@ -57,7 +57,7 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
 
   Solution.U = U_sol;
   Solution.V = V_sol;
-  Solution.A = A_sol;
+  Solution.W = A_sol;
 
   RESPRO Solution ;
 

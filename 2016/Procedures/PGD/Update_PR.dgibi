@@ -31,6 +31,11 @@ REPE BCL1M TaiSys ;
     LISF_ini = LISF_ini ET (MOTS COF1) ;
 FIN BCL1M ;
 
+Tab_Mat = TABLE;
+Tab_Mat.1 = M ;
+Tab_Mat.2 = C ;
+Tab_Mat.3 = K ;
+
 
 LISU_tot = MOTS ;
 LISF_tot = MOTS ;
@@ -59,6 +64,7 @@ Cha_proj.Ff_init = TABLE;
             CHP = EXTR CHA_i CHAM ;
 
             EVO_1 = EXTR CHA_i EVOL;
+            list (Cha_proj.F_t);
             Cha_proj.F_t.&It_1 = EXTR EVO_1 ORDO ;
             Lis_Ffi = PROG;
             Lis_Init = PROG;
@@ -76,6 +82,37 @@ Cha_proj.Ff_init = TABLE;
 
         FIN It_1 ;
     FinSi ;
+
+* Contribution des mode initiaux et imposes
+
+    FamiFIni FamiGIni = PR_ConcatenerFami 0 ;
+    NbModIni = DIMENSION FamiFIni ;
+
+    Si (NbModIni > 0) ;
+
+        LIS_V_1 = MOTS 'fMf' 'fCf' 'fKf';
+        LIS_V_2 = MOTS 'g_A' 'g_V' 'g_U';
+
+        Tab_Ini = TABLE ;
+        REPETER It_1 NbModIni ;
+            Tab_Ini.&It_1 = TABLE ;
+            f_ini = FamiFIni.&It_1 ;
+            REPETER It_2 TaiSys ;
+                Lis_Vec = PROG ;
+                f_ligne = FamiF.Cal.&It_2 ;
+                REPETER It_3 3 ;
+                    Val1 = YTMX f_ini f_ligne Tab_Mat.&It_3 ;
+                    Lis_Vec = Lis_Vec ET (PROG Val1) ;
+                Fin It_3;
+                Tab_Ini.&It_1 .&It_2 =  MANU 'CHPO' MAI1 LIS_V_1 Lis_Vec ;
+
+            FIN It_2;
+
+            Tab_Ini.&It_1.g = FamiGIni.&It_1 ;
+        Fin It_1 ;
+
+    FinSi ;
+
 
 
 * Matrice Pij =
@@ -96,15 +133,15 @@ REPETER It_1 TaiSys;
                     + ((&It_3-1)*3) + &It_4;
                     Si (&It_4 ega 1);
                         Val1 = YTMX f_colo f_ligne M ;
+                        ind_Init = ((&It_1 - 1) *TaiSys)
+                        + (&It_3 - 1) + 1 ;
+                        REMPLACER Lis1Init ind_Init Val1;
                     FinSi ;
                     Si (&It_4 ega 2);
                         Val1 = YTMX f_colo f_ligne C ;
                     FinSi ;
                     Si (&It_4 ega 3);
                         Val1 = YTMX f_colo f_ligne K ;
-                        ind_Init = ((&It_1 - 1) *TaiSys)
-                        + (&It_3 - 1) + 1 ;
-                        REMPLACER Lis1Init ind_Init Val1;
                     FinSi ;
                     REMPLACER Lis1Up ind_List Val1;
                 FIN It_4;
@@ -147,14 +184,19 @@ REPETER It_T En_Nb_Re;
 
     Si (&It_T ega 1);
         * Assemblage du second membre
-        REPETER It_1 (DIMENSION Cha_proj.F_t);
-            Si (&It_1 ega 1);
-                SecoMemb = (EXTR (Cha_proj.F_t.&It_1) 1) * (Cha_proj.Ff_init.&It_1);
+
+        Si (NbCharg > 0);
+            SecoMemb = PR_AjoutEffortSecondMembreUpdate 1 (Cha_proj.Ff_init) ;
+        FinSi ;
+
+        Si (NbModIni > 0) ;
+            CHP1 = PR_AjoutModeInitSecondMembreUpdate VRAI LISF_ini ;
+            Si (NbCharg > 0) ;
+                SecoMemb = SecoMemb - CHP1 ;
             SiNon ;
-                SecoMemb = SecoMemb +
-                            ((EXTR (Cha_proj.F_t.&It_1) 1) * (Cha_proj.Ff_init.&It_1)) ;
+                SecoMemb = (-1) * CHP1 ;
             FinSi ;
-        FIN It_1;
+        FinSi ;
 
         Vec_GIni = RESO PremInit SecoMemb;
 
@@ -166,14 +208,19 @@ REPETER It_T En_Nb_Re;
         FIN It_1;
     SiNon ;
         * Creer fonction pour eviter la repetition de l'assemblage
-        REPETER It_1 (DIMENSION Cha_proj.F_t);
-            Si (&It_1 ega 1);
-                SecoMemb = (EXTR (Cha_proj.F_t.&It_1) &It_T) * (Cha_proj.Ffi.&It_1);
+
+        Si (NbCharg > 0);
+            SecoMemb = PR_AjoutEffortSecondMembreUpdate &It_T (Cha_proj.Ffi) ;
+        FinSi ;
+
+        Si (NbModIni > 0) ;
+            CHP1 = PR_AjoutModeInitSecondMembreUpdate FAUX LISF_tot ;
+            Si (NbCharg > 0) ;
+                SecoMemb = SecoMemb - CHP1 ;
             SiNon ;
-                SecoMemb = SecoMemb +
-                            ((EXTR (Cha_proj.F_t.&It_1) &It_T) * (Cha_proj.Ffi.&It_1)) ;
+                SecoMemb = (-1) * CHP1 ;
             FinSi ;
-        FIN It_1;
+        FinSi ;
 
         Lis_Seco = PROG;
 
@@ -184,9 +231,6 @@ REPETER It_T En_Nb_Re;
             pred_V = (g_V_m1 + ((dt*(1-gamma)) * g_W_m1));
             pred_U = (g_U_m1 + (dt*g_V_m1) + ((dt**2)*(0.5-beta)*g_W_m1));
             Lis_Seco = Lis_Seco ET (PROG 0. pred_V pred_U);
-
-                *REMPLACER SecoMemb (((&It_1 - 1) *3) + 2) pred_V;
-                *REMPLACER SecoMemb (((&It_1 - 1) *3) + 3) pred_U;
         FIN It_1;
 
         Seco_2 = MANU 'CHPO' MAI1 LISF_tot Lis_Seco;

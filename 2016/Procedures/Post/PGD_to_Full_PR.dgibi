@@ -32,7 +32,7 @@ DEBPROC PR_PGD_to_Full It_m*Entier;
 
     Sol.U = U_sol;
     Sol.V = V_sol;
-    Sol.A = A_sol;
+    Sol.W = A_sol;
 
     RESPRO Sol;
 

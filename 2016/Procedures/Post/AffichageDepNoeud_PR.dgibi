@@ -61,7 +61,7 @@ DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
         Fin It;
 
         DESS Tot ;
-        *XBOR 0. 5e-4 YBOR -3e-6 7e-6;
+
     FinSi ;
 
 
@@ -79,7 +79,8 @@ DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti P*Point Coord;
             FinSi ;
         Fin It;
 
-        DESS Tot;
+        DESS Tot ;
+        *XBOR 0. 1e-2 YBOR -4e-3 1e-3;
     FinSi ;
 
 

@@ -4,11 +4,11 @@ DEBPROC PR_Orthogonalisation ;
 
     Mess 'Verification de l orthogonalite';
 
-    FamiFTot FamiGTot = PR_ConcatenerFami (DIMENSION FamiF.Cal ) ;
+    *FamiFTot FamiGTot = PR_ConcatenerFami (DIMENSION FamiF.Cal ) ;
 
-        REPETER It_m (DIMENSION FamiFTot );
-            REPETER It2_m (DIMENSION FamiFTot );
-                Pro_f = PR_ProdScalaireEspace FamiFTot.&It_m FamiFTot.&It2_m;
+        REPETER It_m (DIMENSION FamiF.Cal );
+            REPETER It2_m (DIMENSION FamiF.Cal );
+                Pro_f = PR_ProdScalaireEspace FamiF.Cal.&It_m FamiF.Cal.&It2_m;
                 Mess 'Mode ' &It_m ' et ' &It2_m ' : ' Pro_f;
             FIN It2_m;
         FIN It_m;
@@ -20,7 +20,7 @@ DEBPROC PR_Orthogonalisation ;
             Pro_f = PR_ProdScalaireEspace f_espa FamiF.Cal.&It_m;
             NumMod = (DIMENSION FamiF.Cal ) + 1 ;
             Mess 'Mode ' &It_m ' et ' NumMod ' : ' Pro_f;
-            
+
             FamiG.Cal.&It_m.u = FamiG.Cal.&It_m.u + (g_tmps.u * Pro_f);
             FamiG.Cal.&It_m.v = FamiG.Cal.&It_m.v + (g_tmps.v * Pro_f);
             FamiG.Cal.&It_m.w = FamiG.Cal.&It_m.w + (g_tmps.w * Pro_f);

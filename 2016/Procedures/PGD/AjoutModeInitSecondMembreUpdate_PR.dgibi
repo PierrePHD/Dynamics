@@ -1,0 +1,28 @@
+AAZZ
+PR_AjoutModeInitSecondMembreUpdate
+DEBPROC PR_AjoutModeInitSecondMembreUpdate Bool_Ini*LOGIQUE Lis_Comp*LISTMOTS;
+
+
+    REPETER It_1 NbModIni ;
+
+        Lis_gIni = PROG ( EXTR Tab_Ini.&It_1.g.w &It_T)
+                        ( EXTR Tab_Ini.&It_1.g.v &It_T)
+                        ( EXTR Tab_Ini.&It_1.g.u &It_T) ;
+        CHP2 = MANU 'CHPO' MAI1 LIS_V_2 Lis_gIni ;
+        Lis_SIni = PROG;
+        REPETER It_2 TaiSys;
+            FIni_Fi = Tab_Ini.&It_1 .&It_2 ;
+            Val1 = XTY FIni_Fi CHP2 LIS_V_1 LIS_V_2;
+            SI Bool_Ini ;
+                Lis_SIni = Lis_SIni et (PROG Val1) ;
+            SiNon ;
+                Lis_SIni = Lis_SIni et (PROG Val1 0. 0.) ;
+            FinSi ;
+        FIN It_2;
+        CHP2 = MANU 'CHPO' MAI1 Lis_Comp Lis_SIni ;
+
+    Fin It_1 ;
+
+    RESPRO CHP2;
+
+FINPROC;
