@@ -23,6 +23,7 @@
     P3 = PouPla POIN PROC (LON1 (LON2/2) 0.);
     Pb.geo = PouPla;
     ELIM PouPla 0.0001;
+    Pb.DirPriv = 'UX';
     *TRAC PouPla ;
     *------DEFINITION DU MODELE ET DU MATERIAU--------*
     MOD1 = MODEL PouPla MECANIQUE ELASTIQUE COQ8 ;
@@ -56,6 +57,7 @@
     CHA1 = CHAR FORC FOR1 EVT1 ;
     CHA2 = CHAR FORC FOR2 EVT2 ;
     Pb.CHA_TOT = CHA1 et CHA2;
+    Pb.Tab_NL = TABLE;
 
     dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
     Pb.U0  = dep0;

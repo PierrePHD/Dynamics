@@ -1,5 +1,9 @@
 
 
+
+    LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
+    L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
+
     Pb Cal_T = PR_CreationProb;
 
     K = Pb.K;
@@ -9,6 +13,8 @@
     U0 = Pb.U0;
     V0 = Pb.V0;
     P_intere = Pb.P_intere;
+    DirPriv = Pb.DirPriv;
+    Nb_NL = DIME (Pb.Tab_NL) ;
 
     dt = Cal_T.dt;
     Ttot = Cal_T.Ttot;
@@ -16,7 +22,8 @@
     En_Nb_Re = PR_TailVectTemp dt Ttot;
     Vec_T = PROG 0. PAS dt Ttot ;
 
-    C = ((1e-4*K) ET (1e4*M)) *0.1;
+    C = ((1e-4*K) ET (1e4*M)) * 0.1;
+    * !!!! Valeur de l amortissement ici
     CL_A = CL_TOT;
     schema = 3 ;
     alpha = 0.0;
@@ -26,9 +33,9 @@
     TEMPS ZERO;
     Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
                     alpha beta gamma dt Ttot U0 V0;
-    * CALCULER AMPLITUDE ICI
 
     TEMPS;
+
 
     *Solu2 = PR_ResolutionTtot M C K CL_A FOR2 alpha beta gamma dt Ttot U0 V0;
     *list Solu1;
@@ -47,23 +54,181 @@
         FamiF.Ini = TABLE;
         FamiG.Ini = TABLE;
 
+
     NbModCal = 5;
     OPT0 = TABLE;
     OPT0.Orth = VRAI;
-
-
-    DirPriv = 'UZ';
+    OPT0.Upda = VRAI;
 
     PR_ResolutionPGD NbModCal;
 
-    Mess 'SORTIE' ;
-
     TEMPS;
 
-    AffMods = LECT 1 2 ;
-    AffSolu = LECT 1 2 ;
     *OPTI TRAC PSC;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv;
+
+        AffMods = LECT 1 2 3 4 5;
+        AffSolu = LECT 1 2 3 4 5;
+
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.5;
+
+    PR_AffichageModesEspace AffMods;
+
+    ErrDep ErrEner = PR_CalculErreurAffichGlobal DirPriv VRAI;
+
+    opti donn 5 ;
+
+
+    CHA_TOT0 = CHA_TOT;
+
+
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
+    * !!!! Utiliser
+    // PR_Eval_Force_NL NL_Tab*TABLE lambda*FLOTTANT Val_Scal*LOGIQUE
+    //                         Val_U/FLOTTANT Val_V/FLOTTANT CHP_U/CHPOINT CHP_V/CHPOINT ;
+    CHA_NL = PR_EvalNonLin 0.3;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = Evo_NL;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+
+            FamiF.Cal = TABLE;
+            FamiG.Cal = TABLE;
+            NbModCal = 1;
+            AffMods = LECT 1 ;
+            AffSolu = LECT 1 ;
+        PR_ResolutionPGD NbModCal;
+
+
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
+    CHA_NL = PR_EvalNonLin 0.3;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
+    CHA_NL = PR_EvalNonLin 0.3;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
+    CHA_NL = PR_EvalNonLin 0.3;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
+    CHA_NL = PR_EvalNonLin 0.3;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
+    CHA_NL = PR_EvalNonLin 0.3;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
+    CHA_NL = PR_EvalNonLin 0.3;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
+    CHA_NL = PR_EvalNonLin 0.4;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
+    CHA_NL = PR_EvalNonLin 0.4;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
+    CHA_NL = PR_EvalNonLin 0.4;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
+    CHA_NL = PR_EvalNonLin 0.4;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
+    CHA_NL = PR_EvalNonLin 0.4;
+    CHA_TOT = CHA_TOT0 et CHA_NL ;
+    Evo_NL  = EXTR CHA_NL 'EVOL' ;
+    EvoNLTot = EvoNLTot + Evo_NL;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+        NbModCal = 1;
+    PR_ResolutionPGD NbModCal;
+    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
+                    alpha beta gamma dt Ttot U0 V0;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
+
+    *FamiF.Imp.1 = FamiF.Cal.1 ;
+    *FamiG.Imp.1 = FamiG.Cal.1 ;
+
+    opti donn 5;
+
+
     * Attention multiplier par 2 ampli pour corespondance avec matlab.
 
     *opti donn 5 ;
@@ -81,14 +246,12 @@
         *trac (ABS BLA) Def1;
 
 
-    ErrDep ErrEner = PR_CalculErreurAffichGlobal DirPriv VRAI;
 
     *AffMods = LECT 1 ;
     *PR_AffichageModesEspace AffMods;
 
     *New_G= PR_Update;
 
-    opti donn 5;
 
 
     *

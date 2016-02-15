@@ -18,18 +18,16 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
     Si Bool1;
         REPETER It NbCharg ;
           CHA_i = EXTR CHA CHAR &It ;
-          CHP = EXTR CHA_i CHAM ;
+          CHP_i = EXTR CHA_i CHAM ;
 
-          LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
-          L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
-          FOR_proj = XTY CHP f LFOR L_f;
+          FOR_proj = XTY CHP_i f LFOR L_f;
 
-          EVO = EXTR CHA_i EVOL ;
+          EVO_i = EXTR CHA_i EVOL ;
 
           Si (&It ega 1) ;
-            FOR_EVO = EVO*FOR_proj ;
+            FOR_EVO = EVO_i*FOR_proj ;
           SiNon ;
-            FOR_EVO = FOR_EVO + (EVO * FOR_proj) ;
+            FOR_EVO = FOR_EVO + (EVO_i * FOR_proj) ;
           FinSi ;
         FIN It ;
 
@@ -41,18 +39,31 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
         Second = ((1+alpha)*F_Hist) - (alpha*F_Hist2);
     FinSi ;
 
-* Verifier que l evolution final amene a Ttot avec En_Nb_Re composantes
-* !!!!!!!!
+    Si ( Nb_NL > 0) ;
+        FNL_proj = TABLE ;
+        UNL_proj = TABLE ;
+        TabLisNL = TABLE ;
 
+        REPETER It_NL Nb_NL ;
+            FNL_proj.&It_NL = XTY (Pb.Tab_NL.&It_NL.effo) f LFOR L_f ;
+
+            Si ( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
+                UNL_proj.&It_NL = (EXTR f (Pb.Tab_NL.&It_NL.Dir_int)
+                  (Pb.Tab_NL.&It_NL.Poi_int)) * (Pb.Tab_NL.&It_NL.fac_int) ;
+            SiNon ;
+                UNL_proj.&It_NL = XTY (Pb.Tab_NL.&It_NL.ch_depen) f LFOR L_f;
+            FinSi ;
+            TabLisNL.&It_NL = PROG ;
+        Fin It_NL ;
+    FinSi ;
 
     FamiFTot FamiGTot = PR_ConcatenerFami (It_m-1) ;
 
 * Contribution des modes precendents
 
     TailFami = DIMENSION FamiFTot;
-    Bool2 = TailFami > 0;
 
-    Si Bool2;
+    Si (TailFami > 0);
         REPETER Mod TailFami;
             gk = FamiGTot.&Mod;
             fk = FamiFTot.&Mod;
@@ -75,7 +86,7 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
         FinSi ;
     FinSi ;
 
-    Si ((NON Bool1) ET (NON Bool2));
+    Si ((NON Bool1) ET (NON (TailFami > 0)));
         Mess 'il n y a ni effort ni deplacements imposes';
         Mess '--------------------------------------------';
         list CHA.1;
@@ -100,6 +111,40 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
 
       SecondT = EXTR Second &It ;
 
+
+        Si ( Nb_NL > 0) ;
+
+            REPETER It_NL Nb_NL ;
+              Val_UNL = g_t  * UNL_proj.&It_NL ;
+              Val_VNL = gp_t * UNL_proj.&It_NL ;
+              Si (TailFami > 0) ;
+                Si ( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
+                    // Eventuellement l evaluation du cote espace pourrait etre fait hors boucle
+                    // PR_EvalPGD pourrait etre condenser pour l'appeler une seule fois
+                    Prec_U = PR_EvalPGD (Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) &It
+                            FamiFTot FamiGTot 'U';
+                    Prec_V = PR_EvalPGD (Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) &It
+                            FamiFTot FamiGTot 'V';
+                    Val_UNL = Val_UNL + (Prec_U * (Pb.Tab_NL.&It_NL.fac_int) ) ;
+                    Val_VNL = Val_VNL + (Prec_V * (Pb.Tab_NL.&It_NL.fac_int) ) ;
+                SiNon ;
+                    Prec = PR_EvalPGD (Pb.Tab_NL.&It_NL.ch_depen) &It FamiFTot FamiGTot 'U';
+                    Prec = PR_EvalPGD (Pb.Tab_NL.&It_NL.ch_depen) &It FamiFTot FamiGTot 'V';
+                    Val_UNL = (Val_UNL + Prec_U) ;
+                    Val_VNL = (Val_VNL + Prec_V) ;
+                FinSi ;
+              FinSi ;
+
+                Val_F_NL Bool_Max= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.5 VRAI Val_UNL Val_VNL ;
+                * !!!! Utiliser Bool_max;
+
+                TabLisNL.&It_NL = (TabLisNL.&It_NL) et (PROG Val_F_NL);
+                SecondT = SecondT + ((FNL_proj.&It_NL) * Val_F_NL) ;
+            Fin It_NL ;
+
+        FinSi ;
+
+
       gpp_t_pr = gpp_t;
       gpp_t = (SecondT - ((Prem_g*g_pred)+(Prem_gp*gp_pred)))/Prem_gpp;
 
@@ -122,5 +167,13 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
     g_tmps.w = gpp;
 
   RESPRO g_tmps;
+
+  TabEvoNL = TABLE ;
+  Si ( Nb_NL > 0) ;
+    REPETER It_NL Nb_NL ;
+        TabEvoNL.&It_NL = EVOL MANU T Vec_T F(T) (TabLisNL.&It_NL) ;
+    Fin It_NL ;
+  FinSi ;
+  RESPRO TabEvoNL ;
 
 FINPROC;

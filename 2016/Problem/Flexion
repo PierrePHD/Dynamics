@@ -24,6 +24,7 @@
     ELIM L1 0.00000001;
     L2 = D 1 P2 P4;
     Pb.geo = L1 et L2;
+    Pb.DirPriv = 'UZ';
     *opti trac X ;
     TRAC Pb.geo ;
     *------DEFINITION DU MODELE ET DU MATERIAU--------*
@@ -53,9 +54,9 @@
     * ET CL2 ;
 
     *--------------Parametres de calcul---------------*
-    Cal_T.dt = 2e-5;
-    Cal_T.Ttot = 10e-3;
-    Pb.T_period = 5e-3 ;
+    Cal_T.dt = 4e-5;
+    Cal_T.Ttot = 20e-3;
+    Pb.T_period = 10e-3 ;
     En_Nb_Re = PR_TailVectTemp Cal_T.dt Cal_T.Ttot;
     Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
 
@@ -63,24 +64,44 @@
     *-----------------CHARGEMENT----------------------*
 
         *----------EVOLUTION TEMPORELLE-----------*
-        *LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
-        *LIS1 = LIS1 + (PROG En_Nb_Re*1.);
-        *EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
+        LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+        LIS1 = LIS1 + (PROG En_Nb_Re*1.);
+        EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
         *EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
 
-    *FOR2 = FORCE FX 0. P3 ;
-    *CHA1 = CHAR FORC FOR1 EVT1 ;
-    *CHA2 = CHAR FORC FOR2 EVT2 ;
-    *Pb.CHA_TOT = CHA1 et CHA2 ;
-    *Pb.CHA_TOT = CHA2 ;
-    Pb.CHA_TOT = TABLE ;
-
-
-    dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
+    // FOR2 = FORCE FX 0. P3 ;
+    // CHA2 = CHAR FORC FOR2 EVT2 ;
     FOR1 = FORCE FZ (AMP1*2.) P2 ;
-    Pb.U0  =
-        RESO (Pb.K ET Pb.CL_Tot) For1;
+    CHA1 = CHAR FORC FOR1 EVT1 ;
+    Pb.CHA_TOT = CHA1 ;
+    // Pb.CHA_TOT = CHA1 et CHA2 ;
+    // Pb.CHA_TOT = TABLE ;
+
+    // dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
+    FOR1 = FORCE FZ (AMP1*(-5)) P2 ;
+    dep0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
+    Pb.U0  = dep0;
+        // RESO (Pb.K ET Pb.CL_Tot) For1;
+
     Pb.V0  = dep0;
         *(RESO (Pb.K ET Pb.CL_Tot) For1)/0.01;
 
     Pb.P_intere = P2;
+
+    Pb.Tab_NL = TABLE;
+
+        Pb.Tab_NL.1 = TABLE;
+
+            Pb.Tab_NL.1 .typ = 1; // Butee
+                Pb.Tab_NL.1 .Butee = TABLE;
+                    Pb.Tab_NL.1 .Butee.Raideur = 8.4E+06 ;
+                    Pb.Tab_NL.1 .Butee.Jeu = 5e-3 ;
+                    Pb.Tab_NL.1 .Butee.DeltaJeu = 0.2e-3 ;
+            Pb.Tab_NL.1 .fun = 1;
+                * Fonction de Francois
+            Pb.Tab_NL.1 .effo = FORCE FZ 1 P2 ;
+
+            Pb.Tab_NL.1 .ch_depen = FORCE FZ (-1) P2 ; ;
+            Pb.Tab_NL.1 .Poi_int = P2 ;
+            Pb.Tab_NL.1 .Dir_int = 'UZ' ;
+            Pb.Tab_NL.1 .fac_int = -1 ;

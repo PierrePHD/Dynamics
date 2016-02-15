@@ -18,6 +18,7 @@
     P3 = L1 POIN PROC ((LON1/2) 0. 0.);
     ELIM L1 0.00000001;
     Pb.geo = L1;
+    Pb.DirPriv = 'UX';
     *opti trac X ;
     *TRAC L1 ;
     *------DEFINITION DU MODELE ET DU MATERIAU--------*
@@ -55,6 +56,7 @@
     CHA1 = CHAR FORC FOR1 EVT1 ;
     CHA2 = CHAR FORC FOR2 EVT2 ;
     Pb.CHA_TOT = CHA1 et CHA2 ;
+    Pb.Tab_NL = TABLE;
 
     dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
     Pb.U0  = dep0;

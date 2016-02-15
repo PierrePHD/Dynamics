@@ -1,0 +1,11 @@
+ABBZ
+PR_FonctionFrancois
+DEBPROC PR_FonctionFrancois ;
+
+    F_Rep = (((-1) * Raideur * (DeltaJeu**2))
+                         / ((U - Jeu) - DeltaJeu))
+                        +( Raideur * ((Jeu - DeltaJeu) - U))  ;
+
+    RESPRO F_Rep ;
+
+FINPROC;

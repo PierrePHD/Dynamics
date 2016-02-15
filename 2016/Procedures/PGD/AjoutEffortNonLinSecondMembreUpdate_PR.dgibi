@@ -1,0 +1,49 @@
+ABGZ
+PR_AjoutEffortNonLinSecondMembreUpdate
+DEBPROC PR_AjoutEffortNonLinSecondMembreUpdate It_Temps*ENTIER Prod*TABLE;
+
+    REPETER It_NL Nb_NL ;
+
+        * Evaluation au pas precedent
+        Si (It_Temps > 1);
+            Lis_gu_T = PROG ;
+            Lis_gv_T = PROG ;
+            REPETER It_2 TaiSys;
+                g_U_m1 = EXTR New_Fami.&It_2 .u (It_Temps - 1) ;
+                g_V_m1 = EXTR New_Fami.&It_2 .v (It_Temps - 1) ;
+                Lis_gu_T = Lis_gu_T et (PROG g_U_m1) ;
+                Lis_gv_T = Lis_gv_T et (PROG g_V_m1) ;
+            FIN It_2;
+            CHP_1 = MANU 'CHPO' MAI1 LISU_ini Lis_gu_T;
+            U_NL_pre = XTY CHP_1 (NL_proj.Dfi.&It_NL) LISU_ini LISU_ini;
+
+            CHP_1 = MANU 'CHPO' MAI1 LISU_ini Lis_gv_T;
+            V_NL_pre = XTY CHP_1 (NL_proj.Dfi.&It_NL) LISU_ini LISU_ini;
+        SiNon ;
+            U_NL_pre = 0;
+            V_NL_pre = 0;
+        FinSi ;
+
+        Si (NbModIni > 0) ;
+            REPETER It_Impo NbModIni ;
+                U_NL_pre = U_NL_pre +
+                            (EXTR (NL_proj.Eva_Impo.&It_NL.&It_Impo.u) It_Temps) ;
+                V_NL_pre = U_NL_pre +
+                            (EXTR (NL_proj.Eva_Impo.&It_NL.&It_Impo.v) It_Temps) ;
+            Fin It_Impo ;
+        FinSi ;
+
+        Val_F_NL Bool_Max = PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.5 VRAI
+                            U_NL_pre V_NL_pre;
+
+        Si (&It_NL ega 1);
+            SM =        Val_F_NL * (Prod.&It_NL) ;
+        SiNon ;
+            SM = SM + ( Val_F_NL * (Prod.&It_NL) ) ;
+        FinSi ;
+    FIN It_NL;
+
+    RESPRO SM ;
+    RESPRO Val_F_NL ;
+
+FINPROC;

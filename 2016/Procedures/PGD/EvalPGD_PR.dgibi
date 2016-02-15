@@ -1,0 +1,72 @@
+ABFZ
+PR_EvalPGD
+DEBPROC PR_EvalPGD Coord/MOT Pt_local/Point CHP_Prod/CHPOINT Pas_T/ENTIER
+                FamiFEva*TABLE FamiGEva*TABLE Grandeur*MOT;
+
+    Bool__Pt = EXISTE Pt_local ;
+    Bool_Chp = EXISTE CHP_Prod ;
+    Bool___T = EXISTE Pas_T ;
+    Bool_PtT = (OU Bool__Pt Bool_Chp) ET Bool___T ;
+
+
+    TailFami = DIMENSION FamiFEva;
+    Bool_5 = TailFami > 0;
+
+    Si (NON Bool_5) ;
+        Mess 'Il n y a pas de mode a evaluer' ;
+        list (EXTR ZZZ 4) ;
+    FinSi ;
+
+    REPETER It2 TailFami;
+        Si Bool_PtT ;
+            * --- Deplacement du point au temps donne ---
+                Si Bool__Pt ;
+                    Val = EXTR (FamiFEva.&It2) Coord Pt_local;
+                SiNon ;
+                    Val = XTY CHP_Prod (FamiFEva.&It2) LFOR L_f ;
+                FinSi ;
+                Mod_PGD = Val * (EXTR (FamiGEva.&It2.Grandeur) Pas_T) ;
+
+                Si (&It2 > 1);
+                    Sol_PGD = Sol_PGD + Mod_PGD ;
+                SiNon ;
+                    Sol_PGD = Mod_PGD;
+                FinSi ;
+
+        SiNon ;
+            * --- Deplacement dans le temps du point ---
+            Si (OU Bool__Pt Bool_Chp) ;
+                Si (Bool__Pt) ;
+                    Val = EXTR (FamiFEva.&It2) Coord Pt_local;
+                SiNon ;
+                    Val = XTY Bool_Chp (FamiFEva.&It2) LFOR L_f ;
+                FinSi ;
+
+                Mod_PGD = Val * (FamiGEva.&It2.Grandeur) ;
+
+                Si (&It2 > 1);
+                    Sol_PGD = Sol_PGD + Mod_PGD ;
+                SiNon ;
+                    Sol_PGD = Mod_PGD;
+                FinSi ;
+            FinSi ;
+
+            * --- Deplacement du maillage au temps donne ---
+            Si Bool___T ;
+                Val = FamiFEva.&It2 ;
+
+                Mod_PGD = Val * (EXTR (FamiGEva.&It2.Grandeur) Pas_T) ;
+
+                Si (&It2 > 1);
+                    Sol_PGD = Sol_PGD + Mod_PGD ;
+                SiNon ;
+                    Sol_PGD = Mod_PGD;
+                FinSi ;
+            FinSi ;
+        FinSi;
+    FIN It2;
+
+    RESPRO Sol_PGD ;
+
+
+FINPROC;

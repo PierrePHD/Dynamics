@@ -10,7 +10,7 @@ for FichierProc in Procedures/*/*_PR.dgibi
 do
 	printf '$$$$ ' >> ConcatTemp
 	# Castem Compatible
-	cat $FichierProc | tr -d "\t" | sed -E '/^ *$/d' | sed -e 's/^[ 	]*//' > Temp1
+	cat $FichierProc | tr -d "\t" | sed -E '/^ *$/d' | sed 's/[/][/].*$//g' | sed -e 's/^[ 	]*//' > Temp1
 		#Retirer les tabulations, les lignes vides
 	sed \1d Temp1 >> ConcatTemp
 done
@@ -23,7 +23,7 @@ do
 	sed "s/$NomClair/$NomCastem/g" ConcatTemp > Temp1
 	sed "s/$NomClair/$NomCastem/g" TempMain > Temp2
 	cat Temp1 > ConcatTemp
-	cat Temp2 > TempMain
+	cat Temp2 | tr -d "\t" | sed -E '/^ *$/d' | sed 's/[/][/].*$//g' | sed -e 's/^[ 	]*//' > TempMain
 done
 
 cat listeDesVariables | tr -d "\t" | sed -E '/^ *$/d'  > TempVariables
@@ -43,15 +43,19 @@ printf '$$$$' >> ConcatTemp
 
 cat ConcatTemp | tr -d "\t" | sed -E '/^ *$/d' > ConcatProc.dgibi
 	MAX=0
+	LIMIT=72
 	while read -r line; do
 	  if [ ${#line} -gt $MAX ]; then MAX=${#line}; fi
+	  if [ ${#line} -gt $LIMIT ]; then echo "${line}"; fi
 	done < ConcatProc.dgibi
 	if [ $MAX -gt 72 ]; then echo "depassement de 72 caracteres dans ConcatProc.dgibi"; sleep 10; fi
 
 cat TempMain | tr -d "\t" | sed -E '/^ *$/d' | sed 's/^ *//' > $1.dgibi
 	MAX=0
+	LIMIT=72
 	while read -r line; do
-	  if [ ${#line} -gt $MAX ]; then MAX=${#line}; fi
+		if [ ${#line} -gt $MAX ]; then MAX=${#line}; fi
+  	  	if [ ${#line} -gt $LIMIT ]; then echo "${line}"; fi
 	done < $1.dgibi
 	if [ $MAX -gt 72 ]; then echo "depassement de 72 caracteres dans $1.dgibi"; sleep 10; fi
 

@@ -1,0 +1,33 @@
+ABAZ
+PR_Butee
+DEBPROC PR_Butee Val_Bute*TABLE U*FLOTTANT lambda*FLOTTANT Max/LOGIQUE;
+
+    Raideur = (Val_Bute.Raideur) ;
+    Jeu = (Val_Bute.Jeu) ;
+    DeltaJeu = (Val_Bute.DeltaJeu) ;
+
+    Si (EXISTE Max) ;
+        U = Jeu + DeltaJeu ;
+    FinSi;
+
+    Max_Veri = FAUX ;
+    *Si ( NON (EXISTE lambda) ) ;
+    *    lambda = 0.1 ;
+    *FinSi ;
+
+    Si (U < Jeu);
+        F_B = 0 ;
+    SiNon ;
+        Val_Max = Jeu + (lambda * DeltaJeu) ;
+        Si (U > Val_Max );
+            Max_Veri = VRAI ;
+            U = Val_Max ;
+        FinSi;
+        F_B = PR_FonctionFrancois ;
+    FinSi ;
+
+    RESPRO F_B ;
+
+    RESPRO Max_Veri ;
+
+FINPROC;

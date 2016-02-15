@@ -1,0 +1,62 @@
+\documentclass[border=2pt]{standalone}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{pgfplots} %pour Tikz et pgfplot
+\pdfinfo
+{
+  /Author      (Pierre NARGIL)
+}
+\title{Post Traitement}
+\author{Pierre Nargil}
+
+% ---------------------------------------------------------------------
+\begin{document}
+
+	\begin{tikzpicture}[scale=1]
+			\begin{axis}[%
+			width=15cm,
+			height=10cm,
+			unbounded coords=jump,
+			scale only axis,
+					grid=major,
+			%ymode=log,
+			xlabel={Temps},
+			ylabel={Déplacement},
+			xmin=0,
+			xmax=2e-2,
+			ymax=0.5e-3,
+			ymin=-5.5e-3,
+			legend style={
+			at={(0,.15)},
+			anchor=south west}
+			]
+			\addplot [color=black,dashed,forget plot,line width=0.7]
+					  table[row sep=crcr]{
+					0	-5e-3\\
+					2e-2	-5e-3\\
+					};
+					\addplot [color=black,solid,forget plot,line width=1]
+					  table[row sep=crcr]{
+					0	-5.2e-3\\
+					2e-2	-5.2e-3\\
+					};
+					\addplot [color=red,line width=1.5] 
+							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD1.csv};
+					\addplot [color=green,line width=1.5] 
+							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD2.csv};
+					\addplot [color=blue,line width=1.5] 
+							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD3.csv};
+					\addplot [color=black,dashed,line width=1.5] 
+							table[x index=0,y index=1, col sep=comma]  {Donnees/SansOption/Direct.csv};
+					\addplot [color=black,dashed,line width=1.5] 
+							table[x index=0,y index=1, col sep=comma]  {Donnees/SansOption/Direct.csv};
+					\addplot [color=black,dashed,line width=1] 
+							table[x index=0,y index=1, col sep=comma]  {Donnees/DirectLineaire.csv};
+					\addplot [color=red,dotted,line width=2] 
+							table[x index=0,y expr=\thisrowno{1}*(1/180000) ,col sep=comma]  {Donnees/SansOption/EffortNonLin.csv};
+\legend{ 3 modes, Directe, $F_{N \! L}$}
+			\end{axis}
+	\end{tikzpicture}
+	
+\end{document}
+% ---------------------------------------------------------------------

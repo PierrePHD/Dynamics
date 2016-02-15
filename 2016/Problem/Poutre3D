@@ -24,6 +24,7 @@
     Sur1 = DALL L1 L2 L3 L4 ;
     PouVol = SUR1 VOLU GENE L5;
     P6 = PouVol POIN PROC (LON1 (LAR1/2) (EP1/2) );
+    Pb.DirPriv = 'UX';
     *ELIM PouVol 0.0001;
     *TRAC PouVol ;
     *------DEFINITION DU MODELE ET DU MATERIAU--------*
@@ -58,6 +59,7 @@
     CHA1 = CHAR FORC FOR1 EVT1 ;
     CHA2 = CHAR FORC FOR2 EVT2 ;
     Pb.CHA_TOT = CHA1 et CHA2 ;
+    Pb.Tab_NL = TABLE;
 
     dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
     Pb.U0  = dep0;

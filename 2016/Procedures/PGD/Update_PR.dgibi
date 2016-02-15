@@ -1,11 +1,6 @@
 AAVZ
 PR_Update
 DEBPROC PR_Update;
-*
-*
-*!!!!!!! Ajouter conribution des modes 'IMP' 'INI' 'CAL';
-*
-*
 
 
 * Maillage necessaire pour creer les objets de calculs
@@ -51,26 +46,31 @@ Cha_proj.Ffi = TABLE;
 Cha_proj.F_t = TABLE;
 Cha_proj.Ff_init = TABLE;
 
+NL_proj = TABLE;
+NL_proj.Ffi = TABLE;
+NL_proj.Ff_init = TABLE;
+NL_proj.Dfi = TABLE;
+NL_proj.Eva_Impo = TABLE;
 
-* Projection F . f_espa_i
+L_F_NL = PROG ;
+
+
+* Contribution des efforts
+
     NbCharg = DIMENSION CHA_TOT ;
     Si (NbCharg > 0);
 
-        LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
-        L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
-
         REPETER It_1 NbCharg ;
             CHA_i = EXTR CHA_TOT CHAR &It_1 ;
-            CHP = EXTR CHA_i CHAM ;
+            CHP_i = EXTR CHA_i CHAM ;
 
-            EVO_1 = EXTR CHA_i EVOL;
-            list (Cha_proj.F_t);
-            Cha_proj.F_t.&It_1 = EXTR EVO_1 ORDO ;
+            EVO_i = EXTR CHA_i EVOL;
+            Cha_proj.F_t.&It_1 = EXTR EVO_i ORDO ;
             Lis_Ffi = PROG;
             Lis_Init = PROG;
             REPETER It_2 TaiSys;
                 f_i = FamiF.Cal.&It_2;
-                FOR_proj = XTY CHP f_i LFOR L_f;
+                FOR_proj = XTY CHP_i f_i LFOR L_f;
                 Lis_Init = Lis_Init ET (PROG FOR_proj);
                 Lis_Ffi = Lis_Ffi ET (PROG FOR_proj 0 0);
             FIN It_2;
@@ -83,7 +83,7 @@ Cha_proj.Ff_init = TABLE;
         FIN It_1 ;
     FinSi ;
 
-* Contribution des mode initiaux et imposes
+* Contribution des modes initiaux et imposes
 
     FamiFIni FamiGIni = PR_ConcatenerFami 0 ;
     NbModIni = DIMENSION FamiFIni ;
@@ -111,6 +111,61 @@ Cha_proj.Ff_init = TABLE;
             Tab_Ini.&It_1.g = FamiGIni.&It_1 ;
         Fin It_1 ;
 
+    FinSi ;
+
+* Contribution Non Lineaire
+
+    Si (Nb_NL > 0) ;
+
+        REPETER It_NL Nb_NL ;
+
+            Lis_Ffi = PROG;
+            Lis_Init = PROG;
+            Lis_Dfi = PROG ;
+
+            REPETER It_2 TaiSys;
+                f_i = FamiF.Cal.&It_2;
+                FNL_proj = XTY (Pb.Tab_NL.&It_NL.effo) f_i LFOR L_f ;
+
+                Si ( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
+
+                    UNL_proj = (EXTR f_i (Pb.Tab_NL.&It_NL.Dir_int)
+                                         (Pb.Tab_NL.&It_NL.Poi_int)) * (Pb.Tab_NL.&It_NL.fac_int)  ;
+                SiNon ;
+                    UNL_proj = XTY (Pb.Tab_NL.&It_NL.ch_depen) f_i LFOR L_f;
+                FinSi ;
+
+                Lis_Init = Lis_Init ET (PROG FNL_proj);
+                Lis_Ffi = Lis_Ffi ET (PROG FNL_proj 0 0);
+                Lis_Dfi = Lis_Dfi ET (PROG UNL_proj);
+            FIN It_2;
+
+            Si (NbModIni > 0) ;
+                NL_proj.Eva_Impo.&It_NL = TABLE;
+                REPETER It_Impo NbModIni ;
+                    NL_proj.Eva_Impo.&It_NL.&It_Impo = TABLE;
+
+                    Si ( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
+                        UNL_proj = (EXTR (FamiFIni.&It_Impo) (Pb.Tab_NL.&It_NL.Dir_int)
+                                                             (Pb.Tab_NL.&It_NL.Poi_int)) * (Pb.Tab_NL.&It_NL.fac_int) ;
+                    SiNon ;
+                        UNL_proj = XTY (Pb.Tab_NL.&It_NL.ch_depen) (FamiFIni.&It_Impo) LFOR L_f;
+                    FinSi ;
+
+                    NL_proj.Eva_Impo.&It_NL.&It_Impo.u = UNL_proj * (FamiGIni.&It_Impo.u) ;
+                    NL_proj.Eva_Impo.&It_NL.&It_Impo.v = UNL_proj * (FamiGIni.&It_Impo.v) ;
+                Fin It_Impo ;
+            FinSi ;
+
+            CHP1 = MANU 'CHPO' MAI1 LISF_ini Lis_Init;
+            NL_proj.Ff_init.&It_NL = CHP1;
+            CHP1 = MANU 'CHPO' MAI1 LISF_tot Lis_Ffi;
+            NL_proj.Ffi.&It_NL = CHP1;
+
+            CHP1 = MANU 'CHPO' MAI1 LISU_ini Lis_Dfi;
+            NL_proj.Dfi.&It_NL = CHP1;
+
+        FIN It_NL ;
     FinSi ;
 
 
@@ -179,7 +234,6 @@ REPETER It_1 TaiSys;
     New_Fami.&It_1 = TABLE;
 FIN It_1;
 
-
 REPETER It_T En_Nb_Re;
 
     Si (&It_T ega 1);
@@ -195,6 +249,18 @@ REPETER It_T En_Nb_Re;
                 SecoMemb = SecoMemb - CHP1 ;
             SiNon ;
                 SecoMemb = (-1) * CHP1 ;
+            FinSi ;
+        FinSi ;
+
+        Si (Nb_NL > 0) ;
+            CHP1 F_NL_T = PR_AjoutEffortNonLinSecondMembreUpdate &It_T (NL_proj.Ff_init) ;
+            L_F_NL = L_F_NL et (PROG F_NL_T);
+
+            Bool_1 = ( OU (NbCharg > 0) (NbModIni > 0) ) ;
+            Si Bool_1 ;
+                SecoMemb = SecoMemb + CHP1 ;
+            SiNon ;
+                SecoMemb = CHP1 ;
             FinSi ;
         FinSi ;
 
@@ -236,13 +302,26 @@ REPETER It_T En_Nb_Re;
         Seco_2 = MANU 'CHPO' MAI1 LISF_tot Lis_Seco;
 
         SecoMemb = SecoMemb + Seco_2;
+
+        Si (Nb_NL > 0) ;
+            CHP1 F_NL_T = PR_AjoutEffortNonLinSecondMembreUpdate &It_T (NL_proj.Ffi) ;
+            L_F_NL = L_F_NL et (PROG F_NL_T);
+
+            Bool_1 = ( OU (NbCharg > 0) (NbModIni > 0) ) ;
+            Si ( OU Bool_1 (&It_1 > 1) ) ;
+                SecoMemb = SecoMemb + CHP1 ;
+            SiNon ;
+                SecoMemb = CHP1 ;
+            FinSi ;
+        FinSi ;
+
+
         Vec_G_T = RESO PremMemb SecoMemb;
 
 
         REPETER It_1 TaiSys;
             mot1 = EXTR LISU_tot (((&It_1 - 1) * 3) + 1);
             New_Fami.&It_1.w = New_Fami.&It_1.w ET (PROG (EXTR Vec_G_T mot1 P_1));
-
             mot1 = EXTR LISU_tot (((&It_1 - 1) * 3) + 2);
             New_Fami.&It_1.v = New_Fami.&It_1.v ET (PROG (EXTR Vec_G_T mot1 P_1));
             mot1 = EXTR LISU_tot (((&It_1 - 1) * 3) + 3);

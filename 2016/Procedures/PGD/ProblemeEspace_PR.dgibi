@@ -11,33 +11,45 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
 
 * Contribution des efforts
   NbCharg = DIMENSION CHA ;
-  Bool1 = (NbCharg > 0);
 
-  Si Bool1;
+  Si (NbCharg > 0);
       REPETER It NbCharg ;
         CHA_i = EXTR CHA CHAR &It ;
-        CHP = EXTR CHA_i CHAM ;
-        EVO = EXTR CHA_i EVOL ;
-        CH_ord = EXTR EVO ORDO ;
-        CH_abs = EXTR EVO ABSC ;
+        CHP_i = EXTR CHA_i CHAM ;
+        EVO_i = EXTR CHA_i EVOL ;
+        CH_ord = EXTR EVO_i ORDO ;
+        CH_abs = EXTR EVO_i ABSC ;
         Int = PR_IntegrProdLine CH_ord g.u CH_abs ;
 
         Si (&It ega 1) ;
-          Second = (CHP*Int) ;
+          Second = (CHP_i*Int) ;
         SiNon ;
-          Second = Second + (CHP*Int) ;
+          Second = Second + (CHP_i*Int) ;
         FinSi ;
       FIN It ;
   FinSi ;
+
+  Si ( (DIME TabEvoNL) > 0) ;
+    REPETER It_NL Nb_NL ;
+        FOR_NL = (Pb.Tab_NL.&It_NL.effo) ;
+        CH_ord = EXTR (TabEvoNL.&It_NL) ORDO ;
+        Int = PR_IntegrProdLine CH_ord g.u Vec_T ;
+        Si ( (NbCharg > 0) et (&It_NL ega 1) );
+            Second = Second + (FOR_NL*Int) ;
+        SiNon ;
+            Second = (FOR_NL*Int) ;
+        FinSi ;
+    Fin It_NL ;
+  FinSi ;
+
 
 * La somme sur les modes precedents
 
     FamiFTot FamiGTot = PR_ConcatenerFami (It_m-1) ;
 
     TailFami = DIMENSION FamiFTot;
-    Bool2 = TailFami > 0;
 
-    Si Bool2;
+    Si (TailFami > 0);
 
         Som1 = 0;
         Som2 = 0;
@@ -57,7 +69,7 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
 
         Fin Mod;
 
-        Si Bool1;
+        Si (NbCharg > 0);
             Second = Second - ( (K*Som1) + (C*Som2) + (M*Som3) ) ;
         SiNon ;
             Second =  (-1) * ( (K*Som1) + (C*Som2) + (M*Som3) ) ;
@@ -65,7 +77,7 @@ DEBPROC PR_ProblemeEspace M C K CL_A CHA dt g It_m ;
 
     FinSi ;
 
-Si ((NON Bool1) ET (NON Bool2));
+Si ((NON (NbCharg > 0)) ET (NON (TailFami > 0)));
     Mess 'il n y a ni effort ni deplacements imposes';
     Mess '--------------------------------------------';
     list CHA.1;

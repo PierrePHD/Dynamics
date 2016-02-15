@@ -1,0 +1,38 @@
+ABHZ
+PR_Eval_Force_NL
+DEBPROC PR_Eval_Force_NL NL_Tab*TABLE lambda*FLOTTANT Val_Scal*LOGIQUE
+                        Val_U/FLOTTANT Val_V/FLOTTANT CHP_U/CHPOINT CHP_V/CHPOINT ;
+
+*!!!! Sorti Bool_max a utiliser
+
+    Si Val_Scal ;
+        U_NL = Val_U ;
+        V_NL = Val_V ;
+    SiNon ;
+        Si (EXISTE NL_Tab.Poi_int) ;
+            U_NL = ( EXTR CHP_U (NL_Tab.Dir_int) (NL_Tab.Poi_int) ) *
+                        (NL_Tab.fac_int);
+            V_NL = ( EXTR CHP_V (NL_Tab.Dir_int) (NL_Tab.Poi_int) ) *
+                        (NL_Tab.fac_int);
+        SiNon ;
+            U_NL = XTY (NL_Tab.ch_depen) CHP_U LFOR L_f;
+            V_NL = XTY (NL_Tab.ch_depen) CHP_V LFOR L_f;
+        FinSi ;
+    FinSi ;
+
+    Si ( (NL_Tab.typ) ega 1 ) ;
+        Val_Effo Bool_Max= PR_Butee (NL_Tab.Butee) U_NL lambda ;
+    FinSi ;
+
+    Si Val_Scal ;
+        Effort = Val_Effo ;
+    SiNon ;
+        Effort = Val_Effo * NL_Tab.effo ;
+    FinSi ;
+
+
+    RESPRO Effort ;
+    RESPRO Bool_Max ;
+
+
+FINPROC;

@@ -1,0 +1,131 @@
+
+<X type="Question" field="Theorie">
+	Dans le calcul Non linéaire PGD des modes ajoutés à partir des
+		modes en temps existants.
+	-Comment choisit-on les points en temps pour calculer les facteurs ?
+	-Possibilité de calculer les facteurs avec plus de points par les
+		moindres carrés ?
+	-possibilité de le mettre dans un Newton à la place du point
+		fixe comme la description de François ?
+	-Utiliser un effort Non linéaire complétement décrit sur le temps
+		lié au prix de l'évaluation de la non linéarité
+</X>
+
+<X type="Question" field="Theorie">
+	Est-ce que l'Update équivaut à la résolution projeté de la POD ?
+</X>
+
+<X type="Question" field="Theorie">
+	Et si on choisissait un Produit scalaire différent ? f.M.f ? f.K.f ?
+</X>
+
+<X type="A_Faire" field="Code" tag="Piste">
+	PGD et TDG Dans Castem
+</X>
+
+<X type="A_Faire" field="Code" tag="Piste">
+	Pour la résolution non-linéaire intégrer la variable de controle de
+		l'effort maximal de la butée (Landa) dans le code, et controler
+		si le point fixe/Newton ne converge pas vers sa valeur max.
+</X>
+
+<X type="A_Faire" field="Code" tag="Piste">
+	Évolution de l'apport energétique
+		Attention avec l'update ne pas faire seulment par mode avec
+		l'update
+</X>
+
+<X type="A_Faire" field="Code" tag="Necessaire">
+	PGD et déplacements imposés
+		Avec ajout de modes spéciaux comme les modes initiaux et imposer
+		tous les autres à zéro sur les noeuds concernés.
+</X>
+
+<X type="A_Faire" field="Code" tag="Necessaire">
+	Newton general
+</X>
+
+<X type="A_Faire" field="Code" tag="Necessaire">
+	PGD et résolution temporelle non-linéaire totale
+	-acqis necessaire : Newton/point fixe
+	-Enregistrer la contribution F(t) non linéaire pour en rendre compte
+	lors de la resolution du problème en espace
+	-résoudre avec l'ensemble des modes pour calculer la nonlinéarité
+</X>
+
+<X type="Question" field="Sujet">
+	Interaction entre orthogonalisation ou Update et Non linéarité
+   		On peut plus sommer les contribution de l'orthogonalisation à
+		condition de résoudre avec l'ensemble des modes pour calculer la
+		nonlinéarité
+</X>
+
+<X type="A_Faire" field="Code" tag="Necessaire">
+	POD Dans Castem
+</X>
+
+<X type="Remarque" field="Results" tag="Old">
+	Refaire un test:
+		Grandes différences de résultat entre méthode complète et POD à
+			l'ajout de fortes non-linéarités. Éventuellement proposer
+			des modes correspondants aux non-linéarités.
+	Même chose pour PGD ???
+</X>
+
+<X type="Remarque" field="Results" tag="Old">
+	Dans le cas d'apparition de fortes valeurs pour la butée linéarisée
+	il arrive que le noeud ne se décolle plus, (à cause du point fixe ?)
+</X>
+
+<X type="Remarques" field="Results">
+	Manque d'éléments de comparaison en non linéaire
+	Simulink ?
+</X>
+
+<X type="Question" field="Code">
+	Abscence d'équivalence entre la modification de K et le report des
+	non linéarités sur le second membre ? (Test de la butée bloquée)
+</X>
+
+<X type="Question" field="Sujet">
+   La PGD redréssée présente-t-elle un avantage par rapport à la POD.
+	   Piste : la présence de différente échelle de temps dans la
+	   réponse du système peux echapper à un snapshot de la POD.
+</X>
+
+<X type="A_Faire" field="Code" tag="Necessaire">
+	Dans le programme Castem on forcera l'utilisation d'EVOLUTION
+		correspondante au raffinement en temps
+		Eventuellement en faire une verification.
+		Faire concoreder Ttot et les abscisses des evolutions
+</X>
+
+<X type="Remarques" field="Code">
+	Bluff sur les composante du deplacement
+</X>
+
+<X type="Question" field="Code">
+	Quel part du temps de calcul est pris pour le test de convergence du
+		point fixe ?
+</X>
+
+
+<X type="Manuscrit" field="Code">
+	Équation du calcul énergétique comme utilisé en calcul du critère du
+		point fixe
+</X>
+
+<X type="Manuscrit" field="Result">
+	Graphe des résolutions directes pour différents nombre d'éléments en
+		fonction de dt avec plus de points
+</X>
+
+<X type="Manuscrit" field="Code">
+	Équation du calcul des modes non-linéaires
+	Équation de la contribution des modes initiaux/imposées à l'Update
+</X>
+
+<X type="Question" field="Code">
+	Calcul énergétique comme utilisé en calcul du critère du point fixe
+	Utilisable dans le calcul de l'erreur ? à la place de PR_PGD_to_Full?
+</X>

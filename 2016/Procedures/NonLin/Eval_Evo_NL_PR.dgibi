@@ -1,0 +1,31 @@
+ABCZ
+PR_Eval_Evo_NL
+DEBPROC PR_Eval_Evo_NL NL_Tab*TABLE Var_NL*LISTREEL lambda*FLOTTANT;
+
+    Effort = PROG ;
+
+    Bool_Tot = FAUX;
+    REPE It En_Nb_Re;
+        Val_U = (EXTR Var_NL &It) ;
+        Si ( (NL_Tab.typ) ega 1 ) ;
+            Val Bool_Max= PR_Butee (NL_Tab.Butee) Val_U lambda;
+            Si Bool_Max ;
+                Bool_Tot = VRAI;
+            FinSi ;
+        FinSi ;
+
+        Effort = Effort ET (PROG Val);
+
+    FIN It;
+
+    Val_max Bool_Max= PR_Butee (NL_Tab.Butee) Val_U lambda VRAI;
+
+    Mess ' ValMaxAtteinte =' (MAXI ( ABS (Effort) ) ) ;
+    Mess ' ValMaxLambda   =' Val_max ' lambda = ' lambda;
+    Si Bool_Tot ;
+        Mess ' Valeur MAX Atteinte ' ;
+    FinSi ;
+
+    RESPRO Effort ;
+
+FINPROC;

@@ -3,7 +3,6 @@ PR_ProdScalaireEspace
 DEBPROC PR_ProdScalaireEspace f1_espa f2_espa;
 
     * Norme L2
-    L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
     Pro_Sca = XTY f1_espa f2_espa L_f L_f;
     RESPRO Pro_Sca;
 

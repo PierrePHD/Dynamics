@@ -8,9 +8,9 @@ OPTI 'ACQU' 'Maillage_Treillis.txt' ;
 NOE1 = TABLE ;
 REPE BCL1N 45 ;
   ACQU XY1*LISTREEL 4 ;
-  LIST XY1 ;
+  * LIST XY1 ;
   ACQU XY2*LISTREEL 2 ;
-  LIST XY2 ;
+  * LIST XY2 ;
   X1 = (EXTR 2 XY1)/1000. ;
   Y1 = (EXTR 3 XY1)/1000. ;
   Z1 = (EXTR 2 XY2)/1000. ;
@@ -80,6 +80,7 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
 
        Pb = TABLE;
        Cal_T = TABLE;
+       Pb.DirPriv = 'UZ';
        *---------------------DONNEES---------------------*
        *Unites SI
        AMP1 = -100.0 ;
@@ -111,6 +112,7 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
        CHA1 = CHAR FORC FOR1 EVT1 ;
        CHA2 = CHAR FORC FOR2 EVT1 ;
        Pb.CHA_TOT = CHA1 et CHA2;
+       Pb.Tab_NL = TABLE;
 
        dep0 = MANU CHPO MAI1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
        Pb.U0  = dep0;
