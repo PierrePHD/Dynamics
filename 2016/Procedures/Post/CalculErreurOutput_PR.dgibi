@@ -1,6 +1,7 @@
 AAXZ
 PR_CalculErreurOutput
-DEBPROC PR_CalculErreurOutput Coord/MOT Bool2/LOGIQUE Mode*ENTIER;
+DEBPROC PR_CalculErreurOutput Coord/MOT Bool2/LOGIQUE Mode/ENTIER
+            Ref_Cal/TABLE Sol_Cal/Table;
 
 Bool1 = EXISTE Coord;
 Si (EXISTE Bool2);
@@ -11,8 +12,13 @@ FinSi ;
 
     EneTot = PROG;
 
-    rec_sol = PR_PGD_to_Full Mode;
-    Err = PR_Difference_Solu Solu1.u rec_sol.u;
+    Si (EXISTE Mode) ;
+        rec_sol = PR_PGD_to_Full Mode;
+        Err = PR_Difference_Solu Solu1.u rec_sol.u;
+    SiNon ;
+        Err = PR_Difference_Solu Ref_Cal.u Sol_Cal.u;
+    FinSi ;
+
     Out_Err = PR_CalculErreurDiff VRAI;
 
     Si Bool1;

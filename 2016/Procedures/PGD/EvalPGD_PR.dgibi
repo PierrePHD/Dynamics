@@ -1,7 +1,7 @@
 ABFZ
 PR_EvalPGD
-DEBPROC PR_EvalPGD Coord/MOT Pt_local/Point CHP_Prod/CHPOINT Pas_T/ENTIER
-                FamiFEva*TABLE FamiGEva*TABLE Grandeur*MOT;
+DEBPROC PR_EvalPGD Grandeur*MOT FamiFEva*TABLE FamiGEva*TABLE
+    Coord/MOT Pt_local/Point CHP_Prod/CHPOINT Pas_T/ENTIER ;
 
     Bool__Pt = EXISTE Pt_local ;
     Bool_Chp = EXISTE CHP_Prod ;

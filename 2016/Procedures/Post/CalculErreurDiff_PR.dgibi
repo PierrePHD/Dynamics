@@ -2,7 +2,7 @@ AAWZ
 PR_CalculErreurDiff
 DEBPROC PR_CalculErreurDiff Bool4*LOGIQUE;
 
-* Reference : Solu.u
+* Reference : Solu1.u
 * Difference : Err
 
 * Bool4 : Si Vrai, calcul sur la Reference : Amplitude et energie Totale

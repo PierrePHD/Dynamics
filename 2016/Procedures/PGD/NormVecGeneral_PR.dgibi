@@ -1,0 +1,9 @@
+ABMZ
+PR_NormVecGeneral
+DEBPROC PR_NormVecGeneral Vec_1*CHPOINT LIS_mot*LISTMOTS;
+
+    * Norme L2
+    Nor_1 = XTY Vec_1 Vec_1 LIS_mot LIS_mot;
+    RESPRO Nor_1;
+
+FINPROC;

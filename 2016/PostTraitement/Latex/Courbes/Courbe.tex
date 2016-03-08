@@ -40,21 +40,19 @@
 					0	-5.2e-3\\
 					2e-2	-5.2e-3\\
 					};
+%					\addplot [color=red,line width=1.5] 
+%							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD1.csv};
+%					\addplot [color=green,line width=1.5] 
+%							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD2.csv};
+%					\addplot [color=blue,line width=1.5] 
+%							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD3.csv};
 					\addplot [color=red,line width=1.5] 
-							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD1.csv};
-					\addplot [color=green,line width=1.5] 
-							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD2.csv};
-					\addplot [color=blue,line width=1.5] 
-							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD3.csv};
-					\addplot [color=black,dashed,line width=1.5] 
 							table[x index=0,y index=1, col sep=comma]  {Donnees/SansOption/Direct.csv};
 					\addplot [color=black,dashed,line width=1.5] 
-							table[x index=0,y index=1, col sep=comma]  {Donnees/SansOption/Direct.csv};
-					\addplot [color=black,dashed,line width=1] 
-							table[x index=0,y index=1, col sep=comma]  {Donnees/DirectLineaire.csv};
+							table[x index=0,y index=1, col sep=comma]  {Evol_dir.csv};
 					\addplot [color=red,dotted,line width=2] 
-							table[x index=0,y expr=\thisrowno{1}*(1/180000) ,col sep=comma]  {Donnees/SansOption/EffortNonLin.csv};
-\legend{ 3 modes, Directe, $F_{N \! L}$}
+							table[x index=0,y expr=\thisrowno{1}*(-1/180000) ,col sep=comma]  {EffortNonLinDir.csv};
+\legend{ Directe , Directe PF, $F_{N \! L}$}
 			\end{axis}
 	\end{tikzpicture}
 	

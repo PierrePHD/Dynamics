@@ -31,14 +31,11 @@
     gamma = 0.5;
 
     TEMPS ZERO;
+    DirPt_Fx = VRAI;
     Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
                     alpha beta gamma dt Ttot U0 V0;
 
     TEMPS;
-
-
-    *Solu2 = PR_ResolutionTtot M C K CL_A FOR2 alpha beta gamma dt Ttot U0 V0;
-    *list Solu1;
 
 
     TEMPS ZERO;
@@ -55,10 +52,14 @@
         FamiG.Ini = TABLE;
 
 
-    NbModCal = 5;
+    NbModCal = 10;
     OPT0 = TABLE;
     OPT0.Orth = VRAI;
     OPT0.Upda = VRAI;
+
+    PGDPt_Fx = FAUX;
+    Up_Pt_Fx = VRAI;
+
 
     PR_ResolutionPGD NbModCal;
 
@@ -66,8 +67,8 @@
 
     *OPTI TRAC PSC;
 
-        AffMods = LECT 1 2 3 4 5;
-        AffSolu = LECT 1 2 3 4 5;
+        AffMods = LECT 1 2 ;
+        AffSolu = LECT 1 2 ;
 
     PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.5;
 

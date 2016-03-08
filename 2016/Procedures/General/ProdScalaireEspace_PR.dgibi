@@ -1,0 +1,19 @@
+AATZ
+PR_ProdScalaireEspace
+DEBPROC PR_ProdScalaireEspace f1_espa f2_espa Mat_1/RIGIDITE;
+
+
+    Si (EXISTE Mat_1) ;
+        * X.K.Y (YTMX  X Y M)
+            Pro_Sca = YTMX f1_espa f2_espa Mat_1;
+          // Si K non Sym, YTMX =/= XTMY
+    SiNon ;
+        * Norme L2
+            Pro_Sca = XTY f1_espa f2_espa L_f L_f;
+          // Cette norme n'est pas homogene ici,
+          //  addition de composantes en Rotation et deplacement
+    FinSi ;
+
+    RESPRO Pro_Sca ;
+
+FINPROC;

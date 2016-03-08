@@ -1,0 +1,20 @@
+AASZ
+PR_NormVecEspace
+DEBPROC PR_NormVecEspace f_espa Mat_0/RIGIDITE;
+
+
+
+    Si (EXISTE Mat_0) ;
+        * X.K.Y (YTMX  X Y M)
+            Nor_Esp = (PR_ProdScalaireEspace f_espa f_espa Mat_0)**0.5;
+          // Si K non Sym, YTMX =/= XTMY
+    SiNon ;
+        * Norme L2
+            Nor_Esp = (PR_ProdScalaireEspace f_espa f_espa)**0.5;
+          // Cette norme n'est pas homogene ici,
+          //  addition de composantes en Rotation et deplacement
+    FinSi ;
+
+    RESPRO Nor_Esp;
+
+FINPROC;

@@ -6,7 +6,7 @@ Val_INI = 0;
 Si ((XTMX U0 K) neg 0);
     Val_INI = Val_INI + 1;
     FamiF.INI.Val_INI = U0;
-    Nor_f = PR_NormVecEspace FamiF.INI.Val_INI;
+    Nor_f = PR_NormVecEspace (FamiF.INI.Val_INI) K;
     FamiF.INI.Val_INI = (FamiF.INI.Val_INI) / Nor_f ;
     FamiG.INI.Val_INI = TABLE;
     FamiG.INI.Val_INI .u = PROG En_Nb_Re * Nor_f ;
@@ -16,7 +16,7 @@ FinSi ;
 Si ((XTMX V0 K) neg 0);
     Val_INI = Val_INI + 1;
     FamiF.INI.Val_INI = V0;
-    Nor_f = PR_NormVecEspace FamiF.INI.Val_INI;
+    Nor_f = PR_NormVecEspace (FamiF.INI.Val_INI) K ;
     FamiF.INI.Val_INI = (FamiF.INI.Val_INI) / Nor_f ;
     FamiG.INI.Val_INI = TABLE;
     FamiG.INI.Val_INI .u = PROG 0. PAS dt Ttot ;
@@ -38,11 +38,12 @@ FinSi ;
             Si Bool_1;
                 f_espa FamiG = PR_Orthogonalisation;
 
-                Mess 'f_espaNEW = ' (PR_NormVecEspace f_espa) ;
-                Si ((PR_NormVecEspace f_espa) < 0.1);
+                N_f_espa = PR_NormVecEspace f_espa  K ;
+                Mess 'f_espaNEW = ' N_f_espa ;
+                Si (N_f_espa < 0.1);
                     Mess 'Mode rejete';
                 SiNon ;
-                    f_espa = f_espa/(PR_NormVecEspace f_espa);
+                    f_espa = f_espa/N_f_espa;
                     QUITTER Ort;
                 FinSi ;
             SiNon ;
@@ -61,6 +62,9 @@ FinSi ;
         ErrDepl ErrGlob = PR_CalculErreurOutput DirPriv VRAI &It_m;
 
         Mess 'ErrDepl=' ErrDepl 'ErrGlob=' ErrGlob;
+
+        TEMPS;
+
 
     Fin It_m;
 

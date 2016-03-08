@@ -8,16 +8,16 @@ DEBPROC PR_Orthogonalisation ;
 
         REPETER It_m (DIMENSION FamiF.Cal );
             REPETER It2_m (DIMENSION FamiF.Cal );
-                Pro_f = PR_ProdScalaireEspace FamiF.Cal.&It_m FamiF.Cal.&It2_m;
+                Pro_f = PR_ProdScalaireEspace (FamiF.Cal.&It_m) (FamiF.Cal.&It2_m) K;
                 Mess 'Mode ' &It_m ' et ' &It2_m ' : ' Pro_f;
             FIN It2_m;
         FIN It_m;
 
 
     Mess 'Gramm-Shmidt';
-        NorOrigi = PR_NormVecEspace f_espa;
+        NorOrigi = PR_NormVecEspace f_espa K;
         REPETER It_m (DIMENSION FamiF.Cal );
-            Pro_f = PR_ProdScalaireEspace f_espa FamiF.Cal.&It_m;
+            Pro_f = PR_ProdScalaireEspace f_espa (FamiF.Cal.&It_m) K;
             NumMod = (DIMENSION FamiF.Cal ) + 1 ;
             Mess 'Mode ' &It_m ' et ' NumMod ' : ' Pro_f;
 
@@ -26,7 +26,7 @@ DEBPROC PR_Orthogonalisation ;
             FamiG.Cal.&It_m.w = FamiG.Cal.&It_m.w + (g_tmps.w * Pro_f);
 
             f_espa = f_espa - (FamiF.Cal.&It_m * Pro_f);
-            NorInter = (PR_NormVecEspace f_espa);
+            NorInter = (PR_NormVecEspace f_espa K);
             Mess 'NORME = ' NorInter;
         FIN It_m;
 

@@ -272,8 +272,7 @@ REPETER It_T En_Nb_Re;
             New_Fami.&It_1.v = PROG 0;
             New_Fami.&It_1.u = PROG 0;
         FIN It_1;
-    SiNon ;
-        * Creer fonction pour eviter la repetition de l'assemblage
+    SiNon ; // Si (&It_T ega 1);
 
         Si (NbCharg > 0);
             SecoMemb = PR_AjoutEffortSecondMembreUpdate &It_T (Cha_proj.Ffi) ;
@@ -304,19 +303,88 @@ REPETER It_T En_Nb_Re;
         SecoMemb = SecoMemb + Seco_2;
 
         Si (Nb_NL > 0) ;
-            CHP1 F_NL_T = PR_AjoutEffortNonLinSecondMembreUpdate &It_T (NL_proj.Ffi) ;
-            L_F_NL = L_F_NL et (PROG F_NL_T);
-
             Bool_1 = ( OU (NbCharg > 0) (NbModIni > 0) ) ;
-            Si ( OU Bool_1 (&It_1 > 1) ) ;
-                SecoMemb = SecoMemb + CHP1 ;
+            Si (NON Up_Pt_Fx) ;
+                * Evaluation NL
+                    CHP_1_U CHP_1_V = PR_EvalFoncTempsPourUpdate (&It_T - 1) ;
+                    CHP1 F_NL_T = PR_AjoutEffortNonLinSecondMembreUpdate &It_T (NL_proj.Ffi) CHP_1_U CHP_1_V ;
+                    L_F_NL = L_F_NL et (PROG F_NL_T);
+
+                * Resolution lineaire
+                    SecoMemb = SecoMemb + CHP1 ;
+                    Vec_G_T = RESO PremMemb SecoMemb;
             SiNon ;
-                SecoMemb = CHP1 ;
-            FinSi ;
+                // !!!! Utiliser Bool_max
+                CHP_t__U CHP_t__V = PR_EvalFoncTempsPourUpdate (&It_T - 1) ;
+                REPETER It_fxNL 0 ;
+
+                // !!!!
+                Si (&It_fxNL > 30) ;
+                    Mess 'Point fixe Non Lineaire de l Update non convergent' ;
+                    list (EXTR ZZZ 4);
+                FinSi ;
+                        SM_fx = SecoMemb ;
+                    * Evaluation NL
+                        CHP1 F_NL_T = PR_AjoutEffortNonLinSecondMembreUpdate &It_T (NL_proj.Ffi) CHP_t__U CHP_t__V ;
+
+                    * Resolution lineaire
+                        SM_fx = SM_fx + CHP1 ;
+                        Si (&It_fxNL < 3) ;
+                            Si (&It_fxNL ega 1) ;
+                                SM_f0 = SM_fx ;
+                            SiNon ;
+                                Si ((PR_NormVecGeneral (SM_f0 - SM_fx) LISF_ini) ega 0) ;
+                                    L_F_NL = L_F_NL et (PROG F_NL_T);
+                                    Mess '-' ;
+                                    QUIT It_fxNL ;
+                                FinSi ;
+                            FinSi ;
+                        FinSi ;
+                        Vec_G_Fx = RESO PremMemb SM_fx;
+                    * Verification de la convergence
+                        Si ( &It_fxNL > 1 ) ;
+                            CHP_fx_U = PR_ExtrCompoVectGUpdate 'U' Vec_G_Fx ;
+                            CHP_fx_V = PR_ExtrCompoVectGUpdate 'V' Vec_G_Fx ;
+
+                            N_0_U = (PR_NormVecGeneral (CHP_fx_U + CHP_t__U) LISU_ini) ;
+                            N_0_V = (PR_NormVecGeneral (CHP_fx_V + CHP_t__V) LISU_ini) ;
+                            // Verifier V aussi ?
+                            dif_u = 0;
+                            dif_v = 0;
+                            Si ( N_0_U > 0 );
+                                dif_u = ( (PR_NormVecGeneral (CHP_fx_U - CHP_t__U) LISU_ini) * 2 ) / N_0_U ;
+                            FinSi ;
+                            Si ( N_0_V > 0 );
+                                dif_V = ( (PR_NormVecGeneral (CHP_fx_V - CHP_t__V) LISU_ini) * 2 ) / N_0_V ;
+                            FinSi ;
+                            Mess '&It_T' &It_T 'dif_u' dif_u 'dif_v' dif_v ;
+
+                            cri_0 = 1e-6 ;
+                            Aff_iter = chaine '-';
+                            Bool_U = (OU (dif_u < cri_0) ( N_0_U ega 0 ) ) ;
+                            Bool_V = (OU (dif_v < cri_0) ( N_0_V ega 0 ) ) ;
+                            Si ( Bool_U ET Bool_V ) ;
+                                Vec_G_T = Vec_G_Fx ;
+                                L_F_NL = L_F_NL et (PROG F_NL_T);
+                                REPETER It_Aff ((&It_fxNL) - 1) ;
+                                    Aff_iter = chaine Aff_iter '-';
+                                Fin It_Aff ;
+
+                                Mess Aff_iter;
+                                QUIT It_fxNL ;
+                            FinSi ;
+                        FinSi ;
+                    * Mis a jour des variables
+                        Vec_G_T = Vec_G_Fx ;
+                        CHP_t__U  = PR_ExtrCompoVectGUpdate 'U' Vec_G_t  ;
+                        CHP_t__V  = PR_ExtrCompoVectGUpdate 'V' Vec_G_t  ;
+                Fin It_fxNL ;
+
+            FInSi ;
+        SiNon ; // Si (Nb_NL > 0) ;
+            Vec_G_T = RESO PremMemb SecoMemb;
         FinSi ;
 
-
-        Vec_G_T = RESO PremMemb SecoMemb;
 
 
         REPETER It_1 TaiSys;

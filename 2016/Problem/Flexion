@@ -72,6 +72,18 @@
     // FOR2 = FORCE FX 0. P3 ;
     // CHA2 = CHAR FORC FOR2 EVT2 ;
     FOR1 = FORCE FZ (AMP1*2.) P2 ;
+    // FOR2 = FORCE FZ 1 L1 ;
+    // List FOR2 ;
+
+    // gz = MANU CHPO L1 1 'UZ' 1. NATURE 'DIFF' TITRE 'Gravite' ;
+    // fg = ((Pb.M) * gz);
+    // dep1 = RESO (Pb.K ET Pb.CL_Tot) (Fg * -9.81);
+    // dep0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
+    // DEF1 = DEFO (Pb.geo) dep1 Roug;
+    // DEF0 = DEFO (Pb.geo) dep0 ;
+    // TRAC (DEF0 et DEF1);
+    // list fg ;
+    // list (EXTR ZZZ 4);
     CHA1 = CHAR FORC FOR1 EVT1 ;
     Pb.CHA_TOT = CHA1 ;
     // Pb.CHA_TOT = CHA1 et CHA2 ;

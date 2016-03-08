@@ -1,0 +1,28 @@
+ABLZ
+PR_ExtrCompoVectGUpdate
+DEBPROC PR_ExtrCompoVectGUpdate Grandeur*MOT Vec_G*CHPOINT;
+
+
+    Si (EGA Grandeur 'U') ;
+        Num_Comp = 3 ;
+    FinSi ;
+
+    Si (EGA Grandeur 'V') ;
+        Num_Comp = 2 ;
+    FinSi ;
+
+    Si (EGA Grandeur 'A') ;
+        Num_Comp = 1 ;
+    FinSi ;
+
+    Lis_Comp = PROG ;
+
+    REPETER It_1 TaiSys ;
+        mot_1 = EXTR LISU_tot (((&It_1 - 1) * 3) + Num_Comp) ;
+        Lis_Comp = Lis_Comp ET (PROG (EXTR Vec_G mot_1 P_1)) ;
+    FIN It_1 ;
+    Compo = MANU 'CHPO' MAI1 LISU_ini Lis_Comp ;
+
+    RESPRO Compo;
+
+FINPROC;

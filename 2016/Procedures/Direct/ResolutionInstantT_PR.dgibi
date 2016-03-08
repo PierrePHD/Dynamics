@@ -13,22 +13,92 @@ DEBPROC PR_ResolutionInstantT M C K CL_A F alpha beta gamma dt U_tm1 V_tm1 A_tm1
            );
     S = S ET CL_A;
 
-    * Non Lineaire
+* Non Lineaire
     Si ( Nb_NL > 0) ;
-        REPETER It_NL Nb_NL ;
-            * Evaluation avec U (t-1)
-            * !!!! lambda
-            FOR_NL Bool_Max= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.9 FAUX U_tm1 V_tm1 ;
-            F = F + FOR_NL ;
-        Fin It_NL ;
+        * !!!! utilisation de variable temporaire pour F
+        * Evaluation avec U (t-1)
+            Si (OU (NON DirPt_Fx) (It_T ega 0)) ;
+                * Evaluation NL
+                    REPETER It_NL Nb_NL ;
+                        * !!!! lambda
+                        FOR_NL Bool_Max= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.5 FAUX U_tm1 V_tm1 ;
+                        F = F + FOR_NL ;
+                    Fin It_NL ;
+
+                * Resolution lineaire
+                    A_t V_t U_t = PR_ResolutionHHTLineaire F ;
+
+        * Point fixe
+            SiNon ;
+                U_t = U_tm1 ;
+                V_t = V_tm1 ;
+                REPETER It_fxNL 0 ;
+                    F_fx = F ;
+                    * Evaluation NL
+                        REPETER It_NL Nb_NL ;
+                            * !!!! lambda
+                            FOR_NL Bool_Max= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.5 FAUX U_t V_t ;
+                            F_fx = F_fx + FOR_NL ;
+                        Fin It_NL ;
+
+                        * Eviter une resolution lineaire superflue
+                        Si (&It_fxNL < 3) ;
+                            Si (&It_fxNL ega 1) ;
+                                F_f0 = F_fx ;
+                            SiNon ;
+                                Si ((XTY (F_f0 - F_fx) (F_f0 - F_fx) LFOR LFOR) ega 0) ;
+                                    U_t = U_fx ;
+                                    V_t = V_fx ;
+                                    Mess '-' ;
+                                    QUIT It_fxNL ;
+                                FinSi ;
+                            FinSi ;
+                        FinSi ;
+
+                    * Resolution lineaire
+                        A_t V_fx U_fx = PR_ResolutionHHTLineaire F_fx ;
+
+                    * Verification de la convergence
+                        // !!!! Peut etre faudrait-il verifier V aussi
+                        Si ( &It_fxNL > 1 ) ;
+                            N_0_U = (PR_NormVecEspace (U_fx + U_t) K) ;
+                            N_0_V = (PR_NormVecEspace (V_fx + V_t) C) ; // !!!! et si C = 0;
+                            dif_u = 1;
+                            dif_v = 1;
+                            Si ( N_0_U > 0 );
+                                dif_u = ( (PR_NormVecEspace (U_fx - U_t) K) * 2 ) / N_0_U ;
+                            FinSi ;
+                            Si ( N_0_V > 0 );
+                                dif_v = ( (PR_NormVecEspace (V_fx - V_t) C) * 2 ) / N_0_V ;
+                            FinSi ;
+                            Mess '&It_T' &It_T 'dif_u' dif_u 'dif_v' dif_v ;
+                            cri_0 = 1e-6 ;
+                            Aff_iter = chaine '-';
+                            Bool_U = (OU (dif_u < cri_0) ( N_0_U ega 0 ) ) ;
+                            Bool_V = (OU (dif_v < cri_0) ( N_0_V ega 0 ) ) ;
+                            Si ( Bool_U ET Bool_V ) ;
+                                U_t = U_fx ;
+                                V_t = V_fx ;
+                                REPETER It_Aff ((&It_fxNL) - 1) ;
+                                    Aff_iter = chaine Aff_iter '-';
+                                Fin It_Aff ;
+
+                                Mess Aff_iter ;
+                                QUIT It_fxNL ;
+                                // SiNon ;
+                                //     Mess 'dif_u = ' dif_u;
+                            FinSi ;
+                        FinSi ;
+
+                    U_t = U_fx ;
+                    V_t = V_fx ;
+                FIN It_fxNL ;
+            FinSi ;
+    SiNon ;
+        A_t V_t U_t = PR_ResolutionHHTLineaire F ;
     FinSi ;
 
-    A_t = RESO S ( F - (C*Vp) - (K*Up) );
-    V_t =   V_tm1
-        + ((dt*(1-gamma))*A_tm1)
-        + ((dt*gamma)*A_t);
-    U_t = U_tm1 + (dt*V_tm1)
-        + ((dt**2)*( ((0.5-beta)*A_tm1) + (beta*A_t) ));
+
     RESPRO A_t ;
     RESPRO V_t;
     RESPRO U_t;
