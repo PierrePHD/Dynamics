@@ -1,0 +1,14 @@
+ABMZ
+PR_NormVecGeneral
+DEBPROC PR_NormVecGeneral Val_0/FLOTTANT Vec_1/CHPOINT LIS_mot/LISTMOTS ;
+
+    * Norme L2
+    Si (EXISTE Vec_1) ;
+        Nor_1 = XTY Vec_1 Vec_1 LIS_mot LIS_mot;
+    SiNon ;
+        Nor_1 = ABS Val_0 ;
+    FinSi ;
+
+    RESPRO Nor_1;
+
+FINPROC;

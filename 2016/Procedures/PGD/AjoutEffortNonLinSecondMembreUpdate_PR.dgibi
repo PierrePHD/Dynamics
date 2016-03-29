@@ -1,52 +1,38 @@
 ABGZ
 PR_AjoutEffortNonLinSecondMembreUpdate
-DEBPROC PR_AjoutEffortNonLinSecondMembreUpdate It_Temps*ENTIER Prod*TABLE
+DEBPROC PR_AjoutEffortNonLinSecondMembreUpdate Num_NL*ENTIER It_Temps*ENTIER Prod*TABLE
             CHP_U/CHPOINT CHP_V/CHPOINT;
 
 
-    Bool_1 = FAUX;
 
-    Si (NON Up_Pt_Fx) ;
-        Bool_1 = VRAI ;
-    SiNon ;
-        Si (&It_fxNL ega 1);
-            Bool_1 = VRAI ;
-        SiNon ;
-            Bool_1 = FAUX ;
-        FinSi ;
-    FinSi ;
-
-
-    REPETER It_NL Nb_NL ;
-
-        Si ((It_Temps ega 1) ) ; // !!!! Si ((It_Temps ega 1) ET Bool_1 ) ; Mettre le point fixe dans l'initialisation
+        Si ((It_Temps ega 1) ) ;
             U_NL_pre = 0;
             V_NL_pre = 0;
         SiNon ;
-            U_NL_pre = XTY CHP_U (NL_proj.Dfi.&It_NL) LISU_ini LISU_ini;
-            V_NL_pre = XTY CHP_V (NL_proj.Dfi.&It_NL) LISU_ini LISU_ini;
+            U_NL_pre = XTY CHP_U (NL_proj.Dfi.Num_NL) LISU_ini LISU_ini;
+            V_NL_pre = XTY CHP_V (NL_proj.Dfi.Num_NL) LISU_ini LISU_ini;
         FinSi ;
 
         Si (NbModIni > 0) ;
             REPETER It_Impo NbModIni ;
                 U_NL_pre = U_NL_pre +
-                            (EXTR (NL_proj.Eva_Impo.&It_NL.&It_Impo.u) It_Temps) ;
-                V_NL_pre = U_NL_pre +
-                            (EXTR (NL_proj.Eva_Impo.&It_NL.&It_Impo.v) It_Temps) ;
+                            (EXTR (NL_proj.Eva_Impo.Num_NL.&It_Impo.u) It_Temps) ;
+                V_NL_pre = V_NL_pre +
+                            (EXTR (NL_proj.Eva_Impo.Num_NL.&It_Impo.v) It_Temps) ;
             Fin It_Impo ;
         FinSi ;
 
-        Val_F_NL Bool_Max = PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.5 VRAI
+        Val_F_NL Bool_Max = PR_Eval_Force_NL (Pb.Tab_NL.Num_NL) (Pb.lambda) VRAI
                             U_NL_pre V_NL_pre;
 
-        Si (&It_NL ega 1);
-            SM =        Val_F_NL * (Prod.&It_NL) ;
-        SiNon ;
-            SM = SM + ( Val_F_NL * (Prod.&It_NL) ) ;
-        FinSi ;
-    FIN It_NL;
+        // Si (Num_NL ega 1);
+            SM =        Val_F_NL * (Prod.Num_NL) ;
+        // SiNon ;
+        //     SM = SM + ( Val_F_NL * (Prod.Num_NL) ) ;
+        // FinSi ;
 
     RESPRO SM ;
     RESPRO Val_F_NL ;
+    RESPRO Bool_Max ;
 
 FINPROC;

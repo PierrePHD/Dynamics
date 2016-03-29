@@ -5,14 +5,15 @@ DEBPROC PR_ResolutionHHT_PGDLineaire Seco_0_T*FLOTTANT It_0_T*ENTIER;
     gpp_t_pr = gpp_t;
     gpp_0_t = (Seco_0_T - ((Prem_g*g_pred)+(Prem_gp*gp_pred)))/Prem_gpp;
 
-    Si (It_0_T neg 1) ;
-      g_0_t = g_NLtm1 + (dt*gp_t)
+
+    Si (It_0_T ega 1) ;
+        g_0_t = 0 ;
+        gp_0_t = 0 ;
+    SiNon ;
+        g_0_t = g__tm1 + (dt*gp__tm1)       // grande amelioration en remplacant gp__tm1 par gp_t avec point fixe
               + ((dt**2)*(0.5-beta)*gpp_t_pr)
               + (beta*(dt**2)*gpp_0_t) ;
-      gp_0_t = gp_NLtm1 + (dt*(1-gamma)*gpp_t_pr) + (dt*gamma*gpp_0_t) ;
-    SiNon ;
-      g_0_t = 0 ;
-      gp_0_t = 0 ;
+        gp_0_t = gp__tm1 + (dt*(1-gamma)*gpp_t_pr) + (dt*gamma*gpp_0_t) ;
     FinSi ;
 
     RESPRO gpp_0_t ;

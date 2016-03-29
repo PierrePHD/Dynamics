@@ -26,7 +26,7 @@
     Pb.geo = L1 et L2;
     Pb.DirPriv = 'UZ';
     *opti trac X ;
-    TRAC Pb.geo ;
+    *TRAC Pb.geo ;
     *------DEFINITION DU MODELE ET DU MATERIAU--------*
     MOD1 = MODEL L1 MECANIQUE ELASTIQUE POUT ;
     MOD2 = MODEL L2 MECANIQUE ELASTIQUE POUT ;

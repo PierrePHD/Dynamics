@@ -3,7 +3,6 @@ PR_Eval_Force_NL
 DEBPROC PR_Eval_Force_NL NL_Tab*TABLE lambda*FLOTTANT Val_Scal*LOGIQUE
                         Val_U/FLOTTANT Val_V/FLOTTANT CHP_U/CHPOINT CHP_V/CHPOINT ;
 
-*!!!! Sorti Bool_max a utiliser
 
     Si Val_Scal ;
         U_NL = Val_U ;

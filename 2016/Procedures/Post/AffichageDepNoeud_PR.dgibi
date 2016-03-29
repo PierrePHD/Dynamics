@@ -1,7 +1,7 @@
 AAKZ
 PR_AffichageDepNoeud
 DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti Pt_Aff*Point
-Coord lambda*FLOTTANT;
+Coord;
 
     NbMod = DIMENSION FamiF.Cal
             + (DIME FamiF.Ini)
@@ -53,7 +53,7 @@ Coord lambda*FLOTTANT;
             Si ( Pt_Aff ega (Pb.Tab_NL.1 .Poi_int) ) ;
                 Si (EGA Coord (Pb.Tab_NL.1 .Dir_int) );
                     Var_NL = (Pb.Tab_NL.1 .fac_int) * Sol_dir ;
-                    Eff_NL = PR_Eval_Evo_NL (Pb.Tab_NL.1) Var_NL lambda;
+                    Eff_NL = PR_Eval_Evo_NL (Pb.Tab_NL.1) Var_NL ;
                     Evo_Eff = EVOL Roug MANU Vec_T Eff_NL ;
                     * Sortie Fichier
                         *opti sort (chain 'EffortNonLinDir' ) ;
@@ -118,7 +118,7 @@ Coord lambda*FLOTTANT;
             Si ( Pt_Aff ega (Pb.Tab_NL.1 .Poi_int) ) ;
                 Si (EGA Coord (Pb.Tab_NL.1 .Dir_int) );
                     Var_NL = (Pb.Tab_NL.1 .fac_int) * Sol_k.NbMax ;
-                    Eff_NL = PR_Eval_Evo_NL (Pb.Tab_NL.1) Var_NL lambda;
+                    Eff_NL = PR_Eval_Evo_NL (Pb.Tab_NL.1) Var_NL ;
                     Evo_Eff = EVOL Roug MANU Vec_T Eff_NL ;
                     * Sortie Fichier
                         *opti sort (chain 'EffortNonLinPGD' ) ;

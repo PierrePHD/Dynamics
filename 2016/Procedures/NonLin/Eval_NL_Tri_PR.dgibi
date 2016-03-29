@@ -1,0 +1,40 @@
+ABOZ
+PR_Eval_NL_Tri
+DEBPROC PR_Eval_NL_Tri Enr_Val*LOGIQUE VarU  VarV  SM_0 ;
+
+Bool_Tot = FAUX;
+
+    REPETER It_NL Nb_NL ;
+
+        Si (Dir) ;
+            SM_NL Bool_M= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) (Pb.lambda) FAUX V_U_NL V_V_NL ;
+        FinSi ;
+
+        Si (PGD) ;
+            Val_F_NL Bool_M= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) (Pb.lambda)
+                                VRAI V_U_NL V_V_NL ;
+            SM_NL = ((FNL_proj.&It_NL) * Val_F_NL) ;
+        FinSi ;
+
+        Si (Upd) ;
+            SM_NL Val_F_NL Bool_M = PR_AjoutEffortNonLinSecondMembreUpdate &It_NL &It_T (NL_proj.Ffi) // Attention quel (NL_proj.Ffi)
+            V_U_NL V_V_NL ;
+        FinSi ;
+
+        Si (( OU PGD Upd) ET Enr_Val) ;
+            TabLisNL.&It_NL = (TabLisNL.&It_NL) et (PROG Val_F_NL);
+        FinSi ;
+
+        Si Bool_M ;
+            Bool_Tot = VRAI ;
+        FinSi ;
+
+
+
+        SM_0 = SM_0 + SM_NL ;
+    Fin It_NL ;
+
+    RESPRO SM_0 ;
+    RESPRO Bool_Tot ;
+
+FINPROC;

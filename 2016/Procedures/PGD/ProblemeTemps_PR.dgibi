@@ -98,119 +98,25 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
 
     REPETER It_T En_Nb_Re;
 
-      Si (&It_T ega 1);
-        g_t = 0. ;
-        gp_t = 0. ;
-        g_NLtm1 = 0. ;
-        gp_NLtm1 = 0. ;
-        gpp_t = 0. ;
-        g_pred = 0. ;
-        gp_pred = 0. ;
-      SiNon ;
-        g_pred = g_t + ((1+alpha)*((dt*gp_t) + ((dt**2)*(0.5-beta)*gpp_t)));
-        gp_pred = gp_t + ((1+alpha)*dt*(1-gamma)*gpp_t ) ;
-      FinSi ;
+        Si (&It_T ega 1);
+            g_t = 0. ;
+            gp_t = 0. ;
+            g__tm1 = 0. ;
+            gp__tm1 = 0. ;
+            gpp_t = 0. ;
+            g_pred = 0. ;
+            gp_pred = 0. ;
+        SiNon ;
+            g_pred = g_t + ((1+alpha)*((dt*gp_t) + ((dt**2)*(0.5-beta)*gpp_t)));
+            gp_pred = gp_t + ((1+alpha)*dt*(1-gamma)*gpp_t ) ;
+        FinSi ;
 
       SecondT = EXTR Second &It_T ;
 
 
         Si ( Nb_NL > 0) ;
-
-            * Evaluation des g (t) precedents
-                Prec_U = TABLE;
-                Prec_V = TABLE;
-                REPETER It_NL Nb_NL ;
-                  Si (TailFami > 0) ;
-                    Si FAUX; //( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
-                        Prec_U.&It_NL = (PR_EvalPGD FamiFTot FamiGTot ('U')
-                            (Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) &It_T) *
-                            (Pb.Tab_NL.&It_NL.fac_int)    ;
-                        Prec_V.&It_NL = (PR_EvalPGD FamiFTot FamiGTot ('V')
-                            (Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) &It_T) *
-                            (Pb.Tab_NL.&It_NL.fac_int)    ;
-                    SiNon ;
-                        Prec_U.&It_NL = PR_EvalPGD FamiFTot FamiGTot ('U')
-                            (Pb.Tab_NL.&It_NL.ch_depen) &It_T ;
-                        Prec_V.&It_NL = PR_EvalPGD FamiFTot FamiGTot ('V')
-                            (Pb.Tab_NL.&It_NL.ch_depen) &It_T ;
-                    FinSi ;
-                  FinSi ;
-                Fin It_NL ;
-
-            Si (NON PGDPt_Fx) ;
-                * Evaluation NL avec g (t-1)
-                    REPETER It_NL Nb_NL ;
-                      Val_UNL = g_t  * UNL_proj.&It_NL ;
-                      Val_VNL = gp_t * UNL_proj.&It_NL ;
-                      Si (TailFami > 0) ;
-                            Val_UNL = (Val_UNL + Prec_U.&It_NL) ;
-                            Val_VNL = (Val_VNL + Prec_V.&It_NL) ;
-                      FinSi ;
-
-                        Val_F_NL Bool_Max= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.5 VRAI Val_UNL Val_VNL ;
-                        * !!!! Utiliser Bool_max;
-
-                        TabLisNL.&It_NL = (TabLisNL.&It_NL) et (PROG Val_F_NL);
-                        SecondT = SecondT + ((FNL_proj.&It_NL) * Val_F_NL) ;
-                    Fin It_NL ;
-                * Resolution lineaire
-                    gpp_t gp_t g_t = PR_ResolutionHHT_PGDLineaire SecondT &It_T;
-            FinSi ;
-
-                Si PGDPt_Fx ;
-
-                    REPETER It_fxNL 0 ;
-                        Seco_fx = SecondT ;
-
-                        * Evaluation NL avec g (t-1)
-                            REPETER It_NL Nb_NL ;
-                              Val_UNL = g_t  * UNL_proj.&It_NL ;
-                              Val_VNL = gp_t * UNL_proj.&It_NL ;
-                              Si (TailFami > 0) ;
-                                    Val_UNL = (Val_UNL + Prec_U.&It_NL) ;
-                                    Val_VNL = (Val_VNL + Prec_V.&It_NL) ;
-                              FinSi ;
-
-                                Val_F_NL Bool_Max= PR_Eval_Force_NL (Pb.Tab_NL.&It_NL) 0.5 VRAI Val_UNL Val_VNL ;
-                                * !!!! Utiliser Bool_max;
-
-                                Seco_fx = Seco_fx + ((FNL_proj.&It_NL) * Val_F_NL) ;
-                            Fin It_NL ;
-
-                        * Resolution lineaire
-                            gpp_fx_t gp_fx_t g_fx_t = PR_ResolutionHHT_PGDLineaire Seco_fx &It_T;
-
-                        * Verification de la convergence
-                            Si ( &It_fxNL > 1 ) ;
-                                N_0 = ABS (g_fx_t + g_t) ;
-                                dif_g = 1;
-                                Si ( N_0 > 0 );
-                                    dif_g = (  (ABS (g_fx_t - g_t)) * 2 ) / N_0 ;
-                                FinSi ;
-                                cri_0 = 1e-4 ;
-                                Aff_iter = chaine '-';
-                                Si ( OU (dif_g < cri_0) ( N_0 ega 0 ) ) ;
-                                    g_t   =   g_fx_t ;
-                                    gp_t  =  gp_fx_t ;
-                                    gpp_t = gpp_fx_t ;
-                                    TabLisNL.1 = (TabLisNL.1) et (PROG Val_F_NL); // !!!! .1 temporaire pour table d effort NL
-                                    REPETER It_Aff ((&It_fxNL) - 1) ;
-                                        Aff_iter = chaine Aff_iter '-';
-                                    Fin It_Aff ;
-
-                                    Mess Aff_iter;
-                                    QUIT It_fxNL ;
-                                SiNon ;
-                                    // Mess 'dif_g = ' dif_g;
-                                    // Mess 'Val_F_NL=' Val_F_NL ;
-                                FinSi ;
-                            FinSi ;
-
-                            g_t   =   g_fx_t ;
-                            gp_t  =  gp_fx_t ;
-                    FIN It_fxNL ;
-                FinSi ;
-        SiNon ;
+            gpp_t gp_t g_t = PR_Pt_Fx_NL SecondT &It_T 'PGD' PGDPt_Fx ;
+        SiNon ; 
             gpp_t gp_t g_t = PR_ResolutionHHT_PGDLineaire SecondT &It_T;
         FinSi ;
 
@@ -219,8 +125,8 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
         gp =  gp  et (PROG gp_t ) ;
         gpp = gpp et (PROG gpp_t) ;
 
-        g_NLtm1 = g_t ;
-        gp_NLtm1 = gp_t. ;
+        g__tm1 = g_t ;
+        gp__tm1 = gp_t ;
 
     Fin It_T ;
 

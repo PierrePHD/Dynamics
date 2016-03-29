@@ -1,0 +1,314 @@
+ABPZ
+PR_Pt_Fx_NL
+DEBPROC PR_Pt_Fx_NL SM_Lin it_Temps*ENTIER Tri*MOT B_Pt_Fx;
+
+Dir = FAUX;
+PGD = FAUX;
+Upd = FAUX;
+
+Si (EGA Tri 'Dir') ;
+Dir = VRAI ;
+FinSi ;
+
+Si (EGA Tri 'PGD') ;
+PGD = VRAI ;
+FinSi ;
+
+Si (EGA Tri 'Upd') ;
+Upd = VRAI ;
+FinSi ;
+
+
+        Si (PGD) ;
+            * Evaluation des g (t) pour les modes precedents
+                Prec_U = TABLE;
+                Prec_V = TABLE;
+                REPETER It_NL Nb_NL ;
+                  Si (TailFami > 0) ;
+                    Si ( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
+                        Prec_U.&It_NL = (PR_EvalPGD FamiFTot FamiGTot ('U')
+                            (Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) it_Temps) *
+                            (Pb.Tab_NL.&It_NL.fac_int)    ;
+                        Prec_V.&It_NL = (PR_EvalPGD FamiFTot FamiGTot ('V')
+                            (Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) it_Temps) *
+                            (Pb.Tab_NL.&It_NL.fac_int)    ;
+                    SiNon ;
+                        Prec_U.&It_NL = PR_EvalPGD FamiFTot FamiGTot ('U')
+                            (Pb.Tab_NL.&It_NL.ch_depen) it_Temps ;
+                        Prec_V.&It_NL = PR_EvalPGD FamiFTot FamiGTot ('V')
+                            (Pb.Tab_NL.&It_NL.ch_depen) it_Temps ;
+                    FinSi ;
+                  FinSi ;
+                Fin It_NL ;
+        FinSi ;
+
+        * Evaluation implicite
+        Si (OU (NON B_Pt_Fx) (it_Temps ega 1));   // !!!! Attention 0 ou 1 Direct ou PGD
+
+            * Evaluation NL
+                * La dependance (t-1)
+
+                    Si (Dir) ;
+                        V_U_NL = U_tm1 ;
+                        V_V_NL = V_tm1 ;
+                    FinSi ;
+
+                    Si (PGD) ;
+                        V_U_NL V_V_NL = PR_EvalVarNLPourFonctionTemps ;
+                    FinSi ;
+
+                    Si (Upd) ;
+                        V_U_NL V_V_NL = PR_EvalFoncTempsPourUpdate (it_Temps - 1) ;
+                    FinSi ;
+
+                * L effort
+                    Enr_Val = VRAI;
+                    SM_Fx Bool_nul = PR_Eval_NL_Tri Enr_Val V_U_NL V_V_NL SM_Lin;
+
+
+            * Resolution lineaire
+                Si (Dir) ;
+                    A_t V_t U_t = PR_ResolutionHHTLineaire SM_Fx ;
+                FinSi ;
+
+                Si (PGD) ;
+                    gpp_t gp_t g_t = PR_ResolutionHHT_PGDLineaire SM_Fx it_Temps;
+                FinSi ;
+
+                Si (Upd) ;
+                    Vec_G_T = RESO PremMemb SM_Fx;
+                FinSi ;
+
+        * Point fixe
+        SiNon ;
+
+            * Evaluation (t-1)
+                Si (Dir) ;
+                    U_t = U_tm1 ;
+                    V_t = V_tm1 ;
+                FinSi ;
+
+                Si (Upd) ;
+                    CHP_t__U CHP_t__V = PR_EvalFoncTempsPourUpdate (it_Temps - 1) ;
+                FinSi ;
+
+
+            REPETER It_fxNL 0 ;
+
+                * Initialisation
+                    // !!!! Val reglable ?
+                    Si (&It_fxNL > 30) ;
+                        Mess 'Point fixe Non Lineaire de l Update non convergent' ;
+                        list (EXTR ZZZ 4);
+                    FinSi ;
+
+                * Evaluation NL
+
+                    * La dependance
+                        Si (Dir) ;
+                            V_U_NL = U_t ;
+                            V_V_NL = V_t ;
+                        FinSi ;
+
+                        Si (PGD) ;
+                            V_U_NL V_V_NL = PR_EvalVarNLPourFonctionTemps ;
+                        FinSi ;
+
+                        Si (Upd) ;
+                            V_U_NL = CHP_t__U ;
+                            V_V_NL = CHP_t__V ;
+                        FinSi ;
+
+                    * L effort
+                        Enr_Val = FAUX;
+                        SM_Fx Bool_Max = PR_Eval_NL_Tri Enr_Val V_U_NL V_V_NL SM_Lin ; // !!!! Bool_Max et no Tot_Bool
+
+                * Sortie Rapide du Pt Fixe si NL n evolue pas
+
+                    Si (&It_fxNL < 3) ;
+
+                        Si (&It_fxNL ega 1) ;
+                            SM_f0 = SM_Fx ; // !!!! Pour tous
+                        SiNon ;
+                                Si ( OU Dir PGD) ;
+                                    LISF_Tri = LFOR ;
+                                FinSi ;
+                                Si (Upd) ;
+                                    LISF_Tri = LISF_ini ;
+                                FinSi ;
+
+                            Si ((PR_NormVecGeneral (SM_f0 - SM_fx) LISF_Tri) ega 0) ;
+
+                                Si Bool_Max ;
+                                    Pb.lambda = 1 - ((1 - (Pb.lambda))/ 2 ) ;
+                                        Bool_Max = FAUX;
+                                        Enr_Val = FAUX ;
+                                        SM_Fx Bool_Max = PR_Eval_NL_Tri Enr_Val V_U_NL V_V_NL SM_Lin;
+
+                                    // !!!!
+                                    Mess 'Val control atteinte dans Sortie Rapide du point fixe NL';
+                                    Mess 'nouveau lambda=' (Pb.lambda) ;
+                                SiNon ;
+                                    * Conserver F_NL
+                                        Si (OU PGD Upd) ;
+                                            Enr_Val = VRAI;
+                                            SM_Fx Bool_Max = PR_Eval_NL_Tri Enr_Val V_U_NL V_V_NL SM_Lin ; // Ralenti potentiellement un peu
+                                        FinSi ;
+
+                                    * Affichage
+                                        Si Aff_PtFx ;
+                                            Mess '-' ;
+                                        FinSi ;
+
+                                    QUIT It_fxNL ;
+                                FinSi ;
+                            FinSi ;
+                        FinSi ;
+                    FinSi ;
+
+
+                * Resolution lineaire
+                    Si (Dir) ;
+                        A_t V_fx U_fx = PR_ResolutionHHTLineaire SM_Fx ;
+                    FinSi ;
+
+                    Si (PGD) ;
+                        gpp_t gp_fx_t g_fx_t = PR_ResolutionHHT_PGDLineaire SM_Fx it_Temps;
+                    FinSi ;
+
+                    Si (Upd) ;
+                        Vec_G_Fx = RESO PremMemb SM_Fx;
+                    FinSi ;
+
+
+                * Verification de la convergence
+                    Si ( &It_fxNL > 1 ) ;
+
+                        * Evolution en une iteration du Point fixe
+                            Si (Dir) ;
+                                N_0_U = (PR_NormVecEspace (U_fx + U_t) K) ;
+                                N_0_V = (PR_NormVecEspace (V_fx + V_t) C) ; // !!!! et si C = 0;
+                                N_diff_U = (PR_NormVecEspace (U_fx - U_t) K) ;
+                                N_diff_V = (PR_NormVecEspace (V_fx - V_t) C) ; // !!!! et si C = 0;
+                            FinSi ;
+
+                            Si (PGD) ;
+                                N_0_U = ABS (g_fx_t + g_t) ;
+                                N_0_V = ABS (gp_fx_t + gp_t) ;
+                                N_diff_U = ABS (g_fx_t - g_t) ;
+                                N_diff_V = ABS (gp_fx_t - gp_t) ;
+                            FinSi ;
+
+                            Si (Upd) ;
+                                CHP_fx_U = PR_ExtrCompoVectGUpdate 'U' Vec_G_Fx ;
+                                CHP_fx_V = PR_ExtrCompoVectGUpdate 'V' Vec_G_Fx ;
+                                N_0_U = (PR_NormVecGeneral (CHP_fx_U + CHP_t__U) LISU_ini) ;
+                                N_0_V = (PR_NormVecGeneral (CHP_fx_V + CHP_t__V) LISU_ini) ;
+                                N_diff_U = (PR_NormVecGeneral (CHP_fx_U - CHP_t__U) LISU_ini) ;
+                                N_diff_V = (PR_NormVecGeneral (CHP_fx_V - CHP_t__V) LISU_ini) ;
+                            FinSi ;
+
+                        dif_u = 0;
+                        dif_v = 0;
+                        Si ( N_0_U > 0 );
+                            dif_u = ( N_diff_U * 2 ) / N_0_U ;
+                        FinSi ;
+                        Si ( N_0_V > 0 );
+                            dif_V = ( N_diff_V * 2 ) / N_0_V ;
+                        FinSi ;
+                        // Mess 'it_Temps' it_Temps 'dif_u' dif_u 'dif_v' dif_v ;
+
+                        Si (PGD) ;
+                            cri_0 = 1e-6 ;
+                        SiNon ;
+                            cri_0 = 1e-4 ;
+                        FinSi ;
+
+                        Aff_iter = chaine '-';
+
+                        Bool_U = (dif_u < cri_0) ;
+                        Bool_V = (dif_v < cri_0) ;
+
+                        Si ( Bool_U ET Bool_V ) ;
+
+                            Si Bool_Max ;
+                                Pb.lambda = 1 - ((1 - (Pb.lambda))/ 2 ) ;
+                                // !!!!
+                                Mess 'Val control atteinte a l iteration ' &It_fxNL ' F=' F_NL_T;
+                                Mess 'lambda=' (Pb.lambda) ;
+                            SiNon ;
+                                * Sortir derniere valeur
+                                    Si (Dir) ;
+                                        U_t = U_fx ;
+                                        V_t = V_fx ;
+                                    FinSi ;
+
+                                    Si (PGD) ;
+                                         g_t = g_fx_t  ;
+                                        gp_t = gp_fx_t ;
+                                    FinSi ;
+
+                                    Si (Upd) ;
+                                        Vec_G_t = Vec_G_Fx;
+                                    FinSi ;
+
+                                * Conserver F_NL // Doublon ?
+                                    Si (OU PGD Upd) ;
+                                        Enr_Val = VRAI;
+                                        SM_Fx Bool_Max = PR_Eval_NL_Tri Enr_Val V_U_NL V_V_NL SM_Lin ; // Ralenti potentiellement un peu
+                                    FinSi ;
+
+                                * Affichage
+                                    Si Aff_PtFx ;
+                                        REPETER It_Aff ((&It_fxNL) - 1) ;
+                                            Aff_iter = chaine Aff_iter '-' ;
+                                        Fin It_Aff ;
+
+                                        Mess Aff_iter ;
+                                    FinSi ;
+
+                                QUIT It_fxNL ;
+                            FinSi ;
+                        FinSi ;
+                    FinSi ; // Si ( &It_fxNL > 1 ) ;
+
+                * Mis a jour des variables pour prochaine iteration du Pt Fixe
+                    Si (Dir) ;
+                        U_t = U_fx ;
+                        V_t = V_fx ;
+                    FinSi ;
+
+                    Si (PGD) ;
+                         g_t = g_fx_t  ;
+                        gp_t = gp_fx_t ;
+                    FinSi ;
+
+                    Si (Upd) ;
+                        Vec_G_t = Vec_G_Fx;
+                        CHP_t__U  = PR_ExtrCompoVectGUpdate 'U' Vec_G_t  ;
+                        CHP_t__V  = PR_ExtrCompoVectGUpdate 'V' Vec_G_t  ;
+                    FinSi ;
+
+            Fin It_fxNL ;
+
+        FInSi ; //Si (OU (NON Up_Pt_Fx) (it_Temps ega 1));
+
+
+    Si (Dir) ;
+        RESPRO A_t ;
+        RESPRO V_t ;
+        RESPRO U_t ;
+    FinSi ;
+
+    Si (PGD) ;
+        RESPRO gpp_t ;
+        RESPRO  gp_t ;
+        RESPRO   g_t ;
+    FinSi ;
+
+    Si (Upd) ;
+        RESPRO Vec_G_T ;
+    FinSi ;
+
+
+    FINPROC;

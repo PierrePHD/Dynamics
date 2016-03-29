@@ -114,7 +114,9 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
        Pb.CHA_TOT = CHA1 et CHA2;
        Pb.Tab_NL = TABLE;
 
-       dep0 = MANU CHPO MAI1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
+       // dep0 = MANU CHPO MAI1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
+       FOR1 = FORCE FZ (1) P3 ;
+       dep0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
        Pb.U0  = dep0;
        Pb.V0  = dep0;
 

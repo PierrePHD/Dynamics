@@ -14,7 +14,7 @@ DEBPROC PR_PointFixePGD M C K CL_A Ttot schema CHA dt It_m ;
     *gev_ = TABLE;
     *fev_ = TABLE;
 
-    REPETER It 30;
+    REPETER It 10;
         Mess '  ' &It;
         f_espa = PR_ProblemeEspace M C K CL_A CHA dt g_tmps It_m ;
         Nor_f = PR_NormVecEspace f_espa K;

@@ -63,9 +63,6 @@ FinSi ;
 
         Mess 'ErrDepl=' ErrDepl 'ErrGlob=' ErrGlob;
 
-        TEMPS;
-
-
     Fin It_m;
 
 FINPROC;

@@ -46,13 +46,15 @@
 %							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD2.csv};
 %					\addplot [color=blue,line width=1.5] 
 %							table[x index=0,y index=1,col sep=comma]   {Donnees/SansOption/SoluPGD3.csv};
-					\addplot [color=red,line width=1.5] 
+					\addplot [color=black,line width=1.6 ] 
 							table[x index=0,y index=1, col sep=comma]  {Donnees/SansOption/Direct.csv};
-					\addplot [color=black,dashed,line width=1.5] 
-							table[x index=0,y index=1, col sep=comma]  {Evol_dir.csv};
+					\addplot [color=red ,line width=1.5] 
+							table[x index=0,y index=1, col sep=comma]  {Evol_dir_PF.csv};
+%					\addplot [color=black,dotted,line width=2] 
+%							table[x index=0,y expr=\thisrowno{1}*(1/180000) ,col sep=comma]  {Donnees/Update-NL/EffortNonLin.csv};
 					\addplot [color=red,dotted,line width=2] 
-							table[x index=0,y expr=\thisrowno{1}*(-1/180000) ,col sep=comma]  {EffortNonLinDir.csv};
-\legend{ Directe , Directe PF, $F_{N \! L}$}
+							table[x index=0,y expr=\thisrowno{1}*(-1/180000) ,col sep=comma]  {EffortNonLinDir_PF.csv};
+\legend{ Directe , Directe PF, $F_{N \! L}$ PF}
 			\end{axis}
 	\end{tikzpicture}
 	

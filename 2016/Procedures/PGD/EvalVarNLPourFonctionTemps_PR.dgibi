@@ -1,0 +1,17 @@
+ABNZ
+PR_EvalVarNLPourFonctionTemps
+DEBPROC PR_EvalVarNLPourFonctionTemps ;
+
+    REPETER It_NL Nb_NL ;
+      Var_U_NL = g_t  * UNL_proj.&It_NL ;
+      Var_V_NL = gp_t * UNL_proj.&It_NL ;
+      Si (TailFami > 0) ;
+            Var_U_NL = (Var_U_NL + Prec_U.&It_NL) ;
+            Var_V_NL = (Var_V_NL + Prec_V.&It_NL) ;
+      FinSi ;
+    Fin It_NL ;
+
+    RESPRO Var_U_NL ;
+    RESPRO Var_V_NL ;
+
+FINPROC;

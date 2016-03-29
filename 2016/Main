@@ -15,6 +15,7 @@
     P_intere = Pb.P_intere;
     DirPriv = Pb.DirPriv;
     Nb_NL = DIME (Pb.Tab_NL) ;
+    Pb.lambda = 0.5;
 
     dt = Cal_T.dt;
     Ttot = Cal_T.Ttot;
@@ -30,6 +31,8 @@
     beta = 0.25;
     gamma = 0.5;
 
+
+    Aff_PtFx = FAUX;
     TEMPS ZERO;
     DirPt_Fx = VRAI;
     Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
@@ -51,8 +54,12 @@
         FamiF.Ini = TABLE;
         FamiG.Ini = TABLE;
 
+        AffMods = LECT ;
+        AffSolu = LECT ;
 
-    NbModCal = 10;
+        PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
+
+    NbModCal = 4;
     OPT0 = TABLE;
     OPT0.Orth = VRAI;
     OPT0.Upda = VRAI;
@@ -60,6 +67,7 @@
     PGDPt_Fx = FAUX;
     Up_Pt_Fx = VRAI;
 
+    Pb.lambda = 0.5;
 
     PR_ResolutionPGD NbModCal;
 
@@ -67,10 +75,10 @@
 
     *OPTI TRAC PSC;
 
-        AffMods = LECT 1 2 ;
-        AffSolu = LECT 1 2 ;
+        AffMods = LECT 1 2 3 4;
+        AffSolu = LECT 1 2 3 4;
 
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.5;
+    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
 
     PR_AffichageModesEspace AffMods;
 
