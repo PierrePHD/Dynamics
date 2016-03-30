@@ -112,12 +112,13 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
        CHA1 = CHAR FORC FOR1 EVT1 ;
        CHA2 = CHAR FORC FOR2 EVT1 ;
        Pb.CHA_TOT = CHA1 et CHA2;
-       Pb.Tab_NL = TABLE;
 
-       // dep0 = MANU CHPO MAI1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
-       FOR1 = FORCE FZ (1) P3 ;
-       dep0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
-       Pb.U0  = dep0;
-       Pb.V0  = dep0;
+       *------------- Deplacement Initial -------------*
+       dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
+       Pb.U0  = dep_0;
+       Pb.V0  = dep_0;
+
+       *------------- Non Linearite -------------*
+       Pb.Tab_NL = TABLE;
 
        Pb.P_intere = P3;

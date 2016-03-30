@@ -45,8 +45,7 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
 
     A_t V_t U_t= PR_ResolutionInstantT M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t A_t;
 
-    Bool2 = It_T > 0 ;
-    Si Bool2;
+    Si (It_T > 0);
       U_sol.It_T = U_t;
       V_sol.It_T = V_t;
     FinSi ;

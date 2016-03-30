@@ -53,16 +53,20 @@
     LIS2 = PROG (DIMENSION Vec_T)*1;
     EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
     EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
+
     *-----------------CHARGEMENT----------------------*
     FOR1 = FORCE FX (AMP1*2.) P6 ;
     FOR2 = FORCE FX 0. P6 ;
     CHA1 = CHAR FORC FOR1 EVT1 ;
     CHA2 = CHAR FORC FOR2 EVT2 ;
     Pb.CHA_TOT = CHA1 et CHA2 ;
-    Pb.Tab_NL = TABLE;
 
-    dep0 = MANU CHPO L1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
-    Pb.U0  = dep0;
-    Pb.V0  = dep0;
+    *------------- Deplacement Initial -------------*
+    dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
+    Pb.U0  = dep_0;
+    Pb.V0  = dep_0;
+
+    *------------- Non Linearite -------------*
+    Pb.Tab_NL = TABLE;
 
     Pb.P_intere = P6;

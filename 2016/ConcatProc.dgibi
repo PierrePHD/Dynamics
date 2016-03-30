@@ -66,8 +66,7 @@ SiNon ;
 FOR_Imp = U0 * 0;
 FinSi ;
 A_t V_t U_t= _RESO_T M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t A_t;
-Bool2 = It_T > 0 ;
-Si Bool2;
+Si (It_T > 0);
 U_sol.It_T = U_t;
 V_sol.It_T = V_t;
 FinSi ;
@@ -314,12 +313,281 @@ FinSi ;
 RESPRO Effort ;
 RESPRO Bool_Max ;
 FINPROC;
+$$$$ ABOZ
+DEBPROC ABOZ Enr_Val*LOGIQUE VarU  VarV  SM_0 ;
+Bool_Tot = FAUX;
+REPETER It_NL Nb_NL ;
+Si (Dir) ;
+SM_NL Bool_M= ABHZ (Pb.Tab_NL.&It_NL) (Pb.lambda) FAUX V_U_NL V_V_NL ;
+FinSi ;
+Si (PGD) ;
+Val_F_NL Bool_M= ABHZ (Pb.Tab_NL.&It_NL) (Pb.lambda)
+VRAI V_U_NL V_V_NL ;
+SM_NL = ((FNL_proj.&It_NL) * Val_F_NL) ;
+FinSi ;
+Si (Upd) ;
+SM_NL Val_F_NL Bool_M = ABGZ &It_NL &It_T (NL_proj.Ffi) 
+V_U_NL V_V_NL ;
+FinSi ;
+Si (( OU PGD Upd) ET Enr_Val) ;
+TabLisNL.&It_NL = (TabLisNL.&It_NL) et (PROG Val_F_NL);
+FinSi ;
+Si Bool_M ;
+Bool_Tot = VRAI ;
+FinSi ;
+SM_0 = SM_0 + SM_NL ;
+Fin It_NL ;
+RESPRO SM_0 ;
+RESPRO Bool_Tot ;
+FINPROC;
 $$$$ ABBZ
 DEBPROC ABBZ ;
 F_Rep = (((-1) * Raideur * (DeltaJeu**2))
 / ((U - Jeu) - DeltaJeu))
 +( Raideur * ((Jeu - DeltaJeu) - U))  ;
 RESPRO F_Rep ;
+FINPROC;
+$$$$ ABPZ
+DEBPROC ABPZ SM_Lin it_Temps*ENTIER Tri*MOT B_Pt_Fx;
+Dir = FAUX;
+PGD = FAUX;
+Upd = FAUX;
+Si (EGA Tri 'Dir') ;
+Dir = VRAI ;
+FinSi ;
+Si (EGA Tri 'PGD') ;
+PGD = VRAI ;
+FinSi ;
+Si (EGA Tri 'Upd') ;
+Upd = VRAI ;
+FinSi ;
+Si (PGD) ;
+* Evaluation des g (t) pour les modes precedents
+Prec_U = TABLE;
+Prec_V = TABLE;
+REPETER It_NL Nb_NL ;
+Si (TailFami > 0) ;
+Si ( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
+Prec_U.&It_NL = (ABFZ FamiFTot FamiGTot ('U')
+(Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) it_Temps) *
+(Pb.Tab_NL.&It_NL.fac_int)    ;
+Prec_V.&It_NL = (ABFZ FamiFTot FamiGTot ('V')
+(Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) it_Temps) *
+(Pb.Tab_NL.&It_NL.fac_int)    ;
+SiNon ;
+Prec_U.&It_NL = ABFZ FamiFTot FamiGTot ('U')
+(Pb.Tab_NL.&It_NL.ch_depen) it_Temps ;
+Prec_V.&It_NL = ABFZ FamiFTot FamiGTot ('V')
+(Pb.Tab_NL.&It_NL.ch_depen) it_Temps ;
+FinSi ;
+FinSi ;
+Fin It_NL ;
+FinSi ;
+* Evaluation implicite
+Si (OU (NON B_Pt_Fx) (it_Temps ega 1));   
+* Evaluation NL
+* La dependance (t-1)
+Si (Dir) ;
+V_U_NL = U_tm1 ;
+V_V_NL = V_tm1 ;
+FinSi ;
+Si (PGD) ;
+V_U_NL V_V_NL = ABNZ ;
+FinSi ;
+Si (Upd) ;
+V_U_NL V_V_NL = ABKZ (it_Temps - 1) ;
+FinSi ;
+* L effort
+Enr_Val = VRAI;
+SM_Fx Bool_nul = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin;
+* Resolution lineaire
+Si (Dir) ;
+A_t V_t U_t = ABIZ SM_Fx ;
+FinSi ;
+Si (PGD) ;
+gpp_t gp_t g_t = ABJZ SM_Fx it_Temps;
+FinSi ;
+Si (Upd) ;
+Vec_G_T = RESO PremMemb SM_Fx;
+FinSi ;
+* Point fixe
+SiNon ;
+* Evaluation (t-1)
+Si (Dir) ;
+U_t = U_tm1 ;
+V_t = V_tm1 ;
+FinSi ;
+Si (Upd) ;
+CHP_t__U CHP_t__V = ABKZ (it_Temps - 1) ;
+FinSi ;
+REPETER It_fxNL 0 ;
+* Initialisation
+Si (&It_fxNL > 30) ;
+Mess 'Point fixe Non Lineaire de l Update non convergent' ;
+list (EXTR ZZZ 4);
+FinSi ;
+* Evaluation NL
+* La dependance
+Si (Dir) ;
+V_U_NL = U_t ;
+V_V_NL = V_t ;
+FinSi ;
+Si (PGD) ;
+V_U_NL V_V_NL = ABNZ ;
+FinSi ;
+Si (Upd) ;
+V_U_NL = CHP_t__U ;
+V_V_NL = CHP_t__V ;
+FinSi ;
+* L effort
+Enr_Val = FAUX;
+SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin ; 
+* Sortie Rapide du Pt Fixe si NL n evolue pas
+Si (&It_fxNL < 3) ;
+Si (&It_fxNL ega 1) ;
+SM_f0 = SM_Fx ; 
+SiNon ;
+Si ( OU Dir PGD) ;
+LISF_Tri = LFOR ;
+FinSi ;
+Si (Upd) ;
+LISF_Tri = LISF_ini ;
+FinSi ;
+Si ((ABMZ (SM_f0 - SM_fx) LISF_Tri) ega 0) ;
+Si Bool_Max ;
+Pb.lambda = 1 - ((1 - (Pb.lambda))/ 2 ) ;
+Bool_Max = FAUX;
+Enr_Val = FAUX ;
+SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin;
+Mess 'Val control atteinte dans Sortie Rapide du point fixe NL';
+Mess 'nouveau lambda=' (Pb.lambda) ;
+SiNon ;
+* Conserver F_NL
+Si (OU PGD Upd) ;
+Enr_Val = VRAI;
+SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin ; 
+FinSi ;
+* Affichage
+Si Aff_PtFx ;
+Mess '-' ;
+FinSi ;
+QUIT It_fxNL ;
+FinSi ;
+FinSi ;
+FinSi ;
+FinSi ;
+* Resolution lineaire
+Si (Dir) ;
+A_t V_fx U_fx = ABIZ SM_Fx ;
+FinSi ;
+Si (PGD) ;
+gpp_t gp_fx_t g_fx_t = ABJZ SM_Fx it_Temps;
+FinSi ;
+Si (Upd) ;
+Vec_G_Fx = RESO PremMemb SM_Fx;
+FinSi ;
+* Verification de la convergence
+Si ( &It_fxNL > 1 ) ;
+* Evolution en une iteration du Point fixe
+Si (Dir) ;
+N_0_U = (AASZ (U_fx + U_t) K) ;
+N_0_V = (AASZ (V_fx + V_t) C) ; 
+N_diff_U = (AASZ (U_fx - U_t) K) ;
+N_diff_V = (AASZ (V_fx - V_t) C) ; 
+FinSi ;
+Si (PGD) ;
+N_0_U = ABS (g_fx_t + g_t) ;
+N_0_V = ABS (gp_fx_t + gp_t) ;
+N_diff_U = ABS (g_fx_t - g_t) ;
+N_diff_V = ABS (gp_fx_t - gp_t) ;
+FinSi ;
+Si (Upd) ;
+CHP_fx_U = ABLZ 'U' Vec_G_Fx ;
+CHP_fx_V = ABLZ 'V' Vec_G_Fx ;
+N_0_U = (ABMZ (CHP_fx_U + CHP_t__U) LISU_ini) ;
+N_0_V = (ABMZ (CHP_fx_V + CHP_t__V) LISU_ini) ;
+N_diff_U = (ABMZ (CHP_fx_U - CHP_t__U) LISU_ini) ;
+N_diff_V = (ABMZ (CHP_fx_V - CHP_t__V) LISU_ini) ;
+FinSi ;
+dif_u = 0;
+dif_v = 0;
+Si ( N_0_U > 0 );
+dif_u = ( N_diff_U * 2 ) / N_0_U ;
+FinSi ;
+Si ( N_0_V > 0 );
+dif_V = ( N_diff_V * 2 ) / N_0_V ;
+FinSi ;
+Si (PGD) ;
+cri_0 = 1e-6 ;
+SiNon ;
+cri_0 = 1e-4 ;
+FinSi ;
+Aff_iter = chaine '-';
+Bool_U = (dif_u < cri_0) ;
+Bool_V = (dif_v < cri_0) ;
+Si ( Bool_U ET Bool_V ) ;
+Si Bool_Max ;
+Pb.lambda = 1 - ((1 - (Pb.lambda))/ 2 ) ;
+Mess 'Val control atteinte a l iteration ' &It_fxNL ' F=' F_NL_T;
+Mess 'lambda=' (Pb.lambda) ;
+SiNon ;
+* Sortir derniere valeur
+Si (Dir) ;
+U_t = U_fx ;
+V_t = V_fx ;
+FinSi ;
+Si (PGD) ;
+g_t = g_fx_t  ;
+gp_t = gp_fx_t ;
+FinSi ;
+Si (Upd) ;
+Vec_G_t = Vec_G_Fx;
+FinSi ;
+* Conserver F_NL 
+Si (OU PGD Upd) ;
+Enr_Val = VRAI;
+SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin ; 
+FinSi ;
+* Affichage
+Si Aff_PtFx ;
+REPETER It_Aff ((&It_fxNL) - 1) ;
+Aff_iter = chaine Aff_iter '-' ;
+Fin It_Aff ;
+Mess Aff_iter ;
+FinSi ;
+QUIT It_fxNL ;
+FinSi ;
+FinSi ;
+FinSi ; 
+* Mis a jour des variables pour prochaine iteration du Pt Fixe
+Si (Dir) ;
+U_t = U_fx ;
+V_t = V_fx ;
+FinSi ;
+Si (PGD) ;
+g_t = g_fx_t  ;
+gp_t = gp_fx_t ;
+FinSi ;
+Si (Upd) ;
+Vec_G_t = Vec_G_Fx;
+CHP_t__U  = ABLZ 'U' Vec_G_t  ;
+CHP_t__V  = ABLZ 'V' Vec_G_t  ;
+FinSi ;
+Fin It_fxNL ;
+FInSi ; 
+Si (Dir) ;
+RESPRO A_t ;
+RESPRO V_t ;
+RESPRO U_t ;
+FinSi ;
+Si (PGD) ;
+RESPRO gpp_t ;
+RESPRO  gp_t ;
+RESPRO   g_t ;
+FinSi ;
+Si (Upd) ;
+RESPRO Vec_G_T ;
+FinSi ;
 FINPROC;
 $$$$ ABGZ
 DEBPROC ABGZ Num_NL*ENTIER It_Temps*ENTIER Prod*TABLE
@@ -558,33 +826,6 @@ FinSi ;
 Fin It_NL ;
 RESPRO Var_U_NL ;
 RESPRO Var_V_NL ;
-FINPROC;
-$$$$ ABOZ
-DEBPROC ABOZ Enr_Val*LOGIQUE VarU  VarV  SM_0 ;
-Bool_Tot = FAUX;
-REPETER It_NL Nb_NL ;
-Si (Dir) ;
-SM_NL Bool_M= ABHZ (Pb.Tab_NL.&It_NL) (Pb.lambda) FAUX V_U_NL V_V_NL ;
-FinSi ;
-Si (PGD) ;
-Val_F_NL Bool_M= ABHZ (Pb.Tab_NL.&It_NL) (Pb.lambda)
-VRAI V_U_NL V_V_NL ;
-SM_NL = ((FNL_proj.&It_NL) * Val_F_NL) ;
-FinSi ;
-Si (Upd) ;
-SM_NL Val_F_NL Bool_M = ABGZ &It_NL &It_T (NL_proj.Ffi) 
-V_U_NL V_V_NL ;
-FinSi ;
-Si (( OU PGD Upd) ET Enr_Val) ;
-TabLisNL.&It_NL = (TabLisNL.&It_NL) et (PROG Val_F_NL);
-FinSi ;
-Si Bool_M ;
-Bool_Tot = VRAI ;
-FinSi ;
-SM_0 = SM_0 + SM_NL ;
-Fin It_NL ;
-RESPRO SM_0 ;
-RESPRO Bool_Tot ;
 FINPROC;
 $$$$ ABLZ
 DEBPROC ABLZ Grandeur*MOT Vec_G*CHPOINT;
@@ -1524,104 +1765,49 @@ RESPRO Sol;
 FINPROC;
 $$$$ AANZ
 DEBPROC AANZ;
-OPTI DIME 3 ;
-OPTI ELEM SEG2 ;
-*
-OPTI 'ACQU' 'Maillage_Treillis.txt' ;
-*
-* Noeuds
-*
-NOE1 = TABLE ;
-REPE BCL1N 45 ;
-ACQU XY1*LISTREEL 4 ;
-* LIST XY1 ;
-ACQU XY2*LISTREEL 2 ;
-* LIST XY2 ;
-X1 = (EXTR 2 XY1)/1000. ;
-Y1 = (EXTR 3 XY1)/1000. ;
-Z1 = (EXTR 2 XY2)/1000. ;
-NOE1 . &BCL1N = X1 Y1 Z1 ;
-FIN BCL1N ;
-*
-* Elements barre
-*
-BAR1 = TABLE ;
-N1E = 90 ;
-REPE BCL1E N1E ;
-ACQU XY1*LISTENTI 4 ;
-N1 = EXTR 3 XY1 ;
-N2 = EXTR 4 XY1 ;
-BAR1 . &BCL1E = DROI 10 NOE1 . N1 NOE1 . N2 ;
-Si (&BCL1E EGA 1) ;
-MAI1 = BAR1 . &BCL1E ;
-SiNon ;
-MAI1 = MAI1 ET BAR1 . &BCL1E ;
-FinSi ;
-FIN BCL1E ;
-*
-* Tracé du maillage
-*
-TRAC MAI1 ;
-*
-* Proprietes des poutres
-*
-D1E = 0.030  ;
-D1I = 0.027  ;
-IY1 = PI*((D1E**4)-(D1I**4))/64 ;
-IZ1 = PI*((D1E**4)-(D1I**4))/64 ;
-I01 = PI*((D1E**4)-(D1I**4))/32 ;
-S1 =  PI*((D1E**2)-(D1I**2))/4  ;
-YOU1 = 7.E10 ;
-RHO1 = 2700. ;
-*
-REPE BCL1E N1E ;
-*
-MOD1 = MODE BAR1 . &BCL1E MECANIQUE ELASTIQUE POUTRE ;
-MAT1 = MATE MOD1 'YOUNG' YOU1 'NU' 0.3 'RHO' RHO1 ;
-CAR1 = CARA MOD1 SECT S1 'INRY' IY1 'INRZ' IY1 'TORS' I01 ;
-RIG1 = RIGI MOD1 (MAT1 ET CAR1);
-MAS1 = MASS MOD1 (MAT1 ET CAR1);
-Si (&BCL1E EGA 1) ;
-MAS1TOT = MAS1 ;
-RIG1TOT = RIG1 ;
-SiNon ;
-RIG1TOT = RIG1TOT ET RIG1 ;
-MAS1TOT = MAS1TOT ET MAS1 ;
-FinSi ;
-*
-FIN BCL1E ;
-*
-* Conditions aux limites
-* Front - Rear - Left - Right
-CL1FR = NOE1 . 20 ;
-CL1FL = NOE1 . 25 ;
-CL1RR = NOE1 . 30 ;
-CL1RL = NOE1 . 35 ;
-*
-K1 = 1.E6 ;
-BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
-(BLOQ CL1FL UY UX UZ RX RY RZ) ET
-(BLOQ CL1RR UY UX UZ RX RY RZ) ET
-(BLOQ CL1RL UY UX UZ RX RY RZ) ;
+OPTI DIME 3 ELEM qua8 ;
 Pb = TABLE;
 Cal_T = TABLE;
-Pb.DirPriv = 'UZ';
 *---------------------DONNEES---------------------*
 *Unites SI
-AMP1 = -100.0 ;
+AMP1 = 100.0 ;
+LON1 = 0.5 ;
+LON2 = 0.02 ;
+EP1 = 1e-2;
+NUP = 0.3 ;
+YOP = 2.1E11 ;
+RHOP = 7800.0 ;
+*--------------------GEOMETRIE--------------------*
+P1 = 0.   0. 0. ;
+P2 = LON1 0. 0. ;
+P4 = LON1 LON2 0. ;
+P5 = 0. LON2 0. ;
+L1 = D 20 P1 P2 ;
+L2 = D 2  P2 P4 ;
+L3 = D 20 P4 P5 ;
+L4 = D 2  P5 P1 ;
+PouPla = DALL L1 L2 L3 L4 ;
+P3 = PouPla POIN PROC (LON1 (LON2/2) 0.);
+Pb.geo = PouPla;
+ELIM PouPla 0.0001;
+Pb.DirPriv = 'UX';
+*TRAC PouPla ;
+*------DEFINITION DU MODELE ET DU MATERIAU--------*
+MOD1 = MODEL PouPla MECANIQUE ELASTIQUE COQ8 ;
+MAT1 = MATER MOD1 YOUN YOP NU NUP RHO RHOP ;
+CAR1 = CARAC MOD1 EPAI EP1;
+MATTOT = MAT1 ET CAR1 ;
 *-------MATRICES DE RIGIDITE ET DE MASSE----------*
-Pb.K = RIG1TOT;
-Pb.M = MAS1TOT ;
-Pb.Mob = MOD1;
+Pb.K = RIGI MOD1 MATTOT ;
+Pb.M = MASS MOD1 MATTOT ;
 *--------------CONDITIONS LIMITES-----------------*
-Pb.CL_TOT= BLO1 ;
-P3 = MAI1 POIN PROC (250. 500. 950.);
-P4 = MAI1 POIN PROC (250. -500. 950.);
-Pb.geo = MAI1;
+CL1 = BLOQ L4 UY UX RZ ;
+CL2 = BLOQ PouPla UZ RX RY ;
+Pb.CL_TOT= CL1 ET CL2 ;
 *--------------Parametres de calcul---------------*
-Cal_T.dt = 8e-5;
-Cal_T.Ttot = 4e-2;
-Pb.T_period = 2e-2 ;
+Cal_T.dt = 1e-6;
+Cal_T.Ttot = 5e-4;
+Pb.T_period = 2.5e-4 ;
 En_Nb_Re = AAGZ Cal_T.dt Cal_T.Ttot;
 Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
 *------------EVOLUTION TEMPORELLE-----------------*
@@ -1630,259 +1816,19 @@ LIS1 = LIS1 + (PROG En_Nb_Re*1.);
 EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
 EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
 *-----------------CHARGEMENT----------------------*
-FOR1 = FORCE FZ AMP1 P3 ;
-FOR2 = FORCE FZ AMP1 P4 ;
+FOR1 = FORCE FX AMP1 P3 ;
+FOR2 = FORCE FX 0. P3 ;
 CHA1 = CHAR FORC FOR1 EVT1 ;
-CHA2 = CHAR FORC FOR2 EVT1 ;
+CHA2 = CHAR FORC FOR2 EVT2 ;
 Pb.CHA_TOT = CHA1 et CHA2;
+*------------- Deplacement Initial -------------*
+dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
+Pb.U0  = dep_0;
+Pb.V0  = dep_0;
+*------------- Non Linearite -------------*
 Pb.Tab_NL = TABLE;
-dep0 = MANU CHPO MAI1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
-Pb.U0  = dep0;
-Pb.V0  = dep0;
 Pb.P_intere = P3;
 RESPRO Pb;
 RESPRO Cal_T;
-FINPROC;
-$$$$ ABPZ
-DEBPROC ABPZ SM_Lin it_Temps*ENTIER Tri*MOT B_Pt_Fx;
-Dir = FAUX;
-PGD = FAUX;
-Upd = FAUX;
-Si (EGA Tri 'Dir') ;
-Dir = VRAI ;
-FinSi ;
-Si (EGA Tri 'PGD') ;
-PGD = VRAI ;
-FinSi ;
-Si (EGA Tri 'Upd') ;
-Upd = VRAI ;
-FinSi ;
-Si (PGD) ;
-* Evaluation des g (t) pour les modes precedents
-Prec_U = TABLE;
-Prec_V = TABLE;
-REPETER It_NL Nb_NL ;
-Si (TailFami > 0) ;
-Si ( EXISTE (Pb.Tab_NL.&It_NL) Poi_int ) ;
-Prec_U.&It_NL = (ABFZ FamiFTot FamiGTot ('U')
-(Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) it_Temps) *
-(Pb.Tab_NL.&It_NL.fac_int)    ;
-Prec_V.&It_NL = (ABFZ FamiFTot FamiGTot ('V')
-(Pb.Tab_NL.&It_NL.Dir_int) (Pb.Tab_NL.&It_NL.Poi_int) it_Temps) *
-(Pb.Tab_NL.&It_NL.fac_int)    ;
-SiNon ;
-Prec_U.&It_NL = ABFZ FamiFTot FamiGTot ('U')
-(Pb.Tab_NL.&It_NL.ch_depen) it_Temps ;
-Prec_V.&It_NL = ABFZ FamiFTot FamiGTot ('V')
-(Pb.Tab_NL.&It_NL.ch_depen) it_Temps ;
-FinSi ;
-FinSi ;
-Fin It_NL ;
-FinSi ;
-* Evaluation implicite
-Si (OU (NON B_Pt_Fx) (it_Temps ega 1));   
-* Evaluation NL
-* La dependance (t-1)
-Si (Dir) ;
-V_U_NL = U_tm1 ;
-V_V_NL = V_tm1 ;
-FinSi ;
-Si (PGD) ;
-V_U_NL V_V_NL = ABNZ ;
-FinSi ;
-Si (Upd) ;
-V_U_NL V_V_NL = ABKZ (it_Temps - 1) ;
-FinSi ;
-* L effort
-Enr_Val = VRAI;
-SM_Fx Bool_nul = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin;
-* Resolution lineaire
-Si (Dir) ;
-A_t V_t U_t = ABIZ SM_Fx ;
-FinSi ;
-Si (PGD) ;
-gpp_t gp_t g_t = ABJZ SM_Fx it_Temps;
-FinSi ;
-Si (Upd) ;
-Vec_G_T = RESO PremMemb SM_Fx;
-FinSi ;
-* Point fixe
-SiNon ;
-* Evaluation (t-1)
-Si (Dir) ;
-U_t = U_tm1 ;
-V_t = V_tm1 ;
-FinSi ;
-Si (Upd) ;
-CHP_t__U CHP_t__V = ABKZ (it_Temps - 1) ;
-FinSi ;
-REPETER It_fxNL 0 ;
-* Initialisation
-Si (&It_fxNL > 30) ;
-Mess 'Point fixe Non Lineaire de l Update non convergent' ;
-list (EXTR ZZZ 4);
-FinSi ;
-* Evaluation NL
-* La dependance
-Si (Dir) ;
-V_U_NL = U_t ;
-V_V_NL = V_t ;
-FinSi ;
-Si (PGD) ;
-V_U_NL V_V_NL = ABNZ ;
-FinSi ;
-Si (Upd) ;
-V_U_NL = CHP_t__U ;
-V_V_NL = CHP_t__V ;
-FinSi ;
-* L effort
-Enr_Val = FAUX;
-SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin ; 
-* Sortie Rapide du Pt Fixe si NL n evolue pas
-Si (&It_fxNL < 3) ;
-Si (&It_fxNL ega 1) ;
-SM_f0 = SM_Fx ; 
-SiNon ;
-Si ( OU Dir PGD) ;
-LISF_Tri = LFOR ;
-FinSi ;
-Si (Upd) ;
-LISF_Tri = LISF_ini ;
-FinSi ;
-Si ((ABMZ (SM_f0 - SM_fx) LISF_Tri) ega 0) ;
-Si Bool_Max ;
-Pb.lambda = 1 - ((1 - (Pb.lambda))/ 2 ) ;
-Bool_Max = FAUX;
-Enr_Val = FAUX ;
-SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin;
-Mess 'Val control atteinte dans Sortie Rapide du point fixe NL';
-Mess 'nouveau lambda=' (Pb.lambda) ;
-SiNon ;
-* Conserver F_NL
-Si (OU PGD Upd) ;
-Enr_Val = VRAI;
-SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin ; 
-FinSi ;
-* Affichage
-Si Aff_PtFx ;
-Mess '-' ;
-FinSi ;
-QUIT It_fxNL ;
-FinSi ;
-FinSi ;
-FinSi ;
-FinSi ;
-* Resolution lineaire
-Si (Dir) ;
-A_t V_fx U_fx = ABIZ SM_Fx ;
-FinSi ;
-Si (PGD) ;
-gpp_t gp_fx_t g_fx_t = ABJZ SM_Fx it_Temps;
-FinSi ;
-Si (Upd) ;
-Vec_G_Fx = RESO PremMemb SM_Fx;
-FinSi ;
-* Verification de la convergence
-Si ( &It_fxNL > 1 ) ;
-* Evolution en une iteration du Point fixe
-Si (Dir) ;
-N_0_U = (AASZ (U_fx + U_t) K) ;
-N_0_V = (AASZ (V_fx + V_t) C) ; 
-N_diff_U = (AASZ (U_fx - U_t) K) ;
-N_diff_V = (AASZ (V_fx - V_t) C) ; 
-FinSi ;
-Si (PGD) ;
-N_0_U = ABS (g_fx_t + g_t) ;
-N_0_V = ABS (gp_fx_t + gp_t) ;
-N_diff_U = ABS (g_fx_t - g_t) ;
-N_diff_V = ABS (gp_fx_t - gp_t) ;
-FinSi ;
-Si (Upd) ;
-CHP_fx_U = ABLZ 'U' Vec_G_Fx ;
-CHP_fx_V = ABLZ 'V' Vec_G_Fx ;
-N_0_U = (ABMZ (CHP_fx_U + CHP_t__U) LISU_ini) ;
-N_0_V = (ABMZ (CHP_fx_V + CHP_t__V) LISU_ini) ;
-N_diff_U = (ABMZ (CHP_fx_U - CHP_t__U) LISU_ini) ;
-N_diff_V = (ABMZ (CHP_fx_V - CHP_t__V) LISU_ini) ;
-FinSi ;
-dif_u = 0;
-dif_v = 0;
-Si ( N_0_U > 0 );
-dif_u = ( N_diff_U * 2 ) / N_0_U ;
-FinSi ;
-Si ( N_0_V > 0 );
-dif_V = ( N_diff_V * 2 ) / N_0_V ;
-FinSi ;
-Si (PGD) ;
-cri_0 = 1e-6 ;
-SiNon ;
-cri_0 = 1e-4 ;
-FinSi ;
-Aff_iter = chaine '-';
-Bool_U = (dif_u < cri_0) ;
-Bool_V = (dif_v < cri_0) ;
-Si ( Bool_U ET Bool_V ) ;
-Si Bool_Max ;
-Pb.lambda = 1 - ((1 - (Pb.lambda))/ 2 ) ;
-Mess 'Val control atteinte a l iteration ' &It_fxNL ' F=' F_NL_T;
-Mess 'lambda=' (Pb.lambda) ;
-SiNon ;
-* Sortir derniere valeur
-Si (Dir) ;
-U_t = U_fx ;
-V_t = V_fx ;
-FinSi ;
-Si (PGD) ;
-g_t = g_fx_t  ;
-gp_t = gp_fx_t ;
-FinSi ;
-Si (Upd) ;
-Vec_G_t = Vec_G_Fx;
-FinSi ;
-* Conserver F_NL 
-Si (OU PGD Upd) ;
-Enr_Val = VRAI;
-SM_Fx Bool_Max = ABOZ Enr_Val V_U_NL V_V_NL SM_Lin ; 
-FinSi ;
-* Affichage
-Si Aff_PtFx ;
-REPETER It_Aff ((&It_fxNL) - 1) ;
-Aff_iter = chaine Aff_iter '-' ;
-Fin It_Aff ;
-Mess Aff_iter ;
-FinSi ;
-QUIT It_fxNL ;
-FinSi ;
-FinSi ;
-FinSi ; 
-* Mis a jour des variables pour prochaine iteration du Pt Fixe
-Si (Dir) ;
-U_t = U_fx ;
-V_t = V_fx ;
-FinSi ;
-Si (PGD) ;
-g_t = g_fx_t  ;
-gp_t = gp_fx_t ;
-FinSi ;
-Si (Upd) ;
-Vec_G_t = Vec_G_Fx;
-CHP_t__U  = ABLZ 'U' Vec_G_t  ;
-CHP_t__V  = ABLZ 'V' Vec_G_t  ;
-FinSi ;
-Fin It_fxNL ;
-FInSi ; 
-Si (Dir) ;
-RESPRO A_t ;
-RESPRO V_t ;
-RESPRO U_t ;
-FinSi ;
-Si (PGD) ;
-RESPRO gpp_t ;
-RESPRO  gp_t ;
-RESPRO   g_t ;
-FinSi ;
-Si (Upd) ;
-RESPRO Vec_G_T ;
-FinSi ;
 FINPROC;
 $$$$
