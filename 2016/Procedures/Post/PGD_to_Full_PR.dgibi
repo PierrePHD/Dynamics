@@ -13,20 +13,22 @@ DEBPROC PR_PGD_to_Full It_m*Entier;
 
     REPETER It2 NbMod;
 
-        REPETER It En_Nb_Re;
-            It_T = &It - 1;
+        REPETER It_T En_Nb_Re;
 
             Si (&It2 ega 1) ;
-                U_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It) ;
-                V_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It) ;
-                A_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It) ;
+                U_sol.&It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It_T) ;
+                V_sol.&It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It_T) ;
+                A_sol.&It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It_T) ;
             SiNon ;
-                U_sol.It_T = U_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It)) ;
-                V_sol.It_T = V_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It)) ;
-                A_sol.It_T = A_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It)) ;
+                U_sol.&It_T = U_sol.&It_T
+                                + (FamiFTot.&It2 *(EXTR FamiGTot.&It2.u &It_T));
+                V_sol.&It_T = V_sol.&It_T
+                                + (FamiFTot.&It2 *(EXTR FamiGTot.&It2.v &It_T));
+                A_sol.&It_T = A_sol.&It_T
+                                + (FamiFTot.&It2 *(EXTR FamiGTot.&It2.w &It_T));
             FinSi ;
 
-        Fin It;
+        Fin It_T;
 
     FIN It2;
 

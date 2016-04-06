@@ -1,8 +1,8 @@
 #!/bin/bash
 
-head -n 4 Procedures/ProblemVide > Procedures/Temp/CreationProb_PR.dgibi
-cat $2 >> Procedures/Temp/CreationProb_PR.dgibi
-tail -n 5 Procedures/ProblemVide >> Procedures/Temp/CreationProb_PR.dgibi
+head -n 4 Procedures/ProblemVide > Procedures/General/CreationProb_PR.dgibi
+cat $2 >> Procedures/General/CreationProb_PR.dgibi
+tail -n 5 Procedures/ProblemVide >> Procedures/General/CreationProb_PR.dgibi
 
 printf "" > ConcatTemp
 
@@ -62,10 +62,10 @@ cat TempMain | tr -d "\t" | sed -E '/^ *$/d' | sed 's/^ *//' > $1.dgibi
 rm Temp1 Temp2 Temp3 ConcatTemp TempMain
 
 echo "Procedures"
-castem14 ScriptUtil.dgibi > /dev/null
+castem15 ScriptUtil.dgibi > /dev/null
 
 echo ""
 echo "Main"
-castem14 $1.dgibi
+castem15 $1.dgibi
 
 echo "Fin Script"

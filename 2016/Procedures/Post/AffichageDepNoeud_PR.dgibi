@@ -18,10 +18,9 @@ Coord;
     FamiFTot FamiGTot = PR_ConcatenerFami NbModCal ;
 
     Sol_dir = PROG;
-    REPE It En_Nb_Re;
-      It_T = &It - 1;
-      Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.It_T Coord Pt_Aff));
-    FIN It;
+    REPE It_T En_Nb_Re;
+      Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.&It_T Coord Pt_Aff));
+    FIN It_T;
 
     Evol_dir = EVOL MANU Vec_T Sol_dir ;
 

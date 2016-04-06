@@ -40,6 +40,10 @@
 
     TEMPS;
 
+    NbModPOD = 4 ;
+
+    Lis_ValS Tab_Mod = PR_SVD_Matlab ;
+
 
     TEMPS ZERO;
     FamiF = TABLE;
@@ -57,7 +61,7 @@
         AffMods = LECT ;
         AffSolu = LECT ;
 
-        PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
+        // PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
 
     NbModCal = 4;
     OPT0 = TABLE;
@@ -68,6 +72,13 @@
     Up_Pt_Fx = VRAI;
 
     Pb.lambda = 0.5;
+
+
+        Fam_FPre = Tab_Mod ;
+
+        PR_ResolutionPGD NbModCal Fam_FPre ;
+
+        opti donn 5 ;
 
     PR_ResolutionPGD NbModCal;
 
@@ -80,12 +91,35 @@
 
     PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
 
-    PR_AffichageModesEspace AffMods;
+    PR_AffichageModesEspace AffMods (FamiF.Cal);
 
     ErrDep ErrEner = PR_CalculErreurAffichGlobal DirPriv VRAI;
 
     opti donn 5 ;
 
+    Fam_FPre = FamiF.Cal ;
+    Fam_GPre = FamiG.Cal ;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
+
+        NbModCal = 4;
+        PR_ResolutionPGD NbModCal Fam_FPre Fam_GPre ;
+
+        TEMPS;
+
+        *OPTI TRAC PSC;
+
+            AffMods = LECT 1 2 3 4;
+            AffSolu = LECT 1 2 3 4;
+
+        PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
+
+        ErrDep ErrEner = PR_CalculErreurAffichGlobal DirPriv VRAI;
+
+
+
+
+    list (EXTR ZZZ 4) ;
 
     CHA_TOT0 = CHA_TOT;
 

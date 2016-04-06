@@ -1,0 +1,27 @@
+ABRZ
+PR_FormatNombre
+DEBPROC PR_FormatNombre Num*ENTIER ;
+
+    // ord_Num = (log Num) / (log 10);
+    // Inutilisable car :
+    // $ list (ENTI ((log 10)/(log 10)) );
+    //     Entier valant: 1
+    // $ list (ENTI ((log 100)/(log 10)) );
+    //     Entier valant: 2
+    // $ list (ENTI ((log 1000)/(log 10)) );
+    //     Entier valant: 2
+
+
+    Si (Num < 10) ;
+        out = chaine '00' Num ;
+    SiNon ;
+        Si (Num < 100) ;
+            out = chaine '0' Num ;
+        SiNon ;
+            out = chaine Num ;
+        FinSi ;
+    FinSi;
+
+    RESPRO out ;
+
+FINPROC ;

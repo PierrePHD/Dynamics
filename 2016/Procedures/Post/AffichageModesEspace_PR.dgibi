@@ -1,8 +1,9 @@
 AAOZ
 PR_AffichageModesEspace
-DEBPROC PR_AffichageModesEspace AffMods*ListEnti;
+DEBPROC PR_AffichageModesEspace AffMods*ListEnti FamiEsp*TABLE;
 
-    NbMod = DIMENSION FamiF.Cal;
+    // NbMod = DIMENSION FamiF.Cal;
+    NbMod = DIMENSION FamiEsp;
 
     NbMax = MAXI AffMods;
     Si (NbMax > NbMod);
@@ -10,17 +11,20 @@ DEBPROC PR_AffichageModesEspace AffMods*ListEnti;
         opti donn 5;
     FinSi ;
 
-    DEF0 = DEFO (Pb.geo) 0 (FamiF.Cal.1);
+    // DEF0 = DEFO (Pb.geo) 0 (FamiF.Cal.1);
+    DEF0 = DEFO (Pb.geo) 0 (FamiEsp.1);
     trac DEF0;
     LMot = MOTS 'ROUG' 'BLEU' 'VERT' 'JAUN' 'VIOL' 'TURQ';
     REPETER It (DIMENSION AffMods);
         col = EXTR LMot &It;
         NumMod = EXTR AffMods &It;
         Si (&It ega 1) ;
-            DEFA = (DEF0 ET (DEFO Pb.geo FamiF.Cal.NumMod col));
+            // DEFA = (DEF0 ET (DEFO Pb.geo FamiF.Cal.NumMod col));
+            DEFA = (DEF0 ET (DEFO Pb.geo FamiEsp.NumMod col));
             Trac DEFA;
         SiNon ;
-            DEFA = (DEFA ET (DEFO Pb.geo FamiF.Cal.NumMod col));
+            // DEFA = (DEFA ET (DEFO Pb.geo FamiF.Cal.NumMod col));
+            DEFA = (DEFA ET (DEFO Pb.geo FamiEsp.NumMod col));
             TRAC DEFA;
         FinSi ;
     Fin It;

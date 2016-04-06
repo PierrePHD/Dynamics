@@ -87,7 +87,7 @@
         CHA_g = CHAR FORC fg (EVT_Cst * -9.81) ;
 
 
-    Pb.CHA_TOT = CHA_g ;
+    Pb.CHA_TOT = CHA_SV ;
     // Pb.CHA_TOT = CHA_g et CHA_SV ;
     // Pb.CHA_TOT = TABLE ;
 
@@ -106,7 +106,7 @@
         // DEF0 = DEFO (Pb.geo) dep_0 ;
         // TRAC (DEF0 et DEF1);
 
-    Pb.U0  = dep_g ; // dep_1 ;
+    Pb.U0  = dep_0 ; // dep_1 ;
     Pb.V0  = dep_0 ; // dep_1 / 0.01 ;
 
 

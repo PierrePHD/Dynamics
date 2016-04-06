@@ -10,13 +10,12 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
   V_sol = TABLE;
   A_sol = TABLE;
 
-  U_sol.0 = U0;
-  V_sol.0 = V0;
+  U_sol.1 = U0;
+  V_sol.1 = V0;
 
   NbCharg = DIMENSION CHA ;
 
-  REPETER It En_Nb_Re;
-    It_T = &It - 1;
+  REPETER It_T En_Nb_Re;
 
     Si (NbCharg > 0);
         REPETER It2 NbCharg ;
@@ -25,9 +24,9 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
 
             EVO_i = EXTR CHA_i EVOL ;
             CHA_ord = EXTR EVO_i ORDO;
-            Val = EXTR CHA_ord &It;
-            Si (&It neg 1);
-              Val_t_m = EXTR CHA_ord (&It-1);
+            Val = EXTR CHA_ord &It_T;
+            Si (&It_T neg 1);
+              Val_t_m = EXTR CHA_ord (&It_T-1);
               Val = ((1+alpha)*Val) - (alpha*Val_t_m) ;
             FinSi ;
 
@@ -41,17 +40,17 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
         FOR_Imp = U0 * 0;
     FinSi ;
 
-    // Mess 'Instant ' &It ;
+    // Mess 'Instant ' &It_T ;
 
     A_t V_t U_t= PR_ResolutionInstantT M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t A_t;
 
-    Si (It_T > 0);
-      U_sol.It_T = U_t;
-      V_sol.It_T = V_t;
+    Si (&It_T > 1);
+      U_sol.&It_T = U_t;
+      V_sol.&It_T = V_t;
     FinSi ;
-    A_sol.It_T = A_t;
+    A_sol.&It_T = A_t;
 
-  FIN It;
+  FIN It_T;
 
   Solution = TABLE;
 

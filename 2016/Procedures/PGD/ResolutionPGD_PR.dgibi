@@ -1,6 +1,6 @@
 AARZ
 PR_ResolutionPGD
-DEBPROC PR_ResolutionPGD NbModCal*Entier;
+DEBPROC PR_ResolutionPGD NbModCal*Entier Fam_F/TABLE Fam_G/TABLE ;
 
 Val_INI = 0;
 Si ((XTMX U0 K) neg 0);
@@ -25,43 +25,65 @@ Si ((XTMX V0 K) neg 0);
     FamiG.INI.Val_INI .w = PROG En_Nb_Re * 0. ;
 FinSi ;
 
-
+Tai_Pre = 0;
+Si (EXISTE Fam_F) ;
+    Tai_Pre = DIME Fam_F ;
+    Bool_Pre = VRAI;
+FinSi ;
 
 
     REPETER It_m NbModCal;
-    Bool_1 = (OPT0.Orth) ET (&It_m > 1);
-    Bool_2 = Bool_1 et (OPT0.Upda) ;
+        Bool_1 = (OPT0.Orth) ET (&It_m > 1);
+        Bool_2 = Bool_1 et (OPT0.Upda) ;
 
-        REPETER Ort -1;
-            f_espa g_tmps = PR_PointFixePGD M C K CL_A Ttot schema CHA_TOT dt &It_m;
-
-            Si Bool_1;
-                f_espa FamiG = PR_Orthogonalisation;
-
-                N_f_espa = PR_NormVecEspace f_espa  K ;
-                Mess 'f_espaNEW = ' N_f_espa ;
-                Si (N_f_espa < 0.1);
-                    Mess 'Mode rejete';
+        Si (&It_m <EG Tai_Pre) ;
+            Si Bool_Pre ;
+                FamiF.Cal = Fam_F ;
+                Si (EXISTE Fam_G) ;
+                    FamiG.Cal = Fam_G ;
                 SiNon ;
-                    f_espa = f_espa/N_f_espa;
+                    Si (OPT0.Upda) ;
+                        FamiG.Cal= PR_Update ;
+                    SiNon ;
+                        Mess 'Sans FamiG et Sans update' ;
+                    FinSi ;
+                FinSi;
+                Bool_Pre = FAUX;
+            FinSi;
+        SiNon ;
+
+            REPETER Ort -1;
+                f_espa g_tmps = PR_PointFixePGD M C K CL_A Ttot schema CHA_TOT dt &It_m;
+
+                Si Bool_1;
+                    f_espa FamiG = PR_Orthogonalisation;
+
+                    N_f_espa = PR_NormVecEspace f_espa  K ;
+                    Mess 'f_espaNEW = ' N_f_espa ;
+                    Si (N_f_espa < 0.1);
+                        Mess 'Mode rejete';
+                    SiNon ;
+                        f_espa = f_espa/N_f_espa;
+                        QUITTER Ort;
+                    FinSi ;
+                SiNon ;
                     QUITTER Ort;
                 FinSi ;
+            Fin Ort;
+
+            FamiF.Cal.&It_m = f_espa;
+
+            Si Bool_2;
+                FamiG.Cal= PR_Update;
             SiNon ;
-                QUITTER Ort;
+                FamiG.Cal.&It_m = g_tmps;
             FinSi ;
-        Fin Ort;
 
-        FamiF.Cal.&It_m = f_espa;
+            ErrDepl ErrGlob = PR_CalculErreurOutput DirPriv VRAI &It_m;
 
-        Si Bool_2;
-            FamiG.Cal= PR_Update;
-        SiNon ;
-            FamiG.Cal.&It_m = g_tmps;
-        FinSi ;
+            Mess 'ErrDepl=' ErrDepl 'ErrGlob=' ErrGlob;
 
-        ErrDepl ErrGlob = PR_CalculErreurOutput DirPriv VRAI &It_m;
-
-        Mess 'ErrDepl=' ErrDepl 'ErrGlob=' ErrGlob;
+        FinSi ; // Si (EXISTE Fam_F) ;
 
     Fin It_m;
 

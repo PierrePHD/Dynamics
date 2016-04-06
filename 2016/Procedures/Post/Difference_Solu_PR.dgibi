@@ -3,10 +3,9 @@ PR_Difference_Solu
 DEBPROC PR_Difference_Solu Sol_1 Sol_2 ;
 
     Sol = TABLE ;
-    REPETER It En_Nb_Re ;
-        It_T = &It - 1 ;
-        Sol.It_T = Sol_1.It_T - Sol_2.It_T ;
-    Fin It ;
+    REPETER It_T En_Nb_Re ;
+        Sol.&It_T = Sol_1.&It_T - Sol_2.&It_T ;
+    Fin It_T ;
 
     RESPRO Sol ;
 

@@ -11,14 +11,13 @@ Out_Err = TABLE;
 ErrEne = PROG;
 ErrTotM = -0.1;
 REPE IT_T En_Nb_Re;
-    in_T = &IT_T - 1;
     Si Bool1;
         ErrTotM = MAXI ( PROG
-                            (MAXI (ABS ((EXCO Coord Err.in_T))))
+                            (MAXI (ABS ((EXCO Coord Err.&IT_T))))
                             ErrTotM
                         );
         Si Bool4;
-            SoluT = EXCO Coord Solu1.u.in_T;
+            SoluT = EXCO Coord Solu1.u.&IT_T;
             Si (&IT_T ega 1) ;
                 Max_Dep = MAXI SoluT;
                 Min_Dep = MINI SoluT;
@@ -29,10 +28,10 @@ REPE IT_T En_Nb_Re;
         FinSi ;
     FinSi ;
     Si Bool3;
-        ErrEneT = XTMX Err.in_T K;
+        ErrEneT = XTMX Err.&IT_T K;
         ErrEne = ErrEne et ErrEneT;
         Si Bool4 ;
-            EneTotT = XTMX Solu1.u.in_T K;
+            EneTotT = XTMX Solu1.u.&IT_T K;
             EneTot = EneTot et EneTotT;
         FinSi ;
     FinSi ;

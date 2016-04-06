@@ -1,0 +1,36 @@
+OPTI DIME 2 ;
+OPTI ELEM QUA4 ; 
+* 
+P1 = 0. 0. ;
+P2 = 1. 0. ;
+P3 = 1. 1. ; 
+P4 = 0. 1. ; 
+* 
+L12 = DROI 4 P1 P2 ;
+L23 = DROI 4 P2 P3 ;
+L34 = DROI 4 P3 P4 ;
+L41 = DROI 4 P4 P1 ;
+* 
+MAI1 = DALL L12 L23 L34 L41 ; 
+* 
+TRAC MAI1 ; 
+* 
+* Un champ par point parmi d'autres.... 
+* 
+U1 = (((COOR 1 MAI1)**2) +  ((COOR 2 MAI1)**2))**0.5  ; 
+* 
+* On trace le champ U1
+* 
+TRAC U1 MAI1 ; 
+* 
+MAI2 = CHAN POI1 MAI1 ; 
+LIS1 = EXTR U1 'VALE' MAI2 ; 
+* 
+* On retransforme la liste en champ par point 
+*  
+LIS2 = LIS1 ; 
+U2 = MANU 'CHPO' MAI2 'SCAL' LIS2 ;  
+* 
+* On trace le champ U2 pour vérifier qu'il est pareil que U1 
+* 
+TRAC U2 MAI1 ; 

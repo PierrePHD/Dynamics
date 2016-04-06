@@ -40,20 +40,19 @@ A_t  = U0 * 0;
 U_sol = TABLE;
 V_sol = TABLE;
 A_sol = TABLE;
-U_sol.0 = U0;
-V_sol.0 = V0;
+U_sol.1 = U0;
+V_sol.1 = V0;
 NbCharg = DIMENSION CHA ;
-REPETER It En_Nb_Re;
-It_T = &It - 1;
+REPETER It_T En_Nb_Re;
 Si (NbCharg > 0);
 REPETER It2 NbCharg ;
 CHA_i = EXTR CHA CHAR &It2 ;
 CHP_i = EXTR CHA_i CHAM ;
 EVO_i = EXTR CHA_i EVOL ;
 CHA_ord = EXTR EVO_i ORDO;
-Val = EXTR CHA_ord &It;
-Si (&It neg 1);
-Val_t_m = EXTR CHA_ord (&It-1);
+Val = EXTR CHA_ord &It_T;
+Si (&It_T neg 1);
+Val_t_m = EXTR CHA_ord (&It_T-1);
 Val = ((1+alpha)*Val) - (alpha*Val_t_m) ;
 FinSi ;
 Si (&It2 ega 1) ;
@@ -66,12 +65,12 @@ SiNon ;
 FOR_Imp = U0 * 0;
 FinSi ;
 A_t V_t U_t= _RESO_T M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t A_t;
-Si (It_T > 0);
-U_sol.It_T = U_t;
-V_sol.It_T = V_t;
+Si (&It_T > 1);
+U_sol.&It_T = U_t;
+V_sol.&It_T = V_t;
 FinSi ;
-A_sol.It_T = A_t;
-FIN It;
+A_sol.&It_T = A_t;
+FIN It_T;
 Solution = TABLE;
 Solution.U = U_sol;
 Solution.V = V_sol;
@@ -80,122 +79,97 @@ RESPRO Solution ;
 FINPROC;
 $$$$ AANZ
 DEBPROC AANZ;
-OPTI DIME 3 ;
-OPTI ELEM SEG2 ;
-*
-OPTI 'ACQU' 'Maillage_Treillis.txt' ;
-*
-* Noeuds
-*
-NOE1 = TABLE ;
-REPE BCL1N 45 ;
-ACQU XY1*LISTREEL 4 ;
-* LIST XY1 ;
-ACQU XY2*LISTREEL 2 ;
-* LIST XY2 ;
-X1 = (EXTR 2 XY1)/1000. ;
-Y1 = (EXTR 3 XY1)/1000. ;
-Z1 = (EXTR 2 XY2)/1000. ;
-NOE1 . &BCL1N = X1 Y1 Z1 ;
-FIN BCL1N ;
-*
-* Elements barre
-*
-BAR1 = TABLE ;
-N1E = 90 ;
-REPE BCL1E N1E ;
-ACQU XY1*LISTENTI 4 ;
-N1 = EXTR 3 XY1 ;
-N2 = EXTR 4 XY1 ;
-BAR1 . &BCL1E = DROI 10 NOE1 . N1 NOE1 . N2 ;
-Si (&BCL1E EGA 1) ;
-MAI1 = BAR1 . &BCL1E ;
-SiNon ;
-MAI1 = MAI1 ET BAR1 . &BCL1E ;
-FinSi ;
-FIN BCL1E ;
-*
-* Tracé du maillage
-*
-TRAC MAI1 ;
-*
-* Proprietes des poutres
-*
-D1E = 0.030  ;
-D1I = 0.027  ;
-IY1 = PI*((D1E**4)-(D1I**4))/64 ;
-IZ1 = PI*((D1E**4)-(D1I**4))/64 ;
-I01 = PI*((D1E**4)-(D1I**4))/32 ;
-S1 =  PI*((D1E**2)-(D1I**2))/4  ;
-YOU1 = 7.E10 ;
-RHO1 = 2700. ;
-*
-REPE BCL1E N1E ;
-*
-MOD1 = MODE BAR1 . &BCL1E MECANIQUE ELASTIQUE POUTRE ;
-MAT1 = MATE MOD1 'YOUNG' YOU1 'NU' 0.3 'RHO' RHO1 ;
-CAR1 = CARA MOD1 SECT S1 'INRY' IY1 'INRZ' IY1 'TORS' I01 ;
-RIG1 = RIGI MOD1 (MAT1 ET CAR1);
-MAS1 = MASS MOD1 (MAT1 ET CAR1);
-Si (&BCL1E EGA 1) ;
-MAS1TOT = MAS1 ;
-RIG1TOT = RIG1 ;
-SiNon ;
-RIG1TOT = RIG1TOT ET RIG1 ;
-MAS1TOT = MAS1TOT ET MAS1 ;
-FinSi ;
-*
-FIN BCL1E ;
-*
-* Conditions aux limites
-* Front - Rear - Left - Right
-CL1FR = NOE1 . 20 ;
-CL1FL = NOE1 . 25 ;
-CL1RR = NOE1 . 30 ;
-CL1RL = NOE1 . 35 ;
-*
-K1 = 1.E6 ;
-BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
-(BLOQ CL1FL UY UX UZ RX RY RZ) ET
-(BLOQ CL1RR  UY UX UZ RX RY RZ) ET
-(BLOQ CL1RL UY UX UZ RX RY RZ) ;
+OPTI DIME 3 ELEM SEG2 MODE TRID;
 Pb = TABLE;
 Cal_T = TABLE;
-Pb.DirPriv = 'UZ';
 *---------------------DONNEES---------------------*
 *Unites SI
 AMP1 = -100.0 ;
+LON1 = 0.5 ;
+LON2 = -0.1 ;
+SEC1 = 2.e-4 ;
+IY1 = (8/12.)*1e-8 ;
+IZ1 = (2/12.)*1e-8 ;
+NUP = 0.3 ;
+YOP = 2.1E11 ;
+YOP2 = YOP/((1.25e4)) ;
+RHOP = 7800.0 ;
+*--------------------GEOMETRIE--------------------*
+P1 = 0.   0. 0. ;
+Pb.P0 = P1 ;
+P2 = LON1 0. 0. ;
+Pb.PS = P2 ;
+L1 = D 20 P1 P2 ;
+P3 = L1 POIN PROC ((LON1/2) 0. 0.);
+P4 = LON1 0. LON2 ;
+ELIM L1 0.00000001;
+L2 = D 1 P2 P4;
+Pb.geo = L1 et L2;
+Pb.DirPriv = 'UZ';
+Pb.P_intere = P2;
+*opti trac X ;
+*TRAC Pb.geo ;
+*------DEFINITION DU MODELE ET DU MATERIAU--------*
+MOD1 = MODEL L1 MECANIQUE ELASTIQUE POUT ;
+MOD2 = MODEL L2 MECANIQUE ELASTIQUE POUT ;
+MODTOT = MOD1 et MOD2 ;
+Pb.Mob = MODTOT;
+MAT1 = MATER MOD1 YOUN YOP NU NUP RHO RHOP ;
+MAT2 = MATER MOD2 YOUN (YOP2/2.) NU NUP RHO (RHOP/100.) ;
+CAR1 = CARAC MOD1 SECT SEC1 INRY IY1 INRZ IZ1
+TORS 1. VECT (0. 1. 0.) ;
+CAR2 = CARAC MOD2 SECT SEC1 INRY IY1 INRZ IZ1
+TORS 1. VECT (0. 1. 0.) ;
+MAT1B = MAT1 ET CAR1 ;
+MAT2B = MAT2 ET CAR2 ;
+MATTOT = MAT1B et MAT2B ;
 *-------MATRICES DE RIGIDITE ET DE MASSE----------*
-Pb.K = RIG1TOT;
-Pb.M = MAS1TOT ;
-Pb.Mob = MOD1;
+Pb.K = RIGI MODTOT MATTOT ;
+Pb.M = MASS MODTOT MATTOT ;
 *--------------CONDITIONS LIMITES-----------------*
-Pb.CL_TOT= BLO1 ;
-P3 = MAI1 POIN PROC (250. 500. 950.);
-P4 = MAI1 POIN PROC (250. -500. 950.);
-Pb.geo = MAI1;
+CL1 = BLOQ P1 UY UX RZ UZ RX RY ;
+CL2 = BLOQ P4 UY UX RZ UZ RX RY ;
+*CL2 = BLOQ L1 UZ RX RY ;
+CL_T = CL1 ET CL2 ;
+Pb.CL_TOT= CL_T;
+* ET CL2 ;
 *--------------Parametres de calcul---------------*
-Cal_T.dt = 8e-5;
-Cal_T.Ttot = 4e-2;
-Pb.T_period = 2e-2 ;
+Cal_T.dt = 4e-5;
+Cal_T.Ttot = 20e-3;
+Pb.T_period = 10e-3 ;
 En_Nb_Re = AAGZ Cal_T.dt Cal_T.Ttot;
 Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
-*------------EVOLUTION TEMPORELLE-----------------*
-LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
-LIS1 = LIS1 + (PROG En_Nb_Re*1.);
-EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
-EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
 *-----------------CHARGEMENT----------------------*
-FOR1 = FORCE FZ AMP1 P3 ;
-FOR2 = FORCE FZ AMP1 P4 ;
-CHA1 = CHAR FORC FOR1 EVT1 ;
-CHA2 = CHAR FORC FOR2 EVT1 ;
-Pb.CHA_TOT = CHA1 et CHA2;
+*--------- EVOLUTION TEMPORELLE ---------*
+* Sinus Verse
+LIS_SV = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+LIS_SV = LIS_SV + (PROG En_Nb_Re*1.);
+EVT_SV = EVOL MANU T Vec_T G(T) LIS_SV ;
+* Constante Unitaire
+EVT_Cst = EVOL MANU T Vec_T G(T) (PROG En_Nb_Re * 1);
+* Evolution Lineaire
+EVT_Lin = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
+*-------------- EFFORT ---------------*
+* En bout de poutre
+FOR1 = FORCE FZ (AMP1*2.) P2 ;
+CHA_SV = CHAR FORC FOR1 EVT_SV ;
+*-------------- GRAVITE --------------*
+gz = MANU CHPO L1 1 'UZ' 1. NATURE 'DIFF' TITRE 'Gravite' ;
+fg = EXCO FZ ((Pb.M) * gz) FZ;
+CHA_g = CHAR FORC fg (EVT_Cst * -9.81) ;
+Pb.CHA_TOT = CHA_SV ;
+*------------- Deplacement Initial -------------*
+FOR1 = FORCE FZ (AMP1*(-5)) P2 ;
+* Solution initiallement libre d effort
+dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
+* Solution initiallement sous Effort
+dep_1 = RESO (Pb.K ET Pb.CL_Tot) (For1 );
+* Solution initiallement sous gravite
+dep_g = RESO (Pb.K ET Pb.CL_Tot) (Fg * -9.81);
+Pb.U0  = dep_0 ; 
+Pb.V0  = dep_0 ; 
+*------------- Non Linearite -------------*
 Pb.Tab_NL = TABLE;
-dep0 = MANU CHPO MAI1 3 'UX' 0. 'UY' 0. 'UZ' 0. NATURE 'DIFF';
-Pb.U0  = dep0;
-Pb.V0  = dep0;
-Pb.P_intere = P3;
 RESPRO Pb;
 RESPRO Cal_T;
 FINPROC;
@@ -1150,7 +1124,7 @@ RESPRO gp_0_t ;
 RESPRO g_0_t ;
 FINPROC;
 $$$$ AARZ
-DEBPROC AARZ NbModCal*Entier;
+DEBPROC AARZ NbModCal*Entier Fam_F/TABLE Fam_G/TABLE ;
 Val_INI = 0;
 Si ((XTMX U0 K) neg 0);
 Val_INI = Val_INI + 1;
@@ -1173,9 +1147,29 @@ FamiG.INI.Val_INI .u = (FamiG.INI.Val_INI .u) * Nor_f ;
 FamiG.INI.Val_INI .v = PROG En_Nb_Re * Nor_f ;
 FamiG.INI.Val_INI .w = PROG En_Nb_Re * 0. ;
 FinSi ;
+Tai_Pre = 0;
+Si (EXISTE Fam_F) ;
+Tai_Pre = DIME Fam_F ;
+Bool_Pre = VRAI;
+FinSi ;
 REPETER It_m NbModCal;
 Bool_1 = (OPT0.Orth) ET (&It_m > 1);
 Bool_2 = Bool_1 et (OPT0.Upda) ;
+Si (&It_m <EG Tai_Pre) ;
+Si Bool_Pre ;
+FamiF.Cal = Fam_F ;
+Si (EXISTE Fam_G) ;
+FamiG.Cal = Fam_G ;
+SiNon ;
+Si (OPT0.Upda) ;
+FamiG.Cal= AAVZ ;
+SiNon ;
+Mess 'Sans FamiG et Sans update' ;
+FinSi ;
+FinSi;
+Bool_Pre = FAUX;
+FinSi;
+SiNon ;
 REPETER Ort -1;
 f_espa g_tmps = AAFZ M C K CL_A Ttot schema CHA_TOT dt &It_m;
 Si Bool_1;
@@ -1200,6 +1194,7 @@ FamiG.Cal.&It_m = g_tmps;
 FinSi ;
 ErrDepl ErrGlob = AAXZ DirPriv VRAI &It_m;
 Mess 'ErrDepl=' ErrDepl 'ErrGlob=' ErrGlob;
+FinSi ; 
 Fin It_m;
 FINPROC;
 $$$$ AAVZ
@@ -1483,10 +1478,9 @@ FinSi ;
 NbModCal = (NbMax - (DIME FamiF.Ini)) - (DIME FamiF.Imp);
 FamiFTot FamiGTot = AAUZ NbModCal ;
 Sol_dir = PROG;
-REPE It En_Nb_Re;
-It_T = &It - 1;
-Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.It_T Coord Pt_Aff));
-FIN It;
+REPE It_T En_Nb_Re;
+Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.&It_T Coord Pt_Aff));
+FIN It_T;
 Evol_dir = EVOL MANU Vec_T Sol_dir ;
 * Sortie Fichier
 *opti sort (chain 'Direct' ) ;
@@ -1575,24 +1569,24 @@ FinSi ;
 FinSi ;
 FINPROC;
 $$$$ AAOZ
-DEBPROC AAOZ AffMods*ListEnti;
-NbMod = DIMENSION FamiF.Cal;
+DEBPROC AAOZ AffMods*ListEnti FamiEsp*TABLE;
+NbMod = DIMENSION FamiEsp;
 NbMax = MAXI AffMods;
 Si (NbMax > NbMod);
 Mess 'Il n y a que ' NbMod ' modes';
 opti donn 5;
 FinSi ;
-DEF0 = DEFO (Pb.geo) 0 (FamiF.Cal.1);
+DEF0 = DEFO (Pb.geo) 0 (FamiEsp.1);
 trac DEF0;
 LMot = MOTS 'ROUG' 'BLEU' 'VERT' 'JAUN' 'VIOL' 'TURQ';
 REPETER It (DIMENSION AffMods);
 col = EXTR LMot &It;
 NumMod = EXTR AffMods &It;
 Si (&It ega 1) ;
-DEFA = (DEF0 ET (DEFO Pb.geo FamiF.Cal.NumMod col));
+DEFA = (DEF0 ET (DEFO Pb.geo FamiEsp.NumMod col));
 Trac DEFA;
 SiNon ;
-DEFA = (DEFA ET (DEFO Pb.geo FamiF.Cal.NumMod col));
+DEFA = (DEFA ET (DEFO Pb.geo FamiEsp.NumMod col));
 TRAC DEFA;
 FinSi ;
 Fin It;
@@ -1658,14 +1652,13 @@ Out_Err = TABLE;
 ErrEne = PROG;
 ErrTotM = -0.1;
 REPE IT_T En_Nb_Re;
-in_T = &IT_T - 1;
 Si Bool1;
 ErrTotM = MAXI ( PROG
-(MAXI (ABS ((EXCO Coord Err.in_T))))
+(MAXI (ABS ((EXCO Coord Err.&IT_T))))
 ErrTotM
 );
 Si Bool4;
-SoluT = EXCO Coord Solu1.u.in_T;
+SoluT = EXCO Coord Solu1.u.&IT_T;
 Si (&IT_T ega 1) ;
 Max_Dep = MAXI SoluT;
 Min_Dep = MINI SoluT;
@@ -1676,10 +1669,10 @@ FinSi ;
 FinSi ;
 FinSi ;
 Si Bool3;
-ErrEneT = XTMX Err.in_T K;
+ErrEneT = XTMX Err.&IT_T K;
 ErrEne = ErrEne et ErrEneT;
 Si Bool4 ;
-EneTotT = XTMX Solu1.u.in_T K;
+EneTotT = XTMX Solu1.u.&IT_T K;
 EneTot = EneTot et EneTotT;
 FinSi ;
 FinSi ;
@@ -1730,10 +1723,9 @@ FINPROC;
 $$$$ AAMZ
 DEBPROC AAMZ Sol_1 Sol_2 ;
 Sol = TABLE ;
-REPETER It En_Nb_Re ;
-It_T = &It - 1 ;
-Sol.It_T = Sol_1.It_T - Sol_2.It_T ;
-Fin It ;
+REPETER It_T En_Nb_Re ;
+Sol.&It_T = Sol_1.&It_T - Sol_2.&It_T ;
+Fin It_T ;
 RESPRO Sol ;
 FINPROC;
 $$$$ AALZ
@@ -1745,90 +1737,230 @@ A_sol = TABLE;
 FamiFTot FamiGTot = AAUZ It_m ;
 NbMod = (DIME FamiFTot);
 REPETER It2 NbMod;
-REPETER It En_Nb_Re;
-It_T = &It - 1;
+REPETER It_T En_Nb_Re;
 Si (&It2 ega 1) ;
-U_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It) ;
-V_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It) ;
-A_sol.It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It) ;
+U_sol.&It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It_T) ;
+V_sol.&It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It_T) ;
+A_sol.&It_T = FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It_T) ;
 SiNon ;
-U_sol.It_T = U_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.u &It)) ;
-V_sol.It_T = V_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.v &It)) ;
-A_sol.It_T = A_sol.It_T + (FamiFTot.&It2 * (EXTR FamiGTot.&It2.w &It)) ;
+U_sol.&It_T = U_sol.&It_T
++ (FamiFTot.&It2 *(EXTR FamiGTot.&It2.u &It_T));
+V_sol.&It_T = V_sol.&It_T
++ (FamiFTot.&It2 *(EXTR FamiGTot.&It2.v &It_T));
+A_sol.&It_T = A_sol.&It_T
++ (FamiFTot.&It2 *(EXTR FamiGTot.&It2.w &It_T));
 FinSi ;
-Fin It;
+Fin It_T;
 FIN It2;
 Sol.U = U_sol;
 Sol.V = V_sol;
 Sol.W = A_sol;
 RESPRO Sol;
 FINPROC;
-$$$$ AANZ
-DEBPROC AANZ;
-OPTI DIME 3 ELEM qua8 ;
-Pb = TABLE;
-Cal_T = TABLE;
-*---------------------DONNEES---------------------*
-*Unites SI
-AMP1 = 100.0 ;
-LON1 = 0.5 ;
-LON2 = 0.02 ;
-EP1 = 1e-2;
-NUP = 0.3 ;
-YOP = 2.1E11 ;
-RHOP = 7800.0 ;
-*--------------------GEOMETRIE--------------------*
-P1 = 0.   0. 0. ;
-P2 = LON1 0. 0. ;
-P4 = LON1 LON2 0. ;
-P5 = 0. LON2 0. ;
-L1 = D 20 P1 P2 ;
-L2 = D 2  P2 P4 ;
-L3 = D 20 P4 P5 ;
-L4 = D 2  P5 P1 ;
-PouPla = DALL L1 L2 L3 L4 ;
-P3 = PouPla POIN PROC (LON1 (LON2/2) 0.);
-Pb.geo = PouPla;
-ELIM PouPla 0.0001;
-Pb.DirPriv = 'UX';
-*TRAC PouPla ;
-*------DEFINITION DU MODELE ET DU MATERIAU--------*
-MOD1 = MODEL PouPla MECANIQUE ELASTIQUE COQ8 ;
-MAT1 = MATER MOD1 YOUN YOP NU NUP RHO RHOP ;
-CAR1 = CARAC MOD1 EPAI EP1;
-MATTOT = MAT1 ET CAR1 ;
-*-------MATRICES DE RIGIDITE ET DE MASSE----------*
-Pb.K = RIGI MOD1 MATTOT ;
-Pb.M = MASS MOD1 MATTOT ;
-*--------------CONDITIONS LIMITES-----------------*
-CL1 = BLOQ L4 UY UX RZ ;
-CL2 = BLOQ PouPla UZ RX RY ;
-Pb.CL_TOT= CL1 ET CL2 ;
-*--------------Parametres de calcul---------------*
-Cal_T.dt = 1e-6;
-Cal_T.Ttot = 5e-4;
-Pb.T_period = 2.5e-4 ;
-En_Nb_Re = AAGZ Cal_T.dt Cal_T.Ttot;
-Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
-*------------EVOLUTION TEMPORELLE-----------------*
-LIS1 = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
-LIS1 = LIS1 + (PROG En_Nb_Re*1.);
-EVT1 = EVOL MANU T Vec_T G(T) LIS1 ;
-EVT2 = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
-*-----------------CHARGEMENT----------------------*
-FOR1 = FORCE FX AMP1 P3 ;
-FOR2 = FORCE FX 0. P3 ;
-CHA1 = CHAR FORC FOR1 EVT1 ;
-CHA2 = CHAR FORC FOR2 EVT2 ;
-Pb.CHA_TOT = CHA1 et CHA2;
-*------------- Deplacement Initial -------------*
-dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
-Pb.U0  = dep_0;
-Pb.V0  = dep_0;
-*------------- Non Linearite -------------*
-Pb.Tab_NL = TABLE;
-Pb.P_intere = P3;
-RESPRO Pb;
-RESPRO Cal_T;
+$$$$ ABRZ
+DEBPROC ABRZ Num*ENTIER ;
+Si (Num < 10) ;
+out = chaine '00' Num ;
+SiNon ;
+Si (Num < 100) ;
+out = chaine '0' Num ;
+SiNon ;
+out = chaine Num ;
+FinSi ;
+FinSi;
+RESPRO out ;
+FINPROC ;
+$$$$ ABMZ
+DEBPROC ABMZ ;
+Pb.Gpoin = CHAN POI1 (Pb.geo) ; 
+Nb_Noeu = NBNO (Pb.geo) ;
+L_Comp = MOTS UX UY UZ RX RY RZ; 
+list L_Comp ;
+Nb_Comp = DIME L_Comp ;
+L_Out = PROG;
+REPETER It_T En_Nb_Re ;
+REPETER It_Comp Nb_Comp ;
+Comp_it = (EXTR L_Comp &It_Comp) ;
+CP_U = EXCO Comp_it (Solu1.U.&It_T) Comp_it ; 
+L_Out = L_Out ET (EXTR CP_U 'VALE' (Pb.Gpoin)) ;
+Fin It_Comp ;
+Fin It_T ;
+opti sort 'FileOUT' ;
+sort 'EXCE' L_Out 'SEPA' 'ESPA';
+Com_Unix = CHAINE './sc_ext.sh ' NbModPOD ' ' Nb_Comp ' ' Nb_Noeu ;
+EXTE ( Com_Unix ) ; 
+Del_File = CHAINE 'rm FileOUT.csv' ;
+EXTE ( Del_File ) ;
+OPTI 'ACQU' 'FileMatValS' ;
+ACQUERIR   Lis_ValS*LISTREEL NbModPOD ;
+Del_File = CHAINE 'rm FileMatValS' ;
+EXTE ( Del_File ) ;
+Tab_Mod = TABLE ;
+REPETER It_Mod NbModPOD ;
+REPETER It_Comp Nb_Comp ;
+Comp_it = (EXTR L_Comp &It_Comp) ;
+NomFile = CHAINE 'FileMatlab_' (ABRZ &It_Mod) '_Comp_' (ABRZ &It_Comp) ;
+OPTI 'ACQU' NomFile ;
+ACQUERIR   Lis_01*LISTREEL Nb_Noeu ;
+Del_File = CHAINE 'rm ' NomFile ;
+EXTE ( Del_File ) ;
+Si (&It_Comp ega 1) ;
+Tab_Mod.&It_Mod = MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01 ;
+SiNon ;
+Tab_Mod.&It_Mod = Tab_Mod.&It_Mod
++ (MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01) ;
+FinSi ;
+Fin It_Comp ;
+Fin It_Mod ;
+RESPRO Lis_ValS;
+RESPRO Tab_Mod;
 FINPROC;
+$$$$ ABQZ
+DEBPROC ABQZ LIS1A n m ;
+* 
+MESSAGE ' ============== DEBUT DE SVD =================' ;
+*
+* Verification longueur de A = n*m
+SI ((DIME LIS1A) EGA (n*m)) ;
+SINON ;
+MESSAGE ' ===== FIN DE SVD ======== MAUVAISES DIM =====' ;
+QUIT SVD ;
+FINSI ;
+*
+AAT= PROG;
+ATA= PROG;
+*
+* Calcul de AAT
+*
+REPE PROD1 n;
+REPE PROD2 n;
+*
+SUM=0;
+REPE ADDI m;
+*
+INTER1= EXTR LIS1A ((&PROD1-1)*m + &ADDI);
+INTER2= EXTR LIS1A ((&PROD2-1)*m + &ADDI);
+SUM= SUM + (INTER1 * INTER2);
+*
+FIN ADDI;
+AAT= AAT et (PROG SUM);
+*
+FIN PROD2;
+FIN PROD1;
+*
+* Calcul de ATA
+*
+REPE PROD1 m;
+REPE PROD2 m;
+*
+SUM=0;
+REPE ADDI n;
+*
+INTER1= EXTR LIS1A (&PROD1 + ((&ADDI-1)*m));
+INTER2= EXTR LIS1A (&PROD2 + ((&ADDI-1)*m));
+SUM= SUM + (INTER1 * INTER2);
+*
+FIN ADDI;
+ATA= ATA et (PROG SUM);
+*
+FIN PROD2;
+FIN PROD1;
+*
+*
+*
+LIS1K = PROG;
+*
+* Calcul des valeur propre de A'A et AA'
+*
+REPE PROPRE 2 ;
+*
+SI ((&PROPRE) < 2) ;
+NbMode = n;
+*   Calcul de AA' de taille n*n
+LIS1K= AAT;
+SINON ;
+NbMode = m;
+*   Calcul de A'A de taille m*m
+LIS1K= ATA;
+FINSI ;
+*
+* Construction de la liste LIS1M (pour M diagonale unitaire)
+*
+NUM1 = (NbMode**2)-NbMode ;
+LIS1M = PROG NUM1*0. ;
+REPE BCL1M NbMode ;
+POS1 = (&BCL1M-1)*(NbMode) + &BCL1M  ;
+LIS1M = INSE LIS1M POS1 1.0 ;
+FIN BCL1M ;
+* LIST LIS1M ;
+* LIST LIS1K ;
+*
+* Definition des matrices M et K
+*
+SI ((VALE 'DIME') > 2) ;
+MAI1 = 0. 0. 0. ;
+SINON ;
+MAI1 = 0. 0. ;
+FINSI ;
+MAI1 = MANU POI1 MAI1  ;
+*
+LIS1U = MOTS ;
+LIS1F = MOTS ;
+REPE BCL1M NbMode ;
+COU1 = CHAIN 'U' &BCL1M ;
+COF1 = CHAIN 'F' &BCL1M ;
+LIS1U = LIS1U ET (MOTS COU1) ;
+LIS1F = LIS1F ET (MOTS COF1) ;
+FIN BCL1M ;
+*
+RIG1 = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE' MAI1 LIS1U
+'DUAL' LIS1F LIS1K ;
+*
+MAS1 = MANU 'RIGIDITE' 'TYPE' 'MASSE'    MAI1 LIS1U
+'DUAL' LIS1F LIS1M ;
+*
+* Calcul des valeurs propres de K
+*
+SI ( n < m );
+NbMode= n;
+SINON ;
+NbMode= m;
+FINSI;
+LISMOD = PROG 1. 1. 1. ;
+BAS0 = VIBR 'INTERVALLE'  0.01 15. 'HAUTE' NbMode  RIG1 MAS1 'TBAS';
+*
+LIST BAS0 . 'MODES' ;
+*
+MESS 'On a calcule ' NbMode 'modes' ;
+REPE BCL1M NbMode ;
+*
+LIST BAS0 . 'MODES' . &BCL1M . 'FREQUENCE' ;
+*
+FIN BCL1M ;
+*
+* Ici (n <EG m) a son importance
+*
+SI (&PROPRE < 2) ;
+SVD = TABLE;
+REPE VSING NbMode ;
+SVD.&VSING = TABLE;
+SVD.&VSING.S = (BAS0 . 'MODES' . &VSING . 'FREQUENCE')*(2*PI);
+SVD.&VSING.U = (BAS0 . 'MODES' . &VSING . 'DEFORMEE_MODALE');
+FIN VSING ;
+*
+SINON ;
+*
+REPE VSING NbMode ;
+SVD.&VSING.V = BAS0 . 'MODES' . &VSING . 'DEFORMEE_MODALE';
+FIN VSING ;
+*
+FINSI ;
+*
+FIN PROPRE;
+*
+MESSAGE ' ================= FIN DE SVD ===================' ;
+*
+*
+*
+FINPROC ;
 $$$$
