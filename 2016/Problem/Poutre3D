@@ -35,11 +35,11 @@
     MATTOT = MAT1;
     *--------------CONDITIONS LIMITES-----------------*
     CL1 = BLOQ Sur1 UY UX UZ;
-    Pb.CL_TOT= CL1 ;
+    Pb.CL_TOT_i= CL1 ;
 
     *-------MATRICES DE RIGIDITE ET DE MASSE----------*
-    Pb.K = RIGI MOD1 MATTOT ;
-    Pb.M = MASS MOD1 MATTOT ;
+    Pb.K_i = RIGI MOD1 MATTOT ;
+    Pb.M_i = MASS MOD1 MATTOT ;
 
     *------------EVOLUTION TEMPORELLE-----------------*
     Cal_T.dt = 1e-6;
@@ -59,12 +59,12 @@
     FOR2 = FORCE FX 0. P6 ;
     CHA1 = CHAR FORC FOR1 EVT1 ;
     CHA2 = CHAR FORC FOR2 EVT2 ;
-    Pb.CHA_TOT = CHA1 et CHA2 ;
+    Pb.CHA_TOTi = CHA1 et CHA2 ;
 
     *------------- Deplacement Initial -------------*
-    dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
-    Pb.U0  = dep_0;
-    Pb.V0  = dep_0;
+    dep_0 = RESO (Pb.K_i ET Pb.CL_TOT_i) (For1 * 0.);
+    Pb.U0_i  = dep_0;
+    Pb.V0_i  = dep_0;
 
     *------------- Non Linearite -------------*
     Pb.Tab_NL = TABLE;

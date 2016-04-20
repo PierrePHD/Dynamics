@@ -1,6 +1,6 @@
 AAPZ
 PR_CalculErreurAffichGlobal
-DEBPROC PR_CalculErreurAffichGlobal Coord/MOT Bool2/LOGIQUE;
+DEBPROC PR_CalculErreurAffichGlobal Res*MOT Coord/MOT Bool2/LOGIQUE;
 
 Bool1 = EXISTE Coord;
 Si (EXISTE Bool2);
@@ -15,7 +15,15 @@ FinSi ;
     EneTot = PROG;
 
     REPETER It_m NbModCal;
-        rec_sol = PR_PGD_to_Full &It_m;
+
+        Si (EGA Res 'POD') ;
+            rec_sol = PR_POD_to_Full &It_m;
+        FinSi ;
+
+        Si (EGA Res 'PGD') ;
+            rec_sol = PR_PGD_to_Full &It_m;
+        FinSi ;
+
         Err = PR_Difference_Solu Solu1.u rec_sol.u;
         ErrMax = PROG;
         Out_Err = PR_CalculErreurDiff (&It_m ega 1);

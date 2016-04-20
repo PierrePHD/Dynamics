@@ -1,27 +1,27 @@
 ABRZ
 PR_FormatNombre
-DEBPROC PR_FormatNombre Num*ENTIER ;
+DEBPROC PR_FormatNombre Num*ENTIER Lon_Chai*Entier ;
 
-    // ord_Num = (log Num) / (log 10);
-    // Inutilisable car :
-    // $ list (ENTI ((log 10)/(log 10)) );
-    //     Entier valant: 1
-    // $ list (ENTI ((log 100)/(log 10)) );
-    //     Entier valant: 2
-    // $ list (ENTI ((log 1000)/(log 10)) );
-    //     Entier valant: 2
+    CH_Num = CHAINE Num ;
+    Lon_Pre = DIME CH_Num ;
 
-
-    Si (Num < 10) ;
-        out = chaine '00' Num ;
+    Si (Lon_Pre > Lon_Chai) ;
+        Mess 'Nonmbre ' Num ' trop grand pour chaine de longueur ' Lon_Chai ;
+        list (EXTR ZZZ 4) ;
     SiNon ;
-        Si (Num < 100) ;
-            out = chaine '0' Num ;
-        SiNon ;
-            out = chaine Num ;
+        Si (Lon_Pre < Lon_Chai) ;
+            Dif_Lon = Lon_Chai - Lon_Pre ;
+            REPETER It Dif_Lon ;
+                Si (&It EGA 1) ;
+                    CH_Num = CHAINE 0 ;
+                SiNon ;
+                    CH_Num = CHAINE CH_Num 0 ;
+                FinSi ;
+            Fin It ;
+            CH_Num = CHAINE CH_Num Num ;
         FinSi ;
-    FinSi;
+    FinSi ;
 
-    RESPRO out ;
+    RESPRO CH_Num ;
 
 FINPROC ;

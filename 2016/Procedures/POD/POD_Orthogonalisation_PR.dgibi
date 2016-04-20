@@ -1,0 +1,29 @@
+ABVZ
+PR_POD_Orthogonalisation
+DEBPROC PR_POD_Orthogonalisation Bas_0*TABLE ;
+
+
+    Bas_Orth = TABLE;
+
+    REPETER It_0 ( DIMENSION Bas_0 ) ;
+
+        Mod = Bas_0.&It_0 ;
+
+        Si (&It_0 > 1) ;
+            //Mess 'Gramm-Shmidt';
+            NorOrigi = PR_NormVecEspace Mod K ;
+            REPETER It_m ( &It_0 - 1 );
+                Pro_f = PR_ProdScalaireEspace Mod (Bas_Orth.&It_m) K ;
+                NumMod = &It_0  ;
+                Mod = Mod - (Bas_Orth.&It_m * Pro_f);
+            FIN It_m;
+        FinSi ;     // Si (&It_0 > 1) ;
+
+        Mod  = (Mod / (PR_NormVecEspace Mod K) ) ;
+        Bas_Orth.&It_0 = Mod ;
+
+    Fin It_0 ;
+
+    RESPRO Bas_Orth ;
+
+FINPROC;

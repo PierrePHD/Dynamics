@@ -1,10 +1,10 @@
 AAQZ
-PR_Orthogonalisation
-DEBPROC PR_Orthogonalisation ;
+PR_PGD_Orthogonalisation
+DEBPROC PR_PGD_Orthogonalisation ;
 
     Mess 'Verification de l orthogonalite';
 
-    *FamiFTot FamiGTot = PR_ConcatenerFami (DIMENSION FamiF.Cal ) ;
+    //FamiFTot FamiGTot = PR_ConcatenerFami (DIMENSION FamiF.Cal ) ;
 
         REPETER It_m (DIMENSION FamiF.Cal );
             REPETER It2_m (DIMENSION FamiF.Cal );

@@ -56,7 +56,7 @@ FinSi ;
                 f_espa g_tmps = PR_PointFixePGD M C K CL_A Ttot schema CHA_TOT dt &It_m;
 
                 Si Bool_1;
-                    f_espa FamiG = PR_Orthogonalisation;
+                    f_espa FamiG = PR_PGD_Orthogonalisation;
 
                     N_f_espa = PR_NormVecEspace f_espa  K ;
                     Mess 'f_espaNEW = ' N_f_espa ;

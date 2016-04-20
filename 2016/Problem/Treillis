@@ -85,12 +85,12 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
        *Unites SI
        AMP1 = -100.0 ;
        *-------MATRICES DE RIGIDITE ET DE MASSE----------*
-       Pb.K = RIG1TOT;
-       Pb.M = MAS1TOT ;
+       Pb.K_i = RIG1TOT;
+       Pb.M_i = MAS1TOT ;
        Pb.Mob = MOD1;
 
        *--------------CONDITIONS LIMITES-----------------*
-       Pb.CL_TOT= BLO1 ;
+       Pb.CL_TOT_i= BLO1 ;
        P3 = MAI1 POIN PROC (250. 500. 950.);
        P4 = MAI1 POIN PROC (250. -500. 950.);
        Pb.geo = MAI1;
@@ -111,12 +111,12 @@ BLO1 = (BLOQ CL1FR UY UX UZ RX RY RZ) ET
        FOR2 = FORCE FZ AMP1 P4 ;
        CHA1 = CHAR FORC FOR1 EVT1 ;
        CHA2 = CHAR FORC FOR2 EVT1 ;
-       Pb.CHA_TOT = CHA1 et CHA2;
+       Pb.CHA_TOTi = CHA1 et CHA2;
 
        *------------- Deplacement Initial -------------*
-       dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
-       Pb.U0  = dep_0;
-       Pb.V0  = dep_0;
+       dep_0 = RESO (Pb.K_i ET Pb.CL_TOT_i) (For1 * 0.);
+       Pb.U0_i  = dep_0;
+       Pb.V0_i  = dep_0;
 
        *------------- Non Linearite -------------*
        Pb.Tab_NL = TABLE;

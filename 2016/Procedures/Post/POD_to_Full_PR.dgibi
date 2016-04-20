@@ -1,0 +1,41 @@
+ABWZ
+PR_POD_to_Full
+DEBPROC PR_POD_to_Full It_m*Entier;
+
+    Sol = TABLE ;
+    U_sol = TABLE;
+    V_sol = TABLE;
+    W_sol = TABLE;
+
+    // verif It_m >= NbMod = (DIME Tab_Mod );
+
+    REPETER It2 It_m;
+
+        C_1 = CHAIN 'U' &It2 ;
+
+        REPETER It_T En_Nb_Re;
+
+            Si (&It2 ega 1) ;
+                U_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.U.&It_T) C_1 P_POD) ;
+                V_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.V.&It_T) C_1 P_POD) ; ;
+                W_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.W.&It_T) C_1 P_POD) ; ;
+            SiNon ;
+                U_sol.&It_T = U_sol.&It_T
+                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.U.&It_T) C_1 P_POD));
+                V_sol.&It_T = V_sol.&It_T
+                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.V.&It_T) C_1 P_POD));
+                W_sol.&It_T = W_sol.&It_T
+                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.W.&It_T) C_1 P_POD));
+            FinSi ;
+
+        Fin It_T;
+
+    FIN It2;
+
+    Sol.U = U_sol;
+    Sol.V = V_sol;
+    Sol.W = W_sol;
+
+    RESPRO Sol;
+
+FINPROC;

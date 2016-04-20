@@ -1,8 +1,6 @@
-ABMZ
+ABSZ
 PR_SVD_Matlab
 DEBPROC PR_SVD_Matlab ;
-
-
 
     // Nouvelle procedure 2016
     // Lis_CHP = SUITE;
@@ -16,8 +14,7 @@ DEBPROC PR_SVD_Matlab ;
     Pb.Gpoin = CHAN POI1 (Pb.geo) ; // Changement pour EXTRaire une liste
     Nb_Noeu = NBNO (Pb.geo) ;
 
-    L_Comp = EXTR (ENLE (Solu1.U.1) 'LX' ) 'COMP' ; // L_f ; // MOTS UX UY UZ RX RY RZ; 
-    list L_Comp ;
+    L_Comp = EXTR (ENLE (Solu1.U.1) 'LX' ) 'COMP' ; // L_f ; // MOTS UX UY UZ RX RY RZ;
     Nb_Comp = DIME L_Comp ;
     L_Out = PROG;
 
@@ -47,22 +44,26 @@ DEBPROC PR_SVD_Matlab ;
 
         // Vecteurs singuliers
             Tab_Mod = TABLE ;
+            // Bas_Mob = SUITE ;
             REPETER It_Mod NbModPOD ;
                 REPETER It_Comp Nb_Comp ;
                     Comp_it = (EXTR L_Comp &It_Comp) ;
-                    NomFile = CHAINE 'FileMatlab_' (PR_FormatNombre &It_Mod) '_Comp_' (PR_FormatNombre &It_Comp) ;
+                    NomFile = CHAINE
+                    'FileMatlab_' (PR_FormatNombre &It_Mod 3) '_Comp_' (PR_FormatNombre &It_Comp 3) ;
                     OPTI 'ACQU' NomFile ;
                     ACQUERIR   Lis_01*LISTREEL Nb_Noeu ;
                         Del_File = CHAINE 'rm ' NomFile ;
                         EXTE ( Del_File ) ;
 
                     Si (&It_Comp ega 1) ;
-                        Tab_Mod.&It_Mod = MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01 ;
+                        Mod_comp = MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01 ;
                     SiNon ;
-                        Tab_Mod.&It_Mod = Tab_Mod.&It_Mod
-                        + (MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01) ;
+                        Mod_comp = Mod_comp + (MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01) ;
                     FinSi ;
                 Fin It_Comp ;
+                Tab_Mod.&It_Mod = Mod_comp ;
+                // Bas_Mob = Bas_Mob ET Mod_comp ;
+
             Fin It_Mod ;
 
     RESPRO Lis_ValS;

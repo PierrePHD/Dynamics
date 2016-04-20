@@ -50,6 +50,14 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
     FinSi ;
     A_sol.&It_T = A_t;
 
+
+    // Si C_POD ;
+    //     Mess 'It_T' &It_T 'HHHHHHHHHHHHHHHH';
+    //     Si (&It_T EGA 2) ;
+    //         list (EXTR ZZZ 4) ;
+    //     FinSi ;
+    // FinSi ;
+
   FIN It_T;
 
   Solution = TABLE;

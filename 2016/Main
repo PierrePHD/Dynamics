@@ -6,16 +6,23 @@
 
     Pb Cal_T = PR_CreationProb;
 
-    K = Pb.K;
-    M = Pb.M;
-    CL_TOT = Pb.CL_TOT;
-    CHA_TOT = Pb.CHA_TOT;
-    U0 = Pb.U0;
-    V0 = Pb.V0;
+    K = Pb.K_i;
+    M = Pb.M_i;
+    CL_TOT = Pb.CL_TOT_i;
+    CHA_TOT = Pb.CHA_TOTi;
+    U0 = Pb.U0_i;
+    V0 = Pb.V0_i;
+
+        C = ((1e-4*K) ET (1e4*M)) * 0.1;
+        * !!!! Valeur de l amortissement ici
+
+    Nb_NL = DIME (Pb.Tab_NL) ;
+
+    Pb.lambda = 0.5;
+
     P_intere = Pb.P_intere;
     DirPriv = Pb.DirPriv;
-    Nb_NL = DIME (Pb.Tab_NL) ;
-    Pb.lambda = 0.5;
+
 
     dt = Cal_T.dt;
     Ttot = Cal_T.Ttot;
@@ -23,8 +30,6 @@
     En_Nb_Re = PR_TailVectTemp dt Ttot;
     Vec_T = PROG 0. PAS dt Ttot ;
 
-    C = ((1e-4*K) ET (1e4*M)) * 0.1;
-    * !!!! Valeur de l amortissement ici
     CL_A = CL_TOT;
     schema = 3 ;
     alpha = 0.0;
@@ -35,6 +40,7 @@
     Aff_PtFx = FAUX;
     TEMPS ZERO;
     DirPt_Fx = VRAI;
+    C_POD = FAUX ;
     Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
                     alpha beta gamma dt Ttot U0 V0;
 
@@ -42,7 +48,52 @@
 
     NbModPOD = 4 ;
 
+    // Obtention des modes POD avec Matlab
     Lis_ValS Tab_Mod = PR_SVD_Matlab ;
+
+    // Sui_Mod = PR_Tab_2_Suite Tab_Mod ;
+
+    // Probleme projete
+
+        Si ((VALE 'DIME') > 2) ;
+          P_POD = 0. 0. 0. ;
+        SiNon ;
+          P_POD = 0. 0. ;
+        FinSi ;
+        MAI_POD = MANU POI1 P_POD  ;
+
+        Tab_Mod = PR_POD_Orthogonalisation Tab_Mod;
+        K_red = PR_Projeter Tab_Mod (Pb.K_i) ;
+
+        M_red = PR_Projeter Tab_Mod (Pb.M_i);
+        C_red = PR_Projeter Tab_Mod C;
+        U0_red = PR_Projeter Tab_Mod (Pb.U0_i) ;
+        V0_red = PR_Projeter Tab_Mod (Pb.V0_i) ;
+        CHA_red = PR_Projeter Tab_Mod (Pb.CHA_TOTi);
+
+        CL_red = K_red * 0. ;
+
+        C_POD = VRAI ;
+        Sol_POD = PR_ResolutionTtot M_red C_red K_red CL_red CHA_red
+                        alpha beta gamma dt Ttot U0_red V0_red;
+
+        opti donne 5 ;
+        NbModCal = 4;
+        ErrDep ErrEner = PR_CalculErreurAffichGlobal 'POD' DirPriv VRAI;
+        opti donne 5 ;
+
+        // Inutile d'imposer les CL si tous les modes sont CA
+        //      SoluComplete CA0 donne modes CA0
+        //      mais avec dep imposes non nuls, il faudra rendre les
+        //      modes CA0 et ajouter des modes de deplacements imposes
+        // Var_1 = EXTR (Pb.CL_TOT_i) 'DIAG' ;
+        // Var_2 = ENLE Var_1 LX ;
+        // Var_3 = MASQ Var_2 'EGAL' 0. ;
+
+        //CL_TOT = Pb.CL_TOT_i;
+        // P_intere = Pb.P_intere;
+        // DirPriv = Pb.DirPriv;
+        // Nb_NL = DIME (Pb.Tab_NL) ;
 
 
     TEMPS ZERO;
@@ -76,7 +127,7 @@
 
         Fam_FPre = Tab_Mod ;
 
-        PR_ResolutionPGD NbModCal Fam_FPre ;
+        PR_ResolutionPGD NbModCal ; // Fam_FPre ;
 
         opti donn 5 ;
 
@@ -93,7 +144,7 @@
 
     PR_AffichageModesEspace AffMods (FamiF.Cal);
 
-    ErrDep ErrEner = PR_CalculErreurAffichGlobal DirPriv VRAI;
+    ErrDep ErrEner = PR_CalculErreurAffichGlobal 'PGD' DirPriv VRAI;
 
     opti donn 5 ;
 

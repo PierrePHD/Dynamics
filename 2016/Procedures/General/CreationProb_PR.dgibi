@@ -47,16 +47,17 @@ DEBPROC PR_CreationProb;
     MAT2B = MAT2 ET CAR2 ;
     MATTOT = MAT1B et MAT2B ;
     *-------MATRICES DE RIGIDITE ET DE MASSE----------*
-    Pb.K = RIGI MODTOT MATTOT ;
-    Pb.M = MASS MODTOT MATTOT ;
+    Pb.K_i = RIGI MODTOT MATTOT ;
+    Pb.M_i = MASS MODTOT MATTOT ;
 
     *--------------CONDITIONS LIMITES-----------------*
     CL1 = BLOQ P1 UY UX RZ UZ RX RY ;
     CL2 = BLOQ P4 UY UX RZ UZ RX RY ;
-    *CL2 = BLOQ L1 UZ RX RY ;
+    CL0 = BLOQ P4 UY ;
+
+    *CL3 = BLOQ L1 UZ RX RY ;
     CL_T = CL1 ET CL2 ;
-    Pb.CL_TOT= CL_T;
-    * ET CL2 ;
+    Pb.CL_TOT_i= CL_T;
 
     *--------------Parametres de calcul---------------*
     Cal_T.dt = 4e-5;
@@ -81,37 +82,38 @@ DEBPROC PR_CreationProb;
         * En bout de poutre
             FOR1 = FORCE FZ (AMP1*2.) P2 ;
             CHA_SV = CHAR FORC FOR1 EVT_SV ;
-        // * En milieu
-        //     FOR2 = FORCE FX 0. P3 ;
+        * En milieu
+            FOR2 = FORCE FX 0. P3 ;
+            CHA_Nul = CHAR FORC FOR2 EVT_SV ;
 
         *-------------- GRAVITE --------------*
 
         gz = MANU CHPO L1 1 'UZ' 1. NATURE 'DIFF' TITRE 'Gravite' ;
-        fg = EXCO FZ ((Pb.M) * gz) FZ;
+        fg = EXCO FZ ((Pb.M_i) * gz) FZ;
         CHA_g = CHAR FORC fg (EVT_Cst * -9.81) ;
 
 
-    Pb.CHA_TOT = CHA_SV ;
-    // Pb.CHA_TOT = CHA_g et CHA_SV ;
-    // Pb.CHA_TOT = TABLE ;
+    Pb.CHA_TOTi = CHA_SV ;
+    // Pb.CHA_TOTi = CHA_g et CHA_SV ;
+    // Pb.CHA_TOTi = TABLE ;
 
 
     *------------- Deplacement Initial -------------*
 
     FOR1 = FORCE FZ (AMP1*(-5)) P2 ;
     * Solution initiallement libre d effort
-        dep_0 = RESO (Pb.K ET Pb.CL_Tot) (For1 * 0.);
+        dep_0 = RESO (Pb.K_i ET Pb.CL_Tot_i) (For1 * 0.);
     * Solution initiallement sous Effort
-        dep_1 = RESO (Pb.K ET Pb.CL_Tot) (For1 );
+        dep_1 = RESO (Pb.K_i ET Pb.CL_Tot_i) (For1 );
     * Solution initiallement sous gravite
-        dep_g = RESO (Pb.K ET Pb.CL_Tot) (Fg * -9.81);
+        dep_g = RESO (Pb.K_i ET Pb.CL_Tot_i) (Fg * -9.81);
 
         // DEF1 = DEFO (Pb.geo) dep_1 Roug;
         // DEF0 = DEFO (Pb.geo) dep_0 ;
         // TRAC (DEF0 et DEF1);
 
-    Pb.U0  = dep_0 ; // dep_1 ;
-    Pb.V0  = dep_0 ; // dep_1 / 0.01 ;
+    Pb.U0_i  = dep_0 ; // dep_1 ;
+    Pb.V0_i  = dep_0 ; // dep_1 / 0.01 ;
 
 
     *------------- Non Linearite -------------*

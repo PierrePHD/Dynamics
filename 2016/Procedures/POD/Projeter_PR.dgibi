@@ -1,0 +1,101 @@
+ABTZ
+PR_Projeter
+DEBPROC PR_Projeter Bas_Red*TABLE Mat_Comp/RIGIDITE Vec_Comp/CHPOINT
+                    CHA_Comp/CHARGEMENT ;
+
+// Bas_Red sans multiplicateurs !!!!
+
+// Maillage necessaire pour creer les matrices (RIGIDITE)
+
+    Tai_Base = DIME Bas_Red ;
+
+// Liste des composantes
+    LISU = MOTS ;
+    LISF = MOTS ;
+    REPE BCL1M Tai_Base ;
+        COU1 = CHAIN 'U' &BCL1M ;
+        COF1 = CHAIN 'F' &BCL1M ;
+        LISU = LISU ET (MOTS COU1) ;
+        LISF = LISF ET (MOTS COF1) ;
+    FIN BCL1M ;
+
+
+
+// Projection de matrice
+    Si (EXISTE Mat_Comp) ;
+        Lis_Proj = PROG ;
+        REPETER It_i Tai_Base ; // Ligne
+            f_esp_i = Bas_Red.&It_i ;
+            REPETER It_j Tai_Base ; // Colone
+                f_esp_j = Bas_Red.&It_j ;
+                Lis_Proj = Lis_Proj et (YTMX f_esp_j f_esp_i Mat_Comp) ;
+            Fin It_j ;
+        Fin It_i ;
+
+        Mat_Proj = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE' MAI_POD LISU
+        'DUAL' LISF 'QUEL' Lis_Proj ;
+
+        RESPRO Mat_Proj ;
+    FinSi ;
+
+// Projection vecteur
+    Si (EXISTE Vec_Comp) ;
+
+        // Si (EGA CH_typ 'U') ;
+        //     Lis_Comp = LISU ;
+        // FinSi ;
+        // Si (EGA CH_typ 'F') ;
+        //     Lis_Comp = LISF ;
+        // FinSi ;
+
+        Lis_Proj = PROG ;
+        REPETER It_i Tai_Base ; // Ligne
+            f_esp_i = Bas_Red.&It_i ;
+
+            Lis_Proj = Lis_Proj et (XTY f_esp_i Vec_Comp L_f L_f) ;
+        Fin It_i ;
+
+        Vec_Comp = MANU 'CHPO' MAI_POD LISU Lis_Proj;
+
+        RESPRO Vec_Comp ;
+
+    FinSi ;
+
+
+// Projection Chargement
+    Si (EXISTE CHA_Comp) ;
+
+        NbCharg = DIMENSION CHA_Comp ;
+        Si (NbCharg > 0);
+            REPETER It_1 NbCharg ;
+                CHA_i = EXTR CHA_Comp CHAR &It_1 ;
+                    CHP_i = EXTR CHA_i CHAM ;
+                    EVO_i = EXTR CHA_i EVOL;
+
+                Lis_Proj = PROG ;
+                REPETER It_i Tai_Base ; // Ligne
+                    f_esp_i = Bas_Red.&It_i ;
+                    Lis_Proj = Lis_Proj et (XTY f_esp_i CHP_i L_f LFOR) ;
+                Fin It_i ;
+
+                FOR_Proj = MANU 'CHPO' MAI_POD LISF Lis_Proj;
+
+                CHA_Proj = CHAR FORC FOR_Proj EVO_i ;
+
+                Si (&It_1 EGA 1) ;
+                    CHA_T_Pr = CHA_Proj ;
+                SiNon ;
+                    CHA_T_Pr = CHA_T_Pr et CHA_Proj ;
+                FinSi ;
+
+            FIN It_1 ;
+
+            RESPRO CHA_T_Pr;
+        SiNon ; // Si (NbCharg > 0);
+            RESPRO CHA_Comp;
+        FinSi ;
+
+    FinSi ;
+
+
+FINPROC;
