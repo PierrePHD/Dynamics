@@ -2,132 +2,155 @@
     Pb = TABLE;
     Cal_T = TABLE;
     *---------------------DONNEES---------------------*
-    *Unites SI
-    AMP1 = -100.0 ;
-    LON1 = 0.5 ;
-    LON2 = -0.1 ;
-    SEC1 = 2.e-4 ;
-    IY1 = (8/12.)*1e-8 ;
-    IZ1 = (2/12.)*1e-8 ;
-    NUP = 0.3 ;
-    YOP = 2.1E11 ;
-    YOP2 = YOP/((1.25e4)) ;
-    RHOP = 7800.0 ;
+        *Unites SI
+        AMP1 = -100.0 ;
+        LON1 = 0.5 ;
+        LON2 = -0.1 ;
+        SEC1 = 2.e-4 ;
+        IY1 = (8/12.)*1e-8 ;
+        IZ1 = (2/12.)*1e-8 ;
+        NUP = 0.3 ;
+        YOP = 2.1E11 ;
+        YOP2 = YOP/((1.25e4)) ;
+        RHOP = 7800.0 ;
     *--------------------GEOMETRIE--------------------*
-    P1 = 0.   0. 0. ;
-    Pb.P0 = P1 ;
-    P2 = LON1 0. 0. ;
-    Pb.PS = P2 ;
-    L1 = D 20 P1 P2 ;
-    P3 = L1 POIN PROC ((LON1/2) 0. 0.);
-    P4 = LON1 0. LON2 ;
-    ELIM L1 0.00000001;
-    L2 = D 1 P2 P4;
-    Pb.geo = L1 et L2;
-    Pb.DirPriv = 'UZ';
-    Pb.P_intere = P2;
-    *opti trac X ;
-    *TRAC Pb.geo ;
+        P1 = 0.   0. 0. ;
+        Pb.P0 = P1 ;
+        P2 = LON1 0. 0. ;
+        Pb.PS = P2 ;
+        L1 = D 20 P1 P2 ;
+        P3 = L1 POIN PROC ((LON1/2) 0. 0.);
+        P4 = LON1 0. LON2 ;
+        ELIM L1 0.00000001;
+        L2 = D 1 P2 P4;
+        Pb.geo = L1 et L2;
+        Pb.DirPriv = 'UZ';
+        Pb.P_intere = P2;
+        *opti trac X ;
+        *TRAC Pb.geo ;
     *------DEFINITION DU MODELE ET DU MATERIAU--------*
-    MOD1 = MODEL L1 MECANIQUE ELASTIQUE POUT ;
-    MOD2 = MODEL L2 MECANIQUE ELASTIQUE POUT ;
-    MODTOT = MOD1 et MOD2 ;
-    Pb.Mob = MODTOT;
-    MAT1 = MATER MOD1 YOUN YOP NU NUP RHO RHOP ;
-    MAT2 = MATER MOD2 YOUN (YOP2/2.) NU NUP RHO (RHOP/100.) ;
-    CAR1 = CARAC MOD1 SECT SEC1 INRY IY1 INRZ IZ1
-           TORS 1. VECT (0. 1. 0.) ;
-    CAR2 = CARAC MOD2 SECT SEC1 INRY IY1 INRZ IZ1
-           TORS 1. VECT (0. 1. 0.) ;
-    MAT1B = MAT1 ET CAR1 ;
-    MAT2B = MAT2 ET CAR2 ;
-    MATTOT = MAT1B et MAT2B ;
+        MOD1 = MODEL L1 MECANIQUE ELASTIQUE POUT ;
+        MOD2 = MODEL L2 MECANIQUE ELASTIQUE POUT ;
+        MODTOT = MOD1 et MOD2 ;
+        Pb.Mob = MODTOT;
+        MAT1 = MATER MOD1 YOUN YOP NU NUP RHO RHOP ;
+        MAT2 = MATER MOD2 YOUN (YOP2/2.) NU NUP RHO (RHOP/100.) ;
+        CAR1 = CARAC MOD1 SECT SEC1 INRY IY1 INRZ IZ1
+               TORS 1. VECT (0. 1. 0.) ;
+        CAR2 = CARAC MOD2 SECT SEC1 INRY IY1 INRZ IZ1
+               TORS 1. VECT (0. 1. 0.) ;
+        MAT1B = MAT1 ET CAR1 ;
+        MAT2B = MAT2 ET CAR2 ;
+        MATTOT = MAT1B et MAT2B ;
     *-------MATRICES DE RIGIDITE ET DE MASSE----------*
-    Pb.K_i = RIGI MODTOT MATTOT ;
-    Pb.M_i = MASS MODTOT MATTOT ;
+        Pb.K_i = RIGI MODTOT MATTOT ;
+        Pb.M_i = MASS MODTOT MATTOT ;
 
-    *--------------CONDITIONS LIMITES-----------------*
-    CL1 = BLOQ P1 UY UX RZ UZ RX RY ;
-    CL2 = BLOQ P4 UY UX RZ UZ RX RY ;
-    CL0 = BLOQ P4 UY ;
+    *--------------CONDITIONS LIMITES-----------------* // Nulles
+        CL1 = BLOQ P1 UY UX RZ UZ RX RY ;
+        CL2 = BLOQ P4 UY UX RZ UZ RX RY ;
+        CL0 = BLOQ P4 UY ;
 
-    *CL3 = BLOQ L1 UZ RX RY ;
-    CL_T = CL1 ET CL2 ;
-    Pb.CL_TOT_i= CL_T;
+        *CL3 = BLOQ L1 UZ RX RY ;
+        CL_T = CL1 ET CL2 ;
+        Pb.CL_TOT_i= CL_T;
 
     *--------------Parametres de calcul---------------*
-    Cal_T.dt = 4e-5;
-    Cal_T.Ttot = 20e-3;
-    Pb.T_period = 10e-3 ;
-    En_Nb_Re = PR_TailVectTemp Cal_T.dt Cal_T.Ttot;
-    Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
+        Cal_T.dt = 4e-5;
+        Cal_T.Ttot = 20e-3;
+        Pb.T_period = 10e-3 ;
+        En_Nb_Re = PR_TailVectTemp Cal_T.dt Cal_T.Ttot;
+        Vec_T = PROG 0. PAS Cal_T.dt Cal_T.Ttot ;
 
     *-----------------CHARGEMENT----------------------*
 
         *--------- EVOLUTION TEMPORELLE ---------*
-        * Sinus Verse
-            LIS_SV = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
-            LIS_SV = LIS_SV + (PROG En_Nb_Re*1.);
-            EVT_SV = EVOL MANU T Vec_T G(T) LIS_SV ;
-        * Constante Unitaire
-            EVT_Cst = EVOL MANU T Vec_T G(T) (PROG En_Nb_Re * 1);
-        * Evolution Lineaire
-            EVT_Lin = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
+            * Sinus Verse
+                LIS_SV = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+                LIS_SV = LIS_SV + (PROG En_Nb_Re*1.);
+                EVT_SV = EVOL MANU T Vec_T G(T) LIS_SV ;
+            * Constante Unitaire
+                EVT_Cst = EVOL MANU T Vec_T G(T) (PROG En_Nb_Re * 1);
+            * Evolution Lineaire
+                EVT_Lin = EVOL MANU T Vec_T G(T) (Vec_T*2) ;
 
         *-------------- EFFORT ---------------*
-        * En bout de poutre
-            FOR1 = FORCE FZ (AMP1*2.) P2 ;
-            CHA_SV = CHAR FORC FOR1 EVT_SV ;
-        * En milieu
-            FOR2 = FORCE FX 0. P3 ;
-            CHA_Nul = CHAR FORC FOR2 EVT_SV ;
+            * En bout de poutre
+                FOR1 = FORCE FZ (AMP1*2.) P2 ;
+                CHA_SV = CHAR FORC FOR1 EVT_SV ;
+            * En milieu
+                FOR2 = FORCE FX 0. P3 ;
+                CHA_Nul = CHAR FORC FOR2 EVT_SV ;
 
         *-------------- GRAVITE --------------*
 
-        gz = MANU CHPO L1 1 'UZ' 1. NATURE 'DIFF' TITRE 'Gravite' ;
-        fg = EXCO FZ ((Pb.M_i) * gz) FZ;
-        CHA_g = CHAR FORC fg (EVT_Cst * -9.81) ;
+            gz = MANU CHPO L1 1 'UZ' 1. NATURE 'DIFF' TITRE 'Gravite' ;
+            fg = EXCO FZ ((Pb.M_i) * gz) FZ;
+            CHA_g = CHAR FORC fg (EVT_Cst * -9.81) ;
 
 
-    Pb.CHA_TOTi = CHA_SV ;
-    // Pb.CHA_TOTi = CHA_g et CHA_SV ;
-    // Pb.CHA_TOTi = TABLE ;
+        // Pb.CHA_TOTi = CHA_SV ;
+        // Pb.CHA_TOTi = CHA_g et CHA_SV ;
+        Pb.CHA_TOTi = TABLE ;
+
+    *----------------Deplacement Imposes------------------* // Non nuls
+
+        Dep_I = TABLE;
+            Dep_I.1 = TABLE;
+                Dep_I.1 .CL  = BLOQ P3 UZ ;     // La mise CA0 des modes POD ne fonctionne que si ceci ne compte qu'un DDL
+                Dep_I.1 .Dep = DEPI (Dep_I.1 .CL) 1.;
+                Dep_I.1 .TabEvo = TABLE;
+                        Val_1 = 1.5e-3 ;
+                        LIS_SV_U = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+                        LIS_SV_U = (LIS_SV_U + (PROG En_Nb_Re*1.)) * Val_1 ;
+                        LIS_SV_V = (PROG sinu (1/Pb.T_period) PHAS (270+90) Vec_T) ;
+                        LIS_SV_V = (LIS_SV_V * ((1/Pb.T_period) * ( 2*PI ))) * Val_1 ;
+                        LIS_SV_W = (PROG sinu (1/Pb.T_period) PHAS (270+180) Vec_T) ;
+                        LIS_SV_W = (LIS_SV_W * ( ((1/Pb.T_period) * ( 2*PI ))**2 )) * Val_1 ;
+                        EVT_SV_U = EVOL ROUG MANU T Vec_T G(T) LIS_SV_U ;
+                        EVT_SV_V = EVOL VERT MANU T Vec_T G(T) LIS_SV_V ;
+                        EVT_SV_W = EVOL BLEU MANU T Vec_T G(T) LIS_SV_W ;
+                    Dep_I.1 .TabEvo.U= EVT_SV_U;
+                    Dep_I.1 .TabEvo.V= EVT_SV_V;
+                    Dep_I.1 .TabEvo.W= EVT_SV_W;
+
+        Pb.D_Imp_i = Dep_I ;
 
 
     *------------- Deplacement Initial -------------*
 
-    FOR1 = FORCE FZ (AMP1*(-5)) P2 ;
-    * Solution initiallement libre d effort
-        dep_0 = RESO (Pb.K_i ET Pb.CL_Tot_i) (For1 * 0.);
-    * Solution initiallement sous Effort
-        dep_1 = RESO (Pb.K_i ET Pb.CL_Tot_i) (For1 );
-    * Solution initiallement sous gravite
-        dep_g = RESO (Pb.K_i ET Pb.CL_Tot_i) (Fg * -9.81);
+        FOR1 = FORCE FZ (AMP1*(-5)) P2 ;
+        * Solution initiallement libre d effort
+            dep_0 = RESO (Pb.K_i ET Pb.CL_Tot_i) (For1 * 0.);
+        * Solution initiallement sous Effort
+            dep_1 = RESO (Pb.K_i ET Pb.CL_Tot_i) (For1 );
+        * Solution initiallement sous gravite
+            dep_g = RESO (Pb.K_i ET Pb.CL_Tot_i) (Fg * -9.81);
 
-        // DEF1 = DEFO (Pb.geo) dep_1 Roug;
-        // DEF0 = DEFO (Pb.geo) dep_0 ;
-        // TRAC (DEF0 et DEF1);
+            // DEF1 = DEFO (Pb.geo) dep_1 Roug;
+            // DEF0 = DEFO (Pb.geo) dep_0 ;
+            // TRAC (DEF0 et DEF1);
 
-    Pb.U0_i  = dep_0 ; // dep_1 ;
-    Pb.V0_i  = dep_0 ; // dep_1 / 0.01 ;
+        Pb.U0_i  = dep_0 ; // dep_1 ;
+        Pb.V0_i  = dep_0 ; // dep_1 / 0.01 ;
 
 
     *------------- Non Linearite -------------*
 
-    Pb.Tab_NL = TABLE;
+        Pb.Tab_NL = TABLE;
 
-        // Pb.Tab_NL.1 = TABLE;
-        //
-        //     Pb.Tab_NL.1 .typ = 1; // Butee
-        //         Pb.Tab_NL.1 .Butee = TABLE;
-        //             Pb.Tab_NL.1 .Butee.Raideur = 8.4E+06 ;
-        //             Pb.Tab_NL.1 .Butee.Jeu = 5e-3 ;
-        //             Pb.Tab_NL.1 .Butee.DeltaJeu = 0.2e-3 ;
-        //     Pb.Tab_NL.1 .fun = 1;
-        //         * Fonction de Francois
-        //     Pb.Tab_NL.1 .effo = FORCE FZ 1 P2 ;
-        //
-        //     Pb.Tab_NL.1 .ch_depen = FORCE FZ (-1) P2 ; ;
-        //     Pb.Tab_NL.1 .Poi_int = P2 ;
-        //     Pb.Tab_NL.1 .Dir_int = 'UZ' ;
-        //     Pb.Tab_NL.1 .fac_int = -1 ;
+            // Pb.Tab_NL.1 = TABLE;
+            //
+            //     Pb.Tab_NL.1 .typ = 1; // Butee
+            //         Pb.Tab_NL.1 .Butee = TABLE;
+            //             Pb.Tab_NL.1 .Butee.Raideur = 8.4E+06 ;
+            //             Pb.Tab_NL.1 .Butee.Jeu = 5e-3 ;
+            //             Pb.Tab_NL.1 .Butee.DeltaJeu = 0.2e-3 ;
+            //     Pb.Tab_NL.1 .fun = 1;
+            //         * Fonction de Francois
+            //     Pb.Tab_NL.1 .effo = FORCE FZ 1 P2 ;
+            //
+            //     Pb.Tab_NL.1 .ch_depen = FORCE FZ (-1) P2 ; ;
+            //     Pb.Tab_NL.1 .Poi_int = P2 ;
+            //     Pb.Tab_NL.1 .Dir_int = 'UZ' ;
+            //     Pb.Tab_NL.1 .fac_int = -1 ;

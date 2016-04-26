@@ -1,23 +1,24 @@
 AAAZ
 PR_ResolutionTtot
-DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
+DEBPROC PR_ResolutionTtot M C K CL_A_0 CHA D_Imp alpha beta gamma dt Ttot U0 V0;
 
   U_t  = U0;
   V_t  = V0;
-  A_t  = U0 * 0;
+  W_t  = U0 * 0;
 
   U_sol = TABLE;
   V_sol = TABLE;
-  A_sol = TABLE;
+  W_sol = TABLE;
 
   U_sol.1 = U0;
   V_sol.1 = V0;
 
   NbCharg = DIMENSION CHA ;
+  NbDImp  = DIMENSION D_Imp ;
 
   REPETER It_T En_Nb_Re;
 
-    Si (NbCharg > 0);
+    Si (NbCharg > 0) ;
         REPETER It2 NbCharg ;
             CHA_i = EXTR CHA CHAR &It2 ;
             CHP_i = EXTR CHA_i CHAM ;
@@ -40,23 +41,66 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
         FOR_Imp = U0 * 0;
     FinSi ;
 
+    Si (NbDImp > 0) ;
+        REPETER It2 NbDImp ;
+
+            CHP_i    = D_Imp.&It2 .Dep ;
+            CL_i     = D_Imp.&It2 .CL ;
+            Evo_W_i  = D_Imp.&It2 .TabEvo.W ;
+
+            lis_dep = EXTR Evo_W_i ORDO;
+            Val_dep = EXTR lis_dep &It_T;
+
+            Si ((&It2 ega 1) et (NbCharg EGA 0)) ;
+              FOR_Imp = CHP_i * Val_dep ;
+            SiNon ;
+              FOR_Imp = FOR_Imp + (CHP_i * Val_dep) ;
+            FinSi ;
+
+            Si (&It2 ega 1) ;
+              CL_A = CL_A_0 et (CL_i);
+            SiNon ;
+              CL_A = CL_A   et (CL_i);
+            FinSi ;
+
+        FIN It2 ;
+    SiNon ;
+    FinSi ;
+
+    // list FOR_Imp ;
+
     // Mess 'Instant ' &It_T ;
 
-    A_t V_t U_t= PR_ResolutionInstantT M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t A_t;
+    W_t V_t U_t= PR_ResolutionInstantT M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t W_t;
+
+    Si (NbDImp > 0) ;   // Correction de l erreur d integration sur
+                            // le depl impose par l acceleration
+
+        REPETER It_0 NbDImp ;
+            CL_i     = D_Imp.&It_0 .CL ;
+            Evo_U_i  = D_Imp.&It_0 .TabEvo.U ;
+            Evo_V_i  = D_Imp.&It_0 .TabEvo.V ; 
+
+            CHP_01 = MASQUE (ENLE (EXTR CL_i 'DIAG') 'LX' ) 'EGALE' 0. ;
+            Pro_U = PR_ProdScalaireEspace CHP_01 U_t ;
+            Pro_V = PR_ProdScalaireEspace CHP_01 V_t ;
+
+            lis_depU = EXTR Evo_U_i ORDO;
+            Val_depU = EXTR lis_depU &It_T;
+            lis_depV = EXTR Evo_V_i ORDO;
+            Val_depV = EXTR lis_depV &It_T;
+
+            U_t = (U_t - (Pro_U * CHP_01)) + (Val_depU * CHP_01) ;
+            V_t = (V_t - (Pro_V * CHP_01)) + (Val_depU * CHP_01) ;
+
+        Fin It_0 ;
+    FinSi ;
 
     Si (&It_T > 1);
       U_sol.&It_T = U_t;
       V_sol.&It_T = V_t;
     FinSi ;
-    A_sol.&It_T = A_t;
-
-
-    // Si C_POD ;
-    //     Mess 'It_T' &It_T 'HHHHHHHHHHHHHHHH';
-    //     Si (&It_T EGA 2) ;
-    //         list (EXTR ZZZ 4) ;
-    //     FinSi ;
-    // FinSi ;
+    W_sol.&It_T = W_t;
 
   FIN It_T;
 
@@ -64,7 +108,7 @@ DEBPROC PR_ResolutionTtot M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
 
   Solution.U = U_sol;
   Solution.V = V_sol;
-  Solution.W = A_sol;
+  Solution.W = W_sol;
 
   RESPRO Solution ;
 

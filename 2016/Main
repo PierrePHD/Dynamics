@@ -2,352 +2,186 @@
 
 
     LFOR = MOTS FX FY FZ FR FT MX MY MZ MT ;
-    L_f = MOTS UX UY UZ UR UT RX RY RZ RT ;
-
-    Pb Cal_T = PR_CreationProb;
-
-    K = Pb.K_i;
-    M = Pb.M_i;
-    CL_TOT = Pb.CL_TOT_i;
-    CHA_TOT = Pb.CHA_TOTi;
-    U0 = Pb.U0_i;
-    V0 = Pb.V0_i;
-
-        C = ((1e-4*K) ET (1e4*M)) * 0.1;
-        * !!!! Valeur de l amortissement ici
-
-    Nb_NL = DIME (Pb.Tab_NL) ;
-
-    Pb.lambda = 0.5;
-
-    P_intere = Pb.P_intere;
-    DirPriv = Pb.DirPriv;
+    L_f  = MOTS UX UY UZ UR UT RX RY RZ RT ;
 
 
-    dt = Cal_T.dt;
-    Ttot = Cal_T.Ttot;
+    // Passage du Probleme en variable locales
+        Pb Cal_T = PR_CreationProb;
 
-    En_Nb_Re = PR_TailVectTemp dt Ttot;
-    Vec_T = PROG 0. PAS dt Ttot ;
+        K = Pb.K_i;
+        M = Pb.M_i;
+        C = ((1e-4*K) ET (1e4*M)) * 0.1; // !!!! Valeur de l amortissement ici
+        CL_TOT = Pb.CL_TOT_i;
+        CHA_TOT = Pb.CHA_TOTi;
+        U0 = Pb.U0_i;
+        V0 = Pb.V0_i;
+        D_Imp = Pb.D_Imp_i ;
+        P_intere = Pb.P_intere;
+        DirPriv = Pb.DirPriv;
 
-    CL_A = CL_TOT;
-    schema = 3 ;
-    alpha = 0.0;
-    beta = 0.25;
-    gamma = 0.5;
+        Nb_NL = DIME (Pb.Tab_NL) ;
+        Pb.lambda = 0.5;
+
+        dt = Cal_T.dt;
+        Ttot = Cal_T.Ttot;
+
+    // Variable du temps
+        En_Nb_Re = PR_TailVectTemp dt Ttot;
+        Vec_T = PROG 0. PAS dt Ttot ;
 
 
-    Aff_PtFx = FAUX;
-    TEMPS ZERO;
-    DirPt_Fx = VRAI;
-    C_POD = FAUX ;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
+    // schema d'integration
+        schema = 3 ;
+        alpha = 0.0;
+        beta = 0.25;
+        gamma = 0.5;
 
-    TEMPS;
+            // alpha = -0.3;
+            // gamma = (1/2) - alpha;
+            // beta  = ((1-alpha)**2)/4;
 
-    NbModPOD = 4 ;
+    // Options du point fixe
+        DirPt_Fx = VRAI;    // Utiliser le Pt Fx pour la resolution non lineaire directe
+        Aff_PtFx = FAUX;    // Visualiser dans le terminal les iterations du Pt Fx NL
 
+
+
+
+    //-----------------Resolution Directe-----------------\\
+
+        CL_A = CL_TOT;     // Les conditions limites doivent etre en acceleration
+                                // Sans probleme tant que les condition imposees sont nulles
+
+        // !!!! rendre les modes CA0
+            // Possibilite une soustraire le champ de dep connu a chaque pas de temps(Lourd)
+            // Possibilite deux Forcer a zero les modes pour les points au depl imposes non nuls
+                // Faire REDU aux points concernes et soustraire
+
+        TEMPS ZERO;
+        Sol_Dir = PR_ResolutionTtot M C K CL_A CHA_TOT D_Imp
+                        alpha beta gamma dt Ttot U0 V0;
+        TEMPS;
+
+        opti donn 5 ;
+
+                    // Evo_0 = D_Imp.1 .TabEvo.W ;
+                    // DESS Evo_0 ;
+                    FamiF = TABLE ;
+                    FamiF.Cal = TABLE;
+                    FamiF.Imp = TABLE;
+                    FamiF.Ini = TABLE;
+                    AffMods = LECT ;
+                    AffSolu = LECT ;
+                    P3 = (PB.geo) POIN PROC ((0.5/2) 0. 0.);
+                    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 'U';
+
+        opti donn 5 ;
     // Obtention des modes POD avec Matlab
-    Lis_ValS Tab_Mod = PR_SVD_Matlab ;
+         NbModPOD = 4 ;
+         Lis_ValS Tab_Mod = PR_SVD_Matlab NbModPOD;
 
-    // Sui_Mod = PR_Tab_2_Suite Tab_Mod ;
+
+         opti sauv FILEPOD ;
+         SAUV Tab_Mod ;
+
+        //  opti rest FILEPOD ; // Pour eviter de generer et effacer les fichiers necessaires au calcul de la SVD
+        //  rest ;
+         opti donn 5 ;
 
     // Probleme projete
 
-        Si ((VALE 'DIME') > 2) ;
-          P_POD = 0. 0. 0. ;
-        SiNon ;
-          P_POD = 0. 0. ;
-        FinSi ;
-        MAI_POD = MANU POI1 P_POD  ;
+        // // Maillage necessaire pour creer les matrices du probleme projete
+        P_POD MAI_POD = PR_Mai_1Pt ;
 
-        Tab_Mod = PR_POD_Orthogonalisation Tab_Mod;
-        K_red = PR_Projeter Tab_Mod (Pb.K_i) ;
+        // Tab_Mod D_Imp_re = PR_POD_Orthogonalisation Tab_Mod D_Imp;
+        Tab_Mod = PR_POD_Orthogonalisation Tab_Mod D_Imp;
 
-        M_red = PR_Projeter Tab_Mod (Pb.M_i);
-        C_red = PR_Projeter Tab_Mod C;
-        U0_red = PR_Projeter Tab_Mod (Pb.U0_i) ;
-        V0_red = PR_Projeter Tab_Mod (Pb.V0_i) ;
-        CHA_red = PR_Projeter Tab_Mod (Pb.CHA_TOTi);
+        K_red   = PR_Projeter Tab_Mod K ;
+        M_red   = PR_Projeter Tab_Mod M ;
+        C_red   = PR_Projeter Tab_Mod C ;
+        U0_red  = PR_Projeter Tab_Mod U0 ;
+        V0_red  = PR_Projeter Tab_Mod V0 ;
+        CHA_red = PR_Projeter Tab_Mod CHA_TOT ;
 
-        CL_red = K_red * 0. ;
+        CL_red = K_red * 0. ; // !!!! hypothese des mode CA0
+                                 // CL_red vide
 
-        C_POD = VRAI ;
-        Sol_POD = PR_ResolutionTtot M_red C_red K_red CL_red CHA_red
+        Sol_POD = PR_ResolutionTtot M_red C_red K_red CL_red CHA_red D_Imp_re
                         alpha beta gamma dt Ttot U0_red V0_red;
 
-        opti donne 5 ;
-        NbModCal = 4;
-        ErrDep ErrEner = PR_CalculErreurAffichGlobal 'POD' DirPriv VRAI;
-        opti donne 5 ;
+        opti donn 5 ;
 
-        // Inutile d'imposer les CL si tous les modes sont CA
-        //      SoluComplete CA0 donne modes CA0
-        //      mais avec dep imposes non nuls, il faudra rendre les
-        //      modes CA0 et ajouter des modes de deplacements imposes
-        // Var_1 = EXTR (Pb.CL_TOT_i) 'DIAG' ;
-        // Var_2 = ENLE Var_1 LX ;
-        // Var_3 = MASQ Var_2 'EGAL' 0. ;
+        //
+        // // opti sauv FILEPOD ;
+        // // SAUV Sol_POD Tab_Mod ;
+        //
+        // opti donne 5 ;
+        // NbModCal = 4;
+        // ErrDep ErrEner = PR_CalculErreurAffichGlobal 'POD' DirPriv VRAI;
+        // opti donne 5 ;
+        //
+        //
+        // // Inutile d'imposer les CL si tous les modes sont CA
+        // //      SoluComplete CA0 donne modes CA0
+        // //      mais avec dep imposes non nuls, il faudra rendre les
+        // //      modes CA0 et ajouter des modes de deplacements imposes
+        // // Var_1 = EXTR (Pb.CL_TOT_i) 'DIAG' ;
+        // // Var_2 = ENLE Var_1 LX ;
+        // // Var_3 = MASQ Var_2 'EGAL' 0. ;
+        //
+        // //CL_TOT = Pb.CL_TOT_i;
+        // // P_intere = Pb.P_intere;
+        // // DirPriv = Pb.DirPriv;
+        // // Nb_NL = DIME (Pb.Tab_NL) ;
 
-        //CL_TOT = Pb.CL_TOT_i;
-        // P_intere = Pb.P_intere;
-        // DirPriv = Pb.DirPriv;
-        // Nb_NL = DIME (Pb.Tab_NL) ;
 
+    //-----------------Resolution PGD-----------------\\
 
-    TEMPS ZERO;
-    FamiF = TABLE;
-    FamiG = TABLE;
-    *Creation des modes dep imposes non nuls et dep initiaux
+    // Tables des modes
+        FamiF = TABLE;
+        FamiG = TABLE;
+        FamiF.Cal = TABLE;
+        FamiG.Cal = TABLE;
 
-    FamiF.Cal = TABLE;
-    FamiG.Cal = TABLE;
-
+    // Creation des modes dep imposes et dep initiaux non nuls
         FamiF.Imp = TABLE;
         FamiG.Imp = TABLE;
         FamiF.Ini = TABLE;
         FamiG.Ini = TABLE;
 
+    // Affichage
         AffMods = LECT ;
         AffSolu = LECT ;
+        PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
 
-        // PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
-
-    NbModCal = 4;
-    OPT0 = TABLE;
-    OPT0.Orth = VRAI;
-    OPT0.Upda = VRAI;
-
-    PGDPt_Fx = FAUX;
-    Up_Pt_Fx = VRAI;
-
-    Pb.lambda = 0.5;
-
-
-        Fam_FPre = Tab_Mod ;
-
-        PR_ResolutionPGD NbModCal ; // Fam_FPre ;
-
-        opti donn 5 ;
-
-    PR_ResolutionPGD NbModCal;
-
-    TEMPS;
-
-    *OPTI TRAC PSC;
-
-        AffMods = LECT 1 2 3 4;
-        AffSolu = LECT 1 2 3 4;
-
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
-
-    PR_AffichageModesEspace AffMods (FamiF.Cal);
-
-    ErrDep ErrEner = PR_CalculErreurAffichGlobal 'PGD' DirPriv VRAI;
-
-    opti donn 5 ;
-
-    Fam_FPre = FamiF.Cal ;
-    Fam_GPre = FamiG.Cal ;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-
+    // Option de la resolution PGD
         NbModCal = 4;
-        PR_ResolutionPGD NbModCal Fam_FPre Fam_GPre ;
+        OPT0 = TABLE;
+        OPT0.Orth = VRAI;
+        OPT0.Upda = VRAI;
 
+        //Option du Pt Fx
+            PGDPt_Fx = FAUX;
+            Up_Pt_Fx = VRAI;
+            Pb.lambda = 0.5;
+
+    // Resolution
+        TEMPS ZERO;
+        PR_ResolutionPGD NbModCal ;
         TEMPS;
+        // Fam_FPre = Tab_Mod ;
+        // PR_ResolutionPGD NbModCal Fam_FPre ;
+        // PR_ResolutionPGD NbModCal Fam_FPre Fam_GPre ;
 
+opti donn 5 ;
+
+    // Post Traitement
         *OPTI TRAC PSC;
 
             AffMods = LECT 1 2 3 4;
             AffSolu = LECT 1 2 3 4;
-
         PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv (Pb.lambda);
+        PR_AffichageModesEspace AffMods (FamiF.Cal);
+        ErrDep ErrEner = PR_CalculErreurAffichGlobal 'PGD' DirPriv VRAI;
 
-        ErrDep ErrEner = PR_CalculErreurAffichGlobal DirPriv VRAI;
-
-
-
-
-    list (EXTR ZZZ 4) ;
-
-    CHA_TOT0 = CHA_TOT;
-
-
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
-    * !!!! Utiliser
-    // PR_Eval_Force_NL NL_Tab*TABLE lambda*FLOTTANT Val_Scal*LOGIQUE
-    //                         Val_U/FLOTTANT Val_V/FLOTTANT CHP_U/CHPOINT CHP_V/CHPOINT ;
-    CHA_NL = PR_EvalNonLin 0.3;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = Evo_NL;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-
-            FamiF.Cal = TABLE;
-            FamiG.Cal = TABLE;
-            NbModCal = 1;
-            AffMods = LECT 1 ;
-            AffSolu = LECT 1 ;
-        PR_ResolutionPGD NbModCal;
-
-
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
-    CHA_NL = PR_EvalNonLin 0.3;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
-    CHA_NL = PR_EvalNonLin 0.3;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
-    CHA_NL = PR_EvalNonLin 0.3;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
-    CHA_NL = PR_EvalNonLin 0.3;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
-    CHA_NL = PR_EvalNonLin 0.3;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.3;
-    CHA_NL = PR_EvalNonLin 0.3;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
-    CHA_NL = PR_EvalNonLin 0.4;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
-    CHA_NL = PR_EvalNonLin 0.4;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
-    CHA_NL = PR_EvalNonLin 0.4;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
-    CHA_NL = PR_EvalNonLin 0.4;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
-    CHA_NL = PR_EvalNonLin 0.4;
-    CHA_TOT = CHA_TOT0 et CHA_NL ;
-    Evo_NL  = EXTR CHA_NL 'EVOL' ;
-    EvoNLTot = EvoNLTot + Evo_NL;
-        FamiF.Cal = TABLE;
-        FamiG.Cal = TABLE;
-        NbModCal = 1;
-    PR_ResolutionPGD NbModCal;
-    Solu1 = PR_ResolutionTtot M C K CL_A CHA_TOT
-                    alpha beta gamma dt Ttot U0 V0;
-    PR_AffichageDepNoeud AffMods AffSolu P_intere DirPriv 0.4;
-
-    *FamiF.Imp.1 = FamiF.Cal.1 ;
-    *FamiG.Imp.1 = FamiG.Cal.1 ;
-
-    opti donn 5;
-
-
-    * Attention multiplier par 2 ampli pour corespondance avec matlab.
-
-    *opti donn 5 ;
-
-    *Pas_inte = 250;
-
-        *trac Solu1.u.Pas_inte Pb.geo;
-
-        *rec_sol = PR_PGD_to_Full 3;
-        *trac rec_sol.u.Pas_inte Pb.geo;
-        *BLA = EXCO DirPriv rec_sol.u.Pas_inte;
-        *Def1 = DEFO Pb.geo rec_sol.u.Pas_inte;
-        *Ampli = (MAXI BLA) - (MINI BLA);
-        *    list Ampli;
-        *trac (ABS BLA) Def1;
-
-
-
-    *AffMods = LECT 1 ;
-    *PR_AffichageModesEspace AffMods;
-
-    *New_G= PR_Update;
-
-
-
-    *
-    opti sort bla;
-    sort EXCE Sol_dir SEPA ESPA;
+opti donn 5 ;

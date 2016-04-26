@@ -24,7 +24,7 @@ FinSi ;
             rec_sol = PR_PGD_to_Full &It_m;
         FinSi ;
 
-        Err = PR_Difference_Solu Solu1.u rec_sol.u;
+        Err = PR_Difference_Solu Sol_Dir.u rec_sol.u;
         ErrMax = PROG;
         Out_Err = PR_CalculErreurDiff (&It_m ega 1);
 

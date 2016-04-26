@@ -33,18 +33,19 @@ RESPRO V_t;
 RESPRO U_t;
 FINPROC;
 $$$$ AAAZ
-DEBPROC AAAZ M C K CL_A CHA alpha beta gamma dt Ttot U0 V0;
+DEBPROC AAAZ M C K CL_A_0 CHA D_Imp alpha beta gamma dt Ttot U0 V0;
 U_t  = U0;
 V_t  = V0;
-A_t  = U0 * 0;
+W_t  = U0 * 0;
 U_sol = TABLE;
 V_sol = TABLE;
-A_sol = TABLE;
+W_sol = TABLE;
 U_sol.1 = U0;
 V_sol.1 = V0;
 NbCharg = DIMENSION CHA ;
+NbDImp  = DIMENSION D_Imp ;
 REPETER It_T En_Nb_Re;
-Si (NbCharg > 0);
+Si (NbCharg > 0) ;
 REPETER It2 NbCharg ;
 CHA_i = EXTR CHA CHAR &It2 ;
 CHP_i = EXTR CHA_i CHAM ;
@@ -64,17 +65,53 @@ FIN It2 ;
 SiNon ;
 FOR_Imp = U0 * 0;
 FinSi ;
-A_t V_t U_t= _RESO_T M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t A_t;
+Si (NbDImp > 0) ;
+REPETER It2 NbDImp ;
+CHP_i    = D_Imp.&It2 .Dep ;
+CL_i     = D_Imp.&It2 .CL ;
+Evo_W_i  = D_Imp.&It2 .TabEvo.W ;
+lis_dep = EXTR Evo_W_i ORDO;
+Val_dep = EXTR lis_dep &It_T;
+Si ((&It2 ega 1) et (NbCharg EGA 0)) ;
+FOR_Imp = CHP_i * Val_dep ;
+SiNon ;
+FOR_Imp = FOR_Imp + (CHP_i * Val_dep) ;
+FinSi ;
+Si (&It2 ega 1) ;
+CL_A = CL_A_0 et (CL_i);
+SiNon ;
+CL_A = CL_A   et (CL_i);
+FinSi ;
+FIN It2 ;
+SiNon ;
+FinSi ;
+W_t V_t U_t= _RESO_T M C K CL_A FOR_Imp alpha beta gamma dt U_t V_t W_t;
+Si (NbDImp > 0) ;   
+REPETER It_0 NbDImp ;
+CL_i     = D_Imp.&It_0 .CL ;
+Evo_U_i  = D_Imp.&It_0 .TabEvo.U ;
+Evo_V_i  = D_Imp.&It_0 .TabEvo.V ; 
+CHP_01 = MASQUE (ENLE (EXTR CL_i 'DIAG') 'LX' ) 'EGALE' 0. ;
+Pro_U = AATZ CHP_01 U_t ;
+Pro_V = AATZ CHP_01 V_t ;
+lis_depU = EXTR Evo_U_i ORDO;
+Val_depU = EXTR lis_depU &It_T;
+lis_depV = EXTR Evo_V_i ORDO;
+Val_depV = EXTR lis_depV &It_T;
+U_t = (U_t - (Pro_U * CHP_01)) + (Val_depU * CHP_01) ;
+V_t = (V_t - (Pro_V * CHP_01)) + (Val_depU * CHP_01) ;
+Fin It_0 ;
+FinSi ;
 Si (&It_T > 1);
 U_sol.&It_T = U_t;
 V_sol.&It_T = V_t;
 FinSi ;
-A_sol.&It_T = A_t;
+W_sol.&It_T = W_t;
 FIN It_T;
 Solution = TABLE;
 Solution.U = U_sol;
 Solution.V = V_sol;
-Solution.W = A_sol;
+Solution.W = W_sol;
 RESPRO Solution ;
 FINPROC;
 $$$$ AANZ
@@ -126,7 +163,7 @@ MATTOT = MAT1B et MAT2B ;
 *-------MATRICES DE RIGIDITE ET DE MASSE----------*
 Pb.K_i = RIGI MODTOT MATTOT ;
 Pb.M_i = MASS MODTOT MATTOT ;
-*--------------CONDITIONS LIMITES-----------------*
+*--------------CONDITIONS LIMITES-----------------* 
 CL1 = BLOQ P1 UY UX RZ UZ RX RY ;
 CL2 = BLOQ P4 UY UX RZ UZ RX RY ;
 CL0 = BLOQ P4 UY ;
@@ -160,7 +197,27 @@ CHA_Nul = CHAR FORC FOR2 EVT_SV ;
 gz = MANU CHPO L1 1 'UZ' 1. NATURE 'DIFF' TITRE 'Gravite' ;
 fg = EXCO FZ ((Pb.M_i) * gz) FZ;
 CHA_g = CHAR FORC fg (EVT_Cst * -9.81) ;
-Pb.CHA_TOTi = CHA_SV ;
+Pb.CHA_TOTi = TABLE ;
+*----------------Deplacement Imposes------------------* 
+Dep_I = TABLE;
+Dep_I.1 = TABLE;
+Dep_I.1 .CL  = BLOQ P3 UZ ;     
+Dep_I.1 .Dep = DEPI (Dep_I.1 .CL) 1.;
+Dep_I.1 .TabEvo = TABLE;
+Val_1 = 1.5e-3 ;
+LIS_SV_U = (PROG sinu (1/Pb.T_period) PHAS 270 Vec_T) ;
+LIS_SV_U = (LIS_SV_U + (PROG En_Nb_Re*1.)) * Val_1 ;
+LIS_SV_V = (PROG sinu (1/Pb.T_period) PHAS (270+90) Vec_T) ;
+LIS_SV_V = (LIS_SV_V * ((1/Pb.T_period) * ( 2*PI ))) * Val_1 ;
+LIS_SV_W = (PROG sinu (1/Pb.T_period) PHAS (270+180) Vec_T) ;
+LIS_SV_W = (LIS_SV_W * ( ((1/Pb.T_period) * ( 2*PI ))**2 )) * Val_1 ;
+EVT_SV_U = EVOL ROUG MANU T Vec_T G(T) LIS_SV_U ;
+EVT_SV_V = EVOL VERT MANU T Vec_T G(T) LIS_SV_V ;
+EVT_SV_W = EVOL BLEU MANU T Vec_T G(T) LIS_SV_W ;
+Dep_I.1 .TabEvo.U= EVT_SV_U;
+Dep_I.1 .TabEvo.V= EVT_SV_V;
+Dep_I.1 .TabEvo.W= EVT_SV_W;
+Pb.D_Imp_i = Dep_I ;
 *------------- Deplacement Initial -------------*
 FOR1 = FORCE FZ (AMP1*(-5)) P2 ;
 * Solution initiallement libre d effort
@@ -1173,8 +1230,7 @@ Bool_Pre = FAUX;
 FinSi;
 SiNon ;
 REPETER Ort -1;
-f_espa g_tmps = AAFZ M C K CL_A
-Ttot schema CHA_TOT dt &It_m;
+f_espa g_tmps = AAFZ M C K CL_A Ttot schema CHA_TOT dt &It_m;
 Si Bool_1;
 f_espa FamiG = AAQZ;
 N_f_espa = AASZ f_espa  K ;
@@ -1204,12 +1260,7 @@ $$$$ AAVZ
 DEBPROC AAVZ;
 * Maillage necessaire pour creer les objets de calculs
 *   Rigidite et Second membre
-Si ((VALE 'DIME') > 2) ;
-P_1 = 0. 0. 0. ;
-SiNon ;
-P_1 = 0. 0. ;
-FinSi ;
-MAI1 = MANU POI1 P_1  ;
+P_1 MAI1= ABYZ ;
 TaiSys = DIMENSION FamiF.Cal;
 Lis1Up = PROG ((TaiSys*3)**2)* 0. ;
 Lis1Init = PROG (TaiSys**2)* 0. ;
@@ -1452,7 +1503,7 @@ Seco_2 = MANU 'CHPO' MAI1 LISF_tot Lis_Seco;
 SecoMemb = SecoMemb + Seco_2;
 Si (Nb_NL > 0) ;
 Vec_G_T = ABPZ SecoMemb &It_T 'Upd' Up_Pt_Fx ;
-SiNon ; 
+SiNon ;
 Vec_G_T = RESO PremMemb SecoMemb;
 FinSi ;
 REPETER It_1 TaiSys;
@@ -1467,8 +1518,121 @@ FinSi ;
 Fin It_T ;
 RESPRO New_Fami;
 FINPROC;
+$$$$ ABXZ
+DEBPROC ABXZ Sol_POD*TABLE ;
+LIS_gran = MOTS 'U' 'V' 'W';
+FamPOD_T = TABLE ;
+Tai_Base = NbModPOD ;
+list Tai_Base;
+REPE It_m Tai_Base ;
+FamPOD_T.&It_m = TABLE ;
+REPE It_g 3 ;
+list &It_m ;
+list &It_g ;
+V_grand = EXTR LIS_gran &It_g ;
+FamPOD_T.&It_m .V_grand = PROG ;
+Fin It_g ;
+Fin It_m ;
+LISU = MOTS ;
+REPE BCL1M Tai_Base ;
+COU1 = CHAIN 'U' &BCL1M ;
+LISU = LISU ET (MOTS COU1) ;
+FIN BCL1M ;
+REPE It_T En_Nb_Re ;
+REPE It_g 3 ;
+V_grand = EXTR LIS_gran &It_g ;
+CHP_T = Sol_POD.V_grand.&It_T ;
+REPE It_m Tai_Base ;
+V_Comp = EXTR LISU &It_m ;
+FamPOD_T.&It_m .V_grand = (FamPOD_T.&It_m .V_grand) ET
+(PROG (EXTR CHP_T V_Comp P_POD)) ;
+Fin It_m ;
+Fin It_g ;
+Fin It_T ;
+RESPRO FamPOD_T ;
+FINPROC;
+$$$$ ABZZ
+DEBPROC ABZZ ;
+OPTI DIME 2 ;
+OPTI ELEM SEG2 ;
+*
+P1 = 0. 0. ;
+*
+LIS1U = MOTS 'T' ;
+LIS1F = MOTS 'Q' ;
+*
+N1M = 4 ;
+*
+KIJ = TABLE ;
+TAB1P = TABLE;
+*
+REPE BCL1M N1M ;
+*
+TAB1P . &BCL1M = P1 PLUS (0. 0.) ;
+SI (&BCL1M EGA 1) ;
+MAI1 = TAB1P . &BCL1M ;
+SINON ;
+MAI1 = MAI1 ET (TAB1P . &BCL1M) ;
+FINSI ;
+KIJ . &BCL1M = TABLE ;
+REPE BCL2M N1M ;
+KIJ . &BCL1M . &BCL2M = &BCL1M + (&BCL2M*N1M) ;
+FIN BCL2M ;
+*
+FIN BCL1M ;
+*
+REPE BCL1I N1M ;
+*
+P1I = TAB1P . &BCL1I ;
+*
+REPE BCL1J N1M ;
+*
+SI (&BCL1J > &BCL1I) ;
+P1J = TAB1P . &BCL1J ;
+L1IJ = DROI 1 P1I P1J ;
+LIS1R = PROG 0. (KIJ . &BCL1I . &BCL1J)
+(KIJ . &BCL1J . &BCL1I) 0.  ;
+RIG1IJ = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE'
+L1IJ LIS1U  'DUAL' LIS1F LIS1R ;
+SI (EGA (TYPE RIG1) 'RIGIDITE') ;
+RIG1 = RIG1IJ ET RIG1 ;
+SINON ;
+RIG1 = RIG1IJ ;
+FINSI ;
+FINSI ;
+*
+FIN BCL1J ;
+*
+FIN BCL1I ;
+*
+* On fait la diagonale à part
+*
+REPE BCL1I N1M ;
+*
+LIS1R = PROG KIJ . &BCL1I . &BCL1I ;
+P1I = MANU POI1 (TAB1P . &BCL1I) ;
+RIG1IJ = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE'
+P1I LIS1U  'DUAL' LIS1F LIS1R ;
+RIG1 = RIG1IJ ET RIG1 ;
+*
+FIN BCL1I ;
+*
+* RIG1S = SUPE  'RIGIDITE' RIG1 MAI1 ;
+*
+FINPROC;
+$$$$ ABYZ
+DEBPROC ABYZ ;
+Si ((VALE 'DIME') > 2) ;
+P_0 = 0. 0. 0. ;
+SiNon ;
+P_0 = 0. 0. ;
+FinSi ;
+MAI_0 = MANU POI1 P_0  ;
+RESPRO P_0 ;
+RESPRO MAI_0 ;
+FINPROC;
 $$$$ ABVZ
-DEBPROC ABVZ Bas_0*TABLE ;
+DEBPROC ABVZ Bas_0*TABLE D_Imp_0*TABLE;
 Bas_Orth = TABLE;
 REPETER It_0 ( DIMENSION Bas_0 ) ;
 Mod = Bas_0.&It_0 ;
@@ -1547,7 +1711,7 @@ FinSi ;
 FINPROC;
 $$$$ AAKZ
 DEBPROC AAKZ AffMods*ListEnti AffSolu*ListEnti Pt_Aff*Point
-Coord;
+Coord Gr_ndeur*MOT;
 NbMod = DIMENSION FamiF.Cal
 + (DIME FamiF.Ini)
 + (DIME FamiF.Imp);
@@ -1558,11 +1722,12 @@ opti donn 5;
 FinSi ;
 NbModCal = (NbMax - (DIME FamiF.Ini)) - (DIME FamiF.Imp);
 FamiFTot FamiGTot = AAUZ NbModCal ;
-Sol_dir = PROG;
+Lis_dir = PROG;
 REPE It_T En_Nb_Re;
-Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.&It_T Coord Pt_Aff));
+Lis_dir = Lis_dir ET
+(PROG (EXTR (Sol_Dir.Gr_ndeur.&It_T) Coord Pt_Aff));
 FIN It_T;
-Evol_dir = EVOL MANU Vec_T Sol_dir ;
+Evol_dir = EVOL MANU Vec_T Lis_dir ;
 * Sortie Fichier
 *opti sort (chain 'Direct' ) ;
 *sort exce (Evol_dir) sepa VIRG;
@@ -1571,7 +1736,7 @@ Mod_k = TABLE;
 Si (NbMax > 0);
 REPETER It2 NbMax;
 Val = EXTR FamiFTot.&It2 Coord Pt_Aff;
-Sol_PGD = Val * FamiGTot.&It2.u ;
+Sol_PGD = Val * FamiGTot.&It2.Gr_ndeur ;
 Mod_k.&It2 = Sol_PGD;
 Si (&It2 > 1);
 It_prec = &It2 - 1;
@@ -1581,11 +1746,11 @@ Sol_k.&It2 = Sol_PGD;
 FinSi ;
 FIN It2;
 SiNon;
-Dess Evol_dir;
+Dess (Evol_dir et (D_Imp.1 .TabEvo.Gr_ndeur) );
 Si (Nb_NL ega 1) ;
 Si ( Pt_Aff ega (Pb.Tab_NL.1 .Poi_int) ) ;
 Si (EGA Coord (Pb.Tab_NL.1 .Dir_int) );
-Var_NL = (Pb.Tab_NL.1 .fac_int) * Sol_dir ;
+Var_NL = (Pb.Tab_NL.1 .fac_int) * Lis_dir ;
 Eff_NL = ABCZ (Pb.Tab_NL.1) Var_NL ;
 Evo_Eff = EVOL Roug MANU Vec_T Eff_NL ;
 * Sortie Fichier
@@ -1681,9 +1846,6 @@ Bool3=Bool2;
 SiNon ;
 Bool3=(NON Bool1);
 FinSi ;
-Si (EGA Tri 'Upd') ;
-Upd = VRAI ;
-FinSi ;
 ErrDepMo = PROG;
 ErrParMo = PROG;
 EneTot = PROG;
@@ -1694,7 +1856,7 @@ FinSi ;
 Si (EGA Res 'PGD') ;
 rec_sol = AALZ &It_m;
 FinSi ;
-Err = AAMZ Solu1.u rec_sol.u;
+Err = AAMZ Sol_Dir.u rec_sol.u;
 ErrMax = PROG;
 Out_Err = AAWZ (&It_m ega 1);
 Si Bool1;
@@ -1734,7 +1896,7 @@ FinSi ;
 FINPROC;
 $$$$ AAWZ
 DEBPROC AAWZ Bool4*LOGIQUE;
-* Reference : Solu1.u
+* Reference : Sol_Dir.u
 * Difference : Err
 * Bool4 : Si Vrai, calcul sur la Reference : Amplitude et energie Totale
 Out_Err = TABLE;
@@ -1747,7 +1909,7 @@ ErrTotM = MAXI ( PROG
 ErrTotM
 );
 Si Bool4;
-SoluT = EXCO Coord Solu1.u.&IT_T;
+SoluT = EXCO Coord Sol_Dir.u.&IT_T;
 Si (&IT_T ega 1) ;
 Max_Dep = MAXI SoluT;
 Min_Dep = MINI SoluT;
@@ -1761,7 +1923,7 @@ Si Bool3;
 ErrEneT = XTMX Err.&IT_T K;
 ErrEne = ErrEne et ErrEneT;
 Si Bool4 ;
-EneTotT = XTMX Solu1.u.&IT_T K;
+EneTotT = XTMX Sol_Dir.u.&IT_T K;
 EneTot = EneTot et EneTotT;
 FinSi ;
 FinSi ;
@@ -1792,7 +1954,7 @@ FinSi ;
 EneTot = PROG;
 Si (EXISTE Mode) ;
 rec_sol = AALZ Mode;
-Err = AAMZ Solu1.u rec_sol.u;
+Err = AAMZ Sol_Dir.u rec_sol.u;
 SiNon ;
 Err = AAMZ Ref_Cal.u Sol_Cal.u;
 FinSi ;
@@ -1897,16 +2059,16 @@ FinSi ;
 RESPRO CH_Num ;
 FINPROC ;
 $$$$ ABSZ
-DEBPROC ABSZ ;
+DEBPROC ABSZ NbModPOD*ENTIER;
 Pb.Gpoin = CHAN POI1 (Pb.geo) ; 
 Nb_Noeu = NBNO (Pb.geo) ;
-L_Comp = EXTR (ENLE (Solu1.U.1) 'LX' ) 'COMP' ; 
+L_Comp = EXTR (ENLE (Sol_Dir.U.1) 'LX' ) 'COMP' ; 
 Nb_Comp = DIME L_Comp ;
 L_Out = PROG;
 REPETER It_T En_Nb_Re ;
 REPETER It_Comp Nb_Comp ;
 Comp_it = (EXTR L_Comp &It_Comp) ;
-CP_U = EXCO Comp_it (Solu1.U.&It_T) Comp_it ; 
+CP_U = EXCO Comp_it (Sol_Dir.U.&It_T) Comp_it ; 
 L_Out = L_Out ET (EXTR CP_U 'VALE' (Pb.Gpoin)) ;
 Fin It_Comp ;
 Fin It_T ;
@@ -1931,7 +2093,7 @@ ACQUERIR   Lis_01*LISTREEL Nb_Noeu ;
 Del_File = CHAINE 'rm ' NomFile ;
 EXTE ( Del_File ) ;
 Si (&It_Comp ega 1) ;
-Mod_comp = MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01 ;;
+Mod_comp = MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01 ;
 SiNon ;
 Mod_comp = Mod_comp + (MANU 'CHPO' (Pb.Gpoin) Comp_it Lis_01) ;
 FinSi ;

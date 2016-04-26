@@ -1,7 +1,33 @@
 ABVZ
 PR_POD_Orthogonalisation
-DEBPROC PR_POD_Orthogonalisation Bas_0*TABLE ;
+DEBPROC PR_POD_Orthogonalisation Bas_0*TABLE D_Imp_0*TABLE;
 
+    // Dim_B_0 = ( DIMENSION Bas_0 ) ;
+    // Dim_D_0 = ( DIMENSION D_Imp_0 ) ;
+    //
+    // Si ( Dim_D_0 > 0 ) ;
+    //     Bas_1 = TABLE ;
+    //     D_Imp_re = D_Imp_0 ;
+    //
+    //     REPETER It_0 Dim_D_0 ;
+    //         CHP_01 = MASQUE (ENLE (EXTR (D_Imp.1 .CL) 'DIAG') 'LX' ) 'EGALE' 0. ;
+    //         Bas_1.&It_0 = CHP_01 ;
+    //
+    //         Com_1 = CHAIN 'U' &It_0 ;
+    //         D_Imp_re.&It_0 .CL  = BLOQ P_POD T ;
+    //         list (EXTR ZZZ 4) ;
+    //         D_Imp_re.&It_0 .Dep = DEPI (D_Imp_re.It_0 .CL) 1.;
+    //     Fin It_0 ;
+    //
+    //     REPETER It_0 Dim_B_0 ;
+    //         It_1 = &It_0 + Dim_D_0 ;
+    //         Bas_1.It_1 = Bas_0.&It_0 ;
+    //     Fin It_0 ;
+    // SiNon ;
+    //     D_Imp_re = D_Imp_0;
+    //     Bas_1 = Bas_0 ;
+    // FinSi ;
+    // RESPRO D_Imp_re
 
     Bas_Orth = TABLE;
 

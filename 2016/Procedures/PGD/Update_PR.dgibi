@@ -5,12 +5,7 @@ DEBPROC PR_Update;
 
 * Maillage necessaire pour creer les objets de calculs
 *   Rigidite et Second membre
-Si ((VALE 'DIME') > 2) ;
-  P_1 = 0. 0. 0. ;
-SiNon ;
-  P_1 = 0. 0. ;
-FinSi ;
-MAI1 = MANU POI1 P_1  ;
+P_1 MAI1= PR_Mai_1Pt ;
 
 TaiSys = DIMENSION FamiF.Cal;
 Lis1Up = PROG ((TaiSys*3)**2)* 0. ;
@@ -320,7 +315,7 @@ REPETER It_T En_Nb_Re;
 
         Si (Nb_NL > 0) ;
             Vec_G_T = PR_Pt_Fx_NL SecoMemb &It_T 'Upd' Up_Pt_Fx ;
-        SiNon ; 
+        SiNon ;
             Vec_G_T = RESO PremMemb SecoMemb;
         FinSi ;
 

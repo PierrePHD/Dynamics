@@ -1,7 +1,7 @@
 AAKZ
 PR_AffichageDepNoeud
 DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti Pt_Aff*Point
-Coord;
+Coord Gr_ndeur*MOT;
 
     NbMod = DIMENSION FamiF.Cal
             + (DIME FamiF.Ini)
@@ -17,12 +17,13 @@ Coord;
     NbModCal = (NbMax - (DIME FamiF.Ini)) - (DIME FamiF.Imp);
     FamiFTot FamiGTot = PR_ConcatenerFami NbModCal ;
 
-    Sol_dir = PROG;
+    Lis_dir = PROG;
     REPE It_T En_Nb_Re;
-      Sol_dir = Sol_dir ET (PROG (EXTR Solu1.U.&It_T Coord Pt_Aff));
+      Lis_dir = Lis_dir ET
+                (PROG (EXTR (Sol_Dir.Gr_ndeur.&It_T) Coord Pt_Aff));
     FIN It_T;
 
-    Evol_dir = EVOL MANU Vec_T Sol_dir ;
+    Evol_dir = EVOL MANU Vec_T Lis_dir ;
 
     * Sortie Fichier
         *opti sort (chain 'Direct' ) ;
@@ -35,7 +36,7 @@ Coord;
         REPETER It2 NbMax;
             Val = EXTR FamiFTot.&It2 Coord Pt_Aff;
 
-            Sol_PGD = Val * FamiGTot.&It2.u ;
+            Sol_PGD = Val * FamiGTot.&It2.Gr_ndeur ;
 
             Mod_k.&It2 = Sol_PGD;
 
@@ -47,11 +48,14 @@ Coord;
             FinSi ;
         FIN It2;
     SiNon;
-        Dess Evol_dir;
+        Dess (Evol_dir);
+        // Dess (Evol_dir et (D_Imp.1 .TabEvo.Gr_ndeur) );
+        // Dess (Evol_dir - (D_Imp.1 .TabEvo.Gr_ndeur) );
+
         Si (Nb_NL ega 1) ;
             Si ( Pt_Aff ega (Pb.Tab_NL.1 .Poi_int) ) ;
                 Si (EGA Coord (Pb.Tab_NL.1 .Dir_int) );
-                    Var_NL = (Pb.Tab_NL.1 .fac_int) * Sol_dir ;
+                    Var_NL = (Pb.Tab_NL.1 .fac_int) * Lis_dir ;
                     Eff_NL = PR_Eval_Evo_NL (Pb.Tab_NL.1) Var_NL ;
                     Evo_Eff = EVOL Roug MANU Vec_T Eff_NL ;
                     * Sortie Fichier

@@ -2,7 +2,7 @@ AAWZ
 PR_CalculErreurDiff
 DEBPROC PR_CalculErreurDiff Bool4*LOGIQUE;
 
-* Reference : Solu1.u
+* Reference : Sol_Dir.u
 * Difference : Err
 
 * Bool4 : Si Vrai, calcul sur la Reference : Amplitude et energie Totale
@@ -17,7 +17,7 @@ REPE IT_T En_Nb_Re;
                             ErrTotM
                         );
         Si Bool4;
-            SoluT = EXCO Coord Solu1.u.&IT_T;
+            SoluT = EXCO Coord Sol_Dir.u.&IT_T;
             Si (&IT_T ega 1) ;
                 Max_Dep = MAXI SoluT;
                 Min_Dep = MINI SoluT;
@@ -31,7 +31,7 @@ REPE IT_T En_Nb_Re;
         ErrEneT = XTMX Err.&IT_T K;
         ErrEne = ErrEne et ErrEneT;
         Si Bool4 ;
-            EneTotT = XTMX Solu1.u.&IT_T K;
+            EneTotT = XTMX Sol_Dir.u.&IT_T K;
             EneTot = EneTot et EneTotT;
         FinSi ;
     FinSi ;

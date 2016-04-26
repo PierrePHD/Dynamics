@@ -1,20 +1,14 @@
 ABSZ
 PR_SVD_Matlab
-DEBPROC PR_SVD_Matlab ;
+DEBPROC PR_SVD_Matlab NbModPOD*ENTIER;
 
-    // Nouvelle procedure 2016
-    // Lis_CHP = SUITE;
-    //
-    // REPETER It_T En_Nb_Re ;
-    //     Lis_CHP = Lis_CHP et (Solu1.U.&It_T) ;
-    // Fin It_T ;
-    //
-    // L_POD L_ValS = POD Lis_CHP 'CLASSIQUE' NbModPOD ;
+    // Une nouvelle procedure POD sera disponible 2016
 
-    Pb.Gpoin = CHAN POI1 (Pb.geo) ; // Changement pour EXTRaire une liste
+
+    Pb.Gpoin = CHAN POI1 (Pb.geo) ; // Changement pour Extraire une liste
     Nb_Noeu = NBNO (Pb.geo) ;
 
-    L_Comp = EXTR (ENLE (Solu1.U.1) 'LX' ) 'COMP' ; // L_f ; // MOTS UX UY UZ RX RY RZ;
+    L_Comp = EXTR (ENLE (Sol_Dir.U.1) 'LX' ) 'COMP' ; // L_f ; // MOTS UX UY UZ RX RY RZ;
     Nb_Comp = DIME L_Comp ;
     L_Out = PROG;
 
@@ -22,7 +16,7 @@ DEBPROC PR_SVD_Matlab ;
         REPETER It_T En_Nb_Re ;
             REPETER It_Comp Nb_Comp ;
                 Comp_it = (EXTR L_Comp &It_Comp) ;
-                CP_U = EXCO Comp_it (Solu1.U.&It_T) Comp_it ; // Pour n'avoir qu'une seule composante (sinon EXTR ne fonctionne pas)
+                CP_U = EXCO Comp_it (Sol_Dir.U.&It_T) Comp_it ; // Pour n'avoir qu'une seule composante (sinon EXTR ne fonctionne pas)
                 L_Out = L_Out ET (EXTR CP_U 'VALE' (Pb.Gpoin)) ;
             Fin It_Comp ;
         Fin It_T ;

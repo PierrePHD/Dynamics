@@ -1,0 +1,44 @@
+ABXZ
+PR_GenerationModeTemps_POD
+DEBPROC PR_GenerationModeTemps_POD Sol_POD*TABLE ;
+
+
+    LIS_gran = MOTS 'U' 'V' 'W';
+    FamPOD_T = TABLE ;
+
+    Tai_Base = NbModPOD ;
+
+    list Tai_Base;
+
+    REPE It_m Tai_Base ;
+        FamPOD_T.&It_m = TABLE ;
+        REPE It_g 3 ;
+            list &It_m ;
+            list &It_g ;
+            V_grand = EXTR LIS_gran &It_g ;
+            FamPOD_T.&It_m .V_grand = PROG ;
+        Fin It_g ;
+    Fin It_m ;
+
+    LISU = MOTS ;
+    REPE BCL1M Tai_Base ;
+        COU1 = CHAIN 'U' &BCL1M ;
+        LISU = LISU ET (MOTS COU1) ;
+    FIN BCL1M ;
+
+    REPE It_T En_Nb_Re ;
+        REPE It_g 3 ;
+            V_grand = EXTR LIS_gran &It_g ;
+            CHP_T = Sol_POD.V_grand.&It_T ;
+            REPE It_m Tai_Base ;
+                V_Comp = EXTR LISU &It_m ;
+                FamPOD_T.&It_m .V_grand = (FamPOD_T.&It_m .V_grand) ET
+                                        (PROG (EXTR CHP_T V_Comp P_POD)) ;
+            Fin It_m ;
+        Fin It_g ;
+    Fin It_T ;
+
+
+    RESPRO FamPOD_T ;
+
+FINPROC;

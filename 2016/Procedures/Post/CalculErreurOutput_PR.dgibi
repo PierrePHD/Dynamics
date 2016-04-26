@@ -14,7 +14,7 @@ FinSi ;
 
     Si (EXISTE Mode) ;
         rec_sol = PR_PGD_to_Full Mode;
-        Err = PR_Difference_Solu Solu1.u rec_sol.u;
+        Err = PR_Difference_Solu Sol_Dir.u rec_sol.u;
     SiNon ;
         Err = PR_Difference_Solu Ref_Cal.u Sol_Cal.u;
     FinSi ;

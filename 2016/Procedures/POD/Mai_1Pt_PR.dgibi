@@ -1,0 +1,15 @@
+ABYZ
+PR_Mai_1Pt
+DEBPROC PR_Mai_1Pt ;
+
+    Si ((VALE 'DIME') > 2) ;
+      P_0 = 0. 0. 0. ;
+    SiNon ;
+      P_0 = 0. 0. ;
+    FinSi ;
+    MAI_0 = MANU POI1 P_0  ;
+
+    RESPRO P_0 ;
+    RESPRO MAI_0 ;
+
+FINPROC;
