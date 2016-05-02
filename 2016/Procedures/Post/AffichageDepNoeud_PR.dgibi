@@ -1,21 +1,37 @@
 AAKZ
 PR_AffichageDepNoeud
-DEBPROC PR_AffichageDepNoeud AffMods*ListEnti AffSolu*ListEnti Pt_Aff*Point
+DEBPROC PR_AffichageDepNoeud Res*MOT AffMods/ListEnti AffSolu/ListEnti Pt_Aff*Point
 Coord Gr_ndeur*MOT;
 
-    NbMod = DIMENSION FamiF.Cal
-            + (DIME FamiF.Ini)
-            + (DIME FamiF.Imp);
+    NbMod = 0 ;
 
-    NbMax = MAXI (AffMods et AffSolu);
-
-    Si (NbMax > NbMod);
-        Mess 'Il n y a que ' NbMod ' modes' ;
-        opti donn 5;
+    Si (EGA Res 'PGD') ;
+        NbMod = DIMENSION FamiF.Cal
+                + (DIME FamiF.Ini)
+                + (DIME FamiF.Imp);
+    FinSi ;
+    Si (EGA Res 'POD') ;
+        NbMod = DIME Tab_Mod;
     FinSi ;
 
-    NbModCal = (NbMax - (DIME FamiF.Ini)) - (DIME FamiF.Imp);
-    FamiFTot FamiGTot = PR_ConcatenerFami NbModCal ;
+    Si (OU (EGA Res 'POD') (EGA Res 'PGD')) ;
+        NbMax = MAXI (AffMods et AffSolu) ;
+            Si (NbMax > NbMod);
+                Mess 'Il n y a que ' NbMod ' modes' ;
+                opti donn 5;
+            FinSi ;
+    SiNon ;
+        NbMax = 0 ;
+    FinSi ;
+
+
+    Si (EGA Res 'PGD') ;
+        NbModCal = (NbMax - (DIME FamiF.Ini)) - (DIME FamiF.Imp);
+        FamiFTot FamiGTot = PR_ConcatenerFami NbModCal ;
+    FinSi ;
+    Si (EGA Res 'POD') ;
+        FamPOD_T = PR_GenerationModeTemps_POD Sol_POD ;
+    FinSi ;
 
     Lis_dir = PROG;
     REPE It_T En_Nb_Re;
@@ -25,29 +41,37 @@ Coord Gr_ndeur*MOT;
 
     Evol_dir = EVOL MANU Vec_T Lis_dir ;
 
-    * Sortie Fichier
-        *opti sort (chain 'Direct' ) ;
-        *sort exce (Evol_dir) sepa VIRG;
+    // Sortie Fichier
+        // opti sort (chain 'Direct' ) ;
+        // sort exce (Evol_dir) sepa VIRG;
 
-    Sol_k = TABLE;
-    Mod_k = TABLE;
 
     Si (NbMax > 0);
+    // Caclul des modes
+        Sol_k = TABLE;
+        Mod_k = TABLE;
         REPETER It2 NbMax;
-            Val = EXTR FamiFTot.&It2 Coord Pt_Aff;
 
-            Sol_PGD = Val * FamiGTot.&It2.Gr_ndeur ;
+            Si (EGA Res 'PGD') ;
+                Val = EXTR FamiFTot.&It2 Coord Pt_Aff;
+                Sol_red = Val * FamiGTot.&It2.Gr_ndeur ;
+            FinSi ;
+            Si (EGA Res 'POD') ;
+                Val = EXTR Tab_Mod.&It2 Coord Pt_Aff;
+                Sol_red = Val * FamPOD_T.&It2.Gr_ndeur ;
+            FinSi ;
 
-            Mod_k.&It2 = Sol_PGD;
+            Mod_k.&It2 = Sol_red;
 
             Si (&It2 > 1);
                 It_prec = &It2 - 1;
                 Sol_k.&It2 = Sol_k.It_prec + Mod_k.&It2 ;
             SiNon ;
-                Sol_k.&It2 = Sol_PGD;
+                Sol_k.&It2 = Sol_red;
             FinSi ;
         FIN It2;
-    SiNon;
+    SiNon;  //Si (NbMax > 0);
+    // Affichage de la solution directe
         Dess (Evol_dir);
         // Dess (Evol_dir et (D_Imp.1 .TabEvo.Gr_ndeur) );
         // Dess (Evol_dir - (D_Imp.1 .TabEvo.Gr_ndeur) );
@@ -58,64 +82,67 @@ Coord Gr_ndeur*MOT;
                     Var_NL = (Pb.Tab_NL.1 .fac_int) * Lis_dir ;
                     Eff_NL = PR_Eval_Evo_NL (Pb.Tab_NL.1) Var_NL ;
                     Evo_Eff = EVOL Roug MANU Vec_T Eff_NL ;
-                    * Sortie Fichier
-                        *opti sort (chain 'EffortNonLinDir' ) ;
-                        *sort exce (Evo_Eff) sepa VIRG;
+                    // Sortie Fichier
+                        // opti sort (chain 'EffortNonLinDir' ) ;
+                        // sort exce (Evo_Eff) sepa VIRG;
                     DESS Evo_Eff ;
                 FinSi ;
             FinSi ;
         FinSi ;
-    FinSi;
+    FinSi;  // Si (NbMax > 0);
 
     Evo_k = TABLE;
     LMot = MOTS 'ROUG' 'BLEU' 'VERT' 'JAUN' 'VIOL' 'TURQ';
 
-    * Affichage des Solutions
+//-----------------Affichage des Solutions-----------------\\
 
-    Si ( (DIMENSION AffSolu) > 0);
-        REPETER It (MINI ((DIMENSION AffSolu) et 6));
+    Si (NbMax > 0);
+        Si ( (DIMENSION AffSolu) > 0);
+            REPETER It (MINI ((DIMENSION AffSolu) et 6));
+                col = EXTR LMot &It;
+                num = (EXTR AffSolu &It);
+                Evo_k.&It = EVOL col MANU Vec_T Sol_k.num;
+                Si (&It ega 1) ;
+                    Tot = Evol_dir et Evo_k.&It;
+                SiNon ;
+                    Tot = Tot et Evo_k.&It;
+                FinSi ;
+                // Sortie Fichier
+                    // opti sort (chain 'SoluPGD' &It ) ;
+                    // sort exce (Evo_k.&It) sepa VIRG;
+            Fin It;
 
-            col = EXTR LMot &It;
-            num = (EXTR AffSolu &It);
+            DESS Tot ;
 
-            Evo_k.&It = EVOL col MANU Vec_T Sol_k.num;
-            Si (&It ega 1) ;
-                Tot = Evol_dir et Evo_k.&It;
-            SiNon ;
-                Tot = Tot et Evo_k.&It;
-            FinSi ;
-
-            * Sortie Fichier
-                *opti sort (chain 'SoluPGD' &It ) ;
-                *sort exce (Evo_k.&It) sepa VIRG;
-        Fin It;
-
-        DESS Tot ;
-
+        FinSi ;
     FinSi ;
 
 
-    * Affichage des modes
+//-----------------Affichage des modes-----------------\\
 
-    Si ( (DIMENSION AffMods) > 0);
-        REPETER It (MINI ((DIMENSION AffMods) et 6));
-            col = EXTR LMot &It;
-            num = EXTR AffMods &It;
-            Evo_k.&It = EVOL col MANU Vec_T Mod_k.num ;
-            Si (&It ega 1) ;
-                Tot = Evol_dir et Evo_k.&It;
-            SiNon ;
-                Tot = Tot et Evo_k.&It;
-            FinSi ;
-            * Sortie Fichier
-                *opti sort (chain 'ModePGD' &It ) ;
-                *sort exce (Evo_k.&It) sepa VIRG;
-        Fin It;
+    Si (NbMax > 0);
+        Si ( (DIMENSION AffMods) > 0);
+            REPETER It (MINI ((DIMENSION AffMods) et 6));
+                col = EXTR LMot &It;
+                num = EXTR AffMods &It;
+                Evo_k.&It = EVOL col MANU Vec_T Mod_k.num ;
+                Si (&It ega 1) ;
+                    Tot = Evol_dir et Evo_k.&It;
+                SiNon ;
+                    Tot = Tot et Evo_k.&It;
+                FinSi ;
+                // Sortie Fichier
+                    // opti sort (chain 'ModePGD' &It ) ;
+                    // sort exce (Evo_k.&It) sepa VIRG;
+            Fin It;
 
-        DESS Tot ;
-        *XBOR 0. 1e-2 YBOR -4e-3 1e-3;
-    FinSi ;
+            DESS Tot ;
+            *XBOR 0. 1e-2 YBOR -4e-3 1e-3;
+        FinSi ;
+    FinSI ;
 
+
+//-----------------Affichage de la Non linearite-----------------\\
     Si (NbMax > 0) ;
         Si (Nb_NL ega 1) ;
             Si ( Pt_Aff ega (Pb.Tab_NL.1 .Poi_int) ) ;
@@ -123,9 +150,9 @@ Coord Gr_ndeur*MOT;
                     Var_NL = (Pb.Tab_NL.1 .fac_int) * Sol_k.NbMax ;
                     Eff_NL = PR_Eval_Evo_NL (Pb.Tab_NL.1) Var_NL ;
                     Evo_Eff = EVOL Roug MANU Vec_T Eff_NL ;
-                    * Sortie Fichier
-                        *opti sort (chain 'EffortNonLinPGD' ) ;
-                        *sort exce (Evo_Eff) sepa VIRG;
+                    // Sortie Fichier
+                        // opti sort (chain 'EffortNonLinPGD' ) ;
+                        // sort exce (Evo_Eff) sepa VIRG;
                     DESS Evo_Eff ;
                 FinSi ;
             FinSi ;

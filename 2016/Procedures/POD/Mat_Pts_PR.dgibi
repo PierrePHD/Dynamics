@@ -1,0 +1,32 @@
+ABZZ
+PR_Mat_Pts
+DEBPROC PR_Mat_Pts Nb_Pts*ENTIER;
+
+    Si ((VALE 'DIME') > 2) ;
+      P1 = 0. 0. 0. ;
+    SiNon ;
+      P1 = 0. 0. ;
+    FinSi ;
+
+    TAB1P = TABLE;
+
+    REPE BCL1M Nb_Pts ;
+
+        Si ((VALE 'DIME') > 2) ;
+            TAB1P . &BCL1M = P1 PLUS (0. 0. 0.) ;
+        SiNon ;
+            TAB1P . &BCL1M = P1 PLUS (0. 0.) ;
+        FinSi ;
+
+        Si (&BCL1M EGA 1) ;
+            MAI1 = TAB1P . &BCL1M ;
+        SiNon ;
+            MAI1 = MAI1 ET (TAB1P . &BCL1M) ;
+        FinSi ;
+
+    FIN BCL1M ;
+
+    RESPRO TAB1P;
+    RESPRO MAI1;
+
+FINPROC;

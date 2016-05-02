@@ -14,12 +14,18 @@ FinSi ;
     ErrParMo = PROG;
     EneTot = PROG;
 
-    REPETER It_m NbModCal;
+    Si (EGA Res 'POD') ;
+        NbMod = DIME Tab_Mod;
+    FinSi ;
+    Si (EGA Res 'PGD') ;
+        NbMod = DIMENSION FamiF.Cal ;
+    FinSi ;
+
+    REPETER It_m NbMod;
 
         Si (EGA Res 'POD') ;
             rec_sol = PR_POD_to_Full &It_m;
         FinSi ;
-
         Si (EGA Res 'PGD') ;
             rec_sol = PR_PGD_to_Full &It_m;
         FinSi ;
@@ -44,10 +50,10 @@ FinSi ;
     FIN It_m;
 
 
-    Si (NbModCal ega 1);
+    Si (NbMod ega 1);
         LMod = PROG 1;
     SiNon ;
-        LMod = (PROG 1 PAS 1 NbModCal);
+        LMod = (PROG 1 PAS 1 NbMod);
     FinSi ;
 
     Si Bool1;

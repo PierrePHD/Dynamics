@@ -2,14 +2,15 @@ ABIZ
 PR_ResolutionHHTLineaire
 DEBPROC PR_ResolutionHHTLineaire For_HHT*CHPOINT;
 
-    A_HHT_t = RESO S ( For_HHT - (C*Vp) - (K*Up) );
+    W_HHT_t = RESO S ( For_HHT - (C*Vp) - (K*Up) );
     V_HHT_t =   V_tm1
-                + ((dt*(1-gamma))*A_tm1)
-                + ((dt*gamma)*A_HHT_t);
+                + ((dt*(1-gamma))*W_tm1)
+                + ((dt*gamma)*W_HHT_t);
     U_HHT_t = U_tm1 + (dt*V_tm1)
-                + ((dt**2)*( ((0.5-beta)*A_tm1) + (beta*A_HHT_t) ));
+                + ((dt**2)*( ((0.5-beta)*W_tm1) + (beta*W_HHT_t) ));
 
-    RESPRO A_HHT_t ;
+    RESPRO W_HHT_t ;
     RESPRO V_HHT_t ;
     RESPRO U_HHT_t ;
+    
 FINPROC;

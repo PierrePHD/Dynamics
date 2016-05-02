@@ -1,0 +1,55 @@
+ACAZ
+PR_Lis_to_Mat_Pts
+DEBPROC PR_Lis_to_Mat_Pts Nb_Pts*ENTIER Lis_01*LISTREEL;
+
+OPTI ELEM SEG2 ;
+
+    LIS1U = MOTS 'T' ;
+    LIS1F = MOTS 'Q' ;
+
+    KIJ = TABLE ;
+
+    REPE It_1 Nb_Pts ;
+        KIJ. &It_1 = TABLE ;
+        REPE It_2 Nb_Pts ;
+            KIJ.&It_1 .&It_2 = EXTR Lis_01 (&It_1 + ((&It_2-1)*Nb_Pts)) ;
+        FIN It_2 ;
+    FIN It_1 ;
+
+// La matrice est remplie a l'aide de matrice elementaires 2X2
+    REPE It_I Nb_Pts ;
+        P1I = Tab_Pts . &It_I ;
+        REPE It_J Nb_Pts ;
+            SI (&It_J > &It_I) ;
+                P1J = Tab_Pts . &It_J ;
+                L1IJ = DROI 1 P1I P1J ;
+                LIS1R = PROG 0. (KIJ. &It_J. &It_I)
+                          (KIJ. &It_I. &It_J) 0.  ;
+                RIG1IJ = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE'
+                        L1IJ LIS1U  'DUAL' LIS1F LIS1R ;
+
+                SI (EGA (TYPE RIG1) 'RIGIDITE') ;
+                    RIG1 = RIG1IJ ET RIG1 ;
+                SINON ;
+                    RIG1 = RIG1IJ ;
+                FINSI ;
+            FINSI ;
+        FIN It_J ;
+    FIN It_I ;
+
+// On fait la diagonale à part
+    REPE It_I Nb_Pts ;
+        LIS1R = PROG KIJ . &It_I . &It_I ;
+        P1I = MANU POI1 (Tab_Pts . &It_I) ;
+        RIG1IJ = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE'
+        P1I LIS1U  'DUAL' LIS1F LIS1R ;
+        Si (Nb_Pts EGA 1) ;
+            RIG1 = RIG1IJ ;
+        SiNon ;
+            RIG1 = RIG1IJ ET RIG1 ;
+        FinSi ;
+    FIN It_I ;
+
+RESPRO RIG1 ;
+
+FINPROC;

@@ -65,9 +65,8 @@ DEBPROC PR_ResolutionTtot M C K CL_A_0 CHA D_Imp alpha beta gamma dt Ttot U0 V0;
 
         FIN It2 ;
     SiNon ;
+        CL_A = CL_A_0;
     FinSi ;
-
-    // list FOR_Imp ;
 
     // Mess 'Instant ' &It_T ;
 
@@ -79,19 +78,23 @@ DEBPROC PR_ResolutionTtot M C K CL_A_0 CHA D_Imp alpha beta gamma dt Ttot U0 V0;
         REPETER It_0 NbDImp ;
             CL_i     = D_Imp.&It_0 .CL ;
             Evo_U_i  = D_Imp.&It_0 .TabEvo.U ;
-            Evo_V_i  = D_Imp.&It_0 .TabEvo.V ; 
+            Evo_V_i  = D_Imp.&It_0 .TabEvo.V ;
 
-            CHP_01 = MASQUE (ENLE (EXTR CL_i 'DIAG') 'LX' ) 'EGALE' 0. ;
-            Pro_U = PR_ProdScalaireEspace CHP_01 U_t ;
-            Pro_V = PR_ProdScalaireEspace CHP_01 V_t ;
+            CHP_01 = MASQUE (EXCO (EXTR CL_i 'DIAG') 'LX' 'LX') 'EGALE' 0. ;
+            CHP_02 = (CL_i * CHP_01)  ;
+            CHP_03 = CHAN 'COMP' CHP_02 LFOR L_f ;
+            Nor_f = (PR_NormVecEspace CHP_03) ;
+            CHP_03 = CHP_03 / Nor_f ;
+            Pro_U = (PR_ProdScalaireEspace CHP_03 U_t)  ;
+            Pro_V = (PR_ProdScalaireEspace CHP_03 V_t)  ;
 
             lis_depU = EXTR Evo_U_i ORDO;
-            Val_depU = EXTR lis_depU &It_T;
+            Val_depU = (EXTR lis_depU &It_T) / Nor_f;
             lis_depV = EXTR Evo_V_i ORDO;
-            Val_depV = EXTR lis_depV &It_T;
+            Val_depV = (EXTR lis_depV &It_T) / Nor_f;
 
-            U_t = (U_t - (Pro_U * CHP_01)) + (Val_depU * CHP_01) ;
-            V_t = (V_t - (Pro_V * CHP_01)) + (Val_depU * CHP_01) ;
+            U_t = (U_t + ((Val_depU - Pro_U) * CHP_03)) ;
+            V_t = (V_t + ((Val_depV - Pro_V) * CHP_03)) ;
 
         Fin It_0 ;
     FinSi ;

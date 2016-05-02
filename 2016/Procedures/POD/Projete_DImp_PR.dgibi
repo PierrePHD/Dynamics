@@ -1,0 +1,22 @@
+ACCZ
+PR_Projete_DImp
+DEBPROC PR_Projete_DImp Tab_Dimp*TABLE;
+
+    Tab_2 = TABLE ;
+    NbDimp = DIME Tab_Dimp ;
+    Si (NbDimp > 0) ;
+        REPETER It_1 NbDimp ;
+            Tab_2.&It_1 = TABLE ;
+                Tab_2.&It_1 .TabEvo = COPI  (Tab_Dimp.&It_1 .TabEvo) ;
+
+                    CL_i   = D_Imp.&It_1 .CL ;
+                    CHP_01 = MASQUE (ENLE (EXTR CL_i 'DIAG') 'LX' ) 'EGALE' 0. ;
+                    CHP_02 = PR_Projeter Tab_Mod CHP_01 ;
+                Tab_2.&It_1 .CL     =       RELA CHP_02 ;
+
+                Tab_2.&It_1 .Dep    =       DEPI (Tab_2.&It_1 .CL) 1. ;
+        Fin It_1 ;
+    FinSi ;
+    RESPRO Tab_2 ;
+
+FINPROC;

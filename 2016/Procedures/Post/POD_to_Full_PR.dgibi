@@ -11,21 +11,21 @@ DEBPROC PR_POD_to_Full It_m*Entier;
 
     REPETER It2 It_m;
 
-        C_1 = CHAIN 'U' &It2 ;
+        P_POD_1 = Tab_Pts.&It2 ;
 
         REPETER It_T En_Nb_Re;
 
             Si (&It2 ega 1) ;
-                U_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.U.&It_T) C_1 P_POD) ;
-                V_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.V.&It_T) C_1 P_POD) ; ;
-                W_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.W.&It_T) C_1 P_POD) ; ;
+                U_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.U.&It_T) 'T' P_POD_1) ;
+                V_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.V.&It_T) 'T' P_POD_1) ; ;
+                W_sol.&It_T = Tab_Mod.&It2 * (EXTR (Sol_POD.W.&It_T) 'T' P_POD_1) ; ;
             SiNon ;
                 U_sol.&It_T = U_sol.&It_T
-                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.U.&It_T) C_1 P_POD));
+                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.U.&It_T) 'T' P_POD_1));
                 V_sol.&It_T = V_sol.&It_T
-                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.V.&It_T) C_1 P_POD));
+                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.V.&It_T) 'T' P_POD_1));
                 W_sol.&It_T = W_sol.&It_T
-                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.W.&It_T) C_1 P_POD));
+                                + (Tab_Mod.&It2 *(EXTR (Sol_POD.W.&It_T) 'T' P_POD_1));
             FinSi ;
 
         Fin It_T;

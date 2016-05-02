@@ -99,7 +99,7 @@ FinSi ;
                     // !!!! Val reglable ?
                     Si (&It_fxNL > 30) ;
                         Mess 'Point fixe Non Lineaire de l Update non convergent' ;
-                        list (EXTR ZZZ 4);
+                        EXTR ZZZ 4;
                     FinSi ;
 
                 * Evaluation NL

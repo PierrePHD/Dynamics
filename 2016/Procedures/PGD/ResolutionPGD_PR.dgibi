@@ -2,27 +2,51 @@ AARZ
 PR_ResolutionPGD
 DEBPROC PR_ResolutionPGD NbModCal*Entier Fam_F/TABLE Fam_G/TABLE ;
 
-Val_INI = 0;
+NbDImp  = DIME D_Imp ;
+
+Val_Ini = 0;
 Si ((XTMX U0 K) neg 0);
-    Val_INI = Val_INI + 1;
-    FamiF.INI.Val_INI = U0;
-    Nor_f = PR_NormVecEspace (FamiF.INI.Val_INI) K;
-    FamiF.INI.Val_INI = (FamiF.INI.Val_INI) / Nor_f ;
-    FamiG.INI.Val_INI = TABLE;
-    FamiG.INI.Val_INI .u = PROG En_Nb_Re * Nor_f ;
-    FamiG.INI.Val_INI .v = PROG En_Nb_Re * 0. ;
-    FamiG.INI.Val_INI .w = PROG En_Nb_Re * 0. ;
+    Val_Ini = Val_Ini + 1;
+    Nor_f = PR_NormVecEspace U0 K;
+    FamiF.Ini.Val_Ini = U0 / Nor_f ;
+    FamiG.Ini.Val_Ini = TABLE;
+    FamiG.Ini.Val_Ini .u = PROG En_Nb_Re * Nor_f ;
+    FamiG.Ini.Val_Ini .v = PROG En_Nb_Re * 0. ;
+    FamiG.Ini.Val_Ini .w = PROG En_Nb_Re * 0. ;
 FinSi ;
 Si ((XTMX V0 K) neg 0);
-    Val_INI = Val_INI + 1;
-    FamiF.INI.Val_INI = V0;
-    Nor_f = PR_NormVecEspace (FamiF.INI.Val_INI) K ;
-    FamiF.INI.Val_INI = (FamiF.INI.Val_INI) / Nor_f ;
-    FamiG.INI.Val_INI = TABLE;
-    FamiG.INI.Val_INI .u = PROG 0. PAS dt Ttot ;
-    FamiG.INI.Val_INI .u = (FamiG.INI.Val_INI .u) * Nor_f ;
-    FamiG.INI.Val_INI .v = PROG En_Nb_Re * Nor_f ;
-    FamiG.INI.Val_INI .w = PROG En_Nb_Re * 0. ;
+    Val_Ini = Val_Ini + 1;
+    Nor_f = PR_NormVecEspace V0 K ;
+    FamiF.Ini.Val_Ini = V0 / Nor_f ;
+    FamiG.Ini.Val_Ini = TABLE;
+    FamiG.Ini.Val_Ini .u = PROG 0. PAS dt Ttot ;
+    FamiG.Ini.Val_Ini .u = (FamiG.Ini.Val_Ini .u) * Nor_f ;
+    FamiG.Ini.Val_Ini .v = PROG En_Nb_Re * Nor_f ;
+    FamiG.Ini.Val_Ini .w = PROG En_Nb_Re * 0. ;
+FinSi ;
+
+Si (NbDImp > 0) ;
+    Val_Imp = 0 ;
+    REPETER It_0 NbDImp ;
+        Val_Imp = Val_Imp + 1 ;
+        CL_i     = D_Imp.&It_0 .CL ;
+        CL_A = CL_A ET CL_i ;
+
+        CHP_01 = MASQUE (EXCO (EXTR CL_i 'DIAG') 'LX' 'LX') 'EGALE' 0. ;
+        CHP_02 = (CL_i * CHP_01)  ;
+        CHP_03 = CHAN 'COMP' CHP_02 LFOR L_f ;
+        Nor_f = PR_NormVecEspace CHP_03 ;
+        CHP_04 = CHP_03 / Nor_f ;
+            CHP_Imp0 = RESO (K ET Pb.CL_Tot_i) CHP_02;
+            CHP_Imp1 = CHP_Imp0 / (PR_ProdScalaireEspace CHP_Imp0 CHP_04) ;
+
+        FamiF.Imp.Val_Imp = CHP_Imp1 ;
+
+        FamiG.Imp.Val_Imp = TABLE;
+        FamiG.Imp.Val_Imp .u = (EXTR (D_Imp.&It_0 .TabEvo.U) ORDO) * Nor_f ;
+        FamiG.Imp.Val_Imp .v = (EXTR (D_Imp.&It_0 .TabEvo.V) ORDO) * Nor_f ;
+        FamiG.Imp.Val_Imp .w = (EXTR (D_Imp.&It_0 .TabEvo.W) ORDO) * Nor_f ;
+    Fin It_0 ;
 FinSi ;
 
 Tai_Pre = 0;

@@ -14,7 +14,7 @@ DEBPROC PR_EvalPGD Grandeur*MOT FamiFEva*TABLE FamiGEva*TABLE
 
     Si (NON Bool_5) ;
         Mess 'Il n y a pas de mode a evaluer' ;
-        list (EXTR ZZZ 4) ;
+        EXTR ZZZ 4 ;
     FinSi ;
 
     REPETER It2 TailFami;

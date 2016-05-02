@@ -67,12 +67,18 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
         REPETER Mod TailFami;
             gk = FamiGTot.&Mod;
             fk = FamiFTot.&Mod;
+
+            // DEFA = ((DEFO Pb.geo (fk * 0.) ) ET
+            //         (DEFO Pb.geo fk ROUG));
+            // Trac DEFA;
+
             f_K_fk = YTMX f fk K;
             f_C_fk = YTMX f fk C;
             f_M_fk = YTMX f fk M;
 
             Si (&Mod ega 1) ;
                 ModsPrec = (f_K_fk * gk.u) + (f_C_fk * gk.v) + (f_M_fk * gk.w) ;
+                // list ModsPrec;
             SiNon ;
                 ModsPrec = ModsPrec +
                             (f_K_fk * gk.u) + (f_C_fk * gk.v) + (f_M_fk * gk.w);
@@ -116,7 +122,7 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
 
         Si ( Nb_NL > 0) ;
             gpp_t gp_t g_t = PR_Pt_Fx_NL SecondT &It_T 'PGD' PGDPt_Fx ;
-        SiNon ; 
+        SiNon ;
             gpp_t gp_t g_t = PR_ResolutionHHT_PGDLineaire SecondT &It_T;
         FinSi ;
 
@@ -134,6 +140,8 @@ DEBPROC PR_ProblemeTemps M C K Ttot schema CHA dt f It_m ;
     g_tmps.u = g;
     g_tmps.v = gp;
     g_tmps.w = gpp;
+
+    // DESS (EVOL MANU T Vec_T F(T) g) ;
 
   RESPRO g_tmps;
 

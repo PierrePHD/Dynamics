@@ -10,7 +10,7 @@ DEBPROC PR_IntegrProdLine g1*Listreel g2*listreel dt/flottant Vec_LocT/listreel;
     Mess 'Produit de fonctions de differentes longueurs';
     Mess 'taille g1:' Long1 '   taille g2:' Long2;
     * Couper le programme
-    list (EXTR zzz 4);
+    EXTR zzz 4;
   FinSi ;
 
 

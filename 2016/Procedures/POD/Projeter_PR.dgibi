@@ -5,23 +5,15 @@ DEBPROC PR_Projeter Bas_Red*TABLE Mat_Comp/RIGIDITE Vec_Comp/CHPOINT
 
 // Bas_Red sans multiplicateurs !!!!
 
-// Maillage necessaire pour creer les matrices (RIGIDITE)
-
     Tai_Base = DIME Bas_Red ;
+    Tai_Pts = DIME Tab_Pts ;
 
-// Liste des composantes
-    LISU = MOTS ;
-    LISF = MOTS ;
-    REPE BCL1M Tai_Base ;
-        COU1 = CHAIN 'U' &BCL1M ;
-        COF1 = CHAIN 'F' &BCL1M ;
-        LISU = LISU ET (MOTS COU1) ;
-        LISF = LISF ET (MOTS COF1) ;
-    FIN BCL1M ;
+    Si (Tai_Pts NEG Tai_Base)
+        Mess 'Erreur de construction des matrices reduites';
+    FinSi ;
 
 
-
-// Projection de matrice
+//-----------------Projection de matrice-----------------\\
     Si (EXISTE Mat_Comp) ;
         Lis_Proj = PROG ;
         REPETER It_i Tai_Base ; // Ligne
@@ -32,21 +24,16 @@ DEBPROC PR_Projeter Bas_Red*TABLE Mat_Comp/RIGIDITE Vec_Comp/CHPOINT
             Fin It_j ;
         Fin It_i ;
 
-        Mat_Proj = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE' MAI_POD LISU
-        'DUAL' LISF 'QUEL' Lis_Proj ;
+        // Mat_Proj = MANU 'RIGIDITE' 'TYPE' 'RIGIDITE' MAI_POD LISU
+        // 'DUAL' LISF 'QUEL' Lis_Proj ;
+
+        Mat_Proj = PR_Lis_to_Mat_Pts Tai_Base Lis_Proj;
 
         RESPRO Mat_Proj ;
     FinSi ;
 
-// Projection vecteur
+//-----------------Projection vecteur-----------------\\
     Si (EXISTE Vec_Comp) ;
-
-        // Si (EGA CH_typ 'U') ;
-        //     Lis_Comp = LISU ;
-        // FinSi ;
-        // Si (EGA CH_typ 'F') ;
-        //     Lis_Comp = LISF ;
-        // FinSi ;
 
         Lis_Proj = PROG ;
         REPETER It_i Tai_Base ; // Ligne
@@ -55,14 +42,14 @@ DEBPROC PR_Projeter Bas_Red*TABLE Mat_Comp/RIGIDITE Vec_Comp/CHPOINT
             Lis_Proj = Lis_Proj et (XTY f_esp_i Vec_Comp L_f L_f) ;
         Fin It_i ;
 
-        Vec_Comp = MANU 'CHPO' MAI_POD LISU Lis_Proj;
+        // Vec_Comp = MANU 'CHPO' MAI_POD LISU Lis_Proj;
+        Vec_Comp = MANU 'CHPO' MAI_POD 'T' Lis_Proj;
 
         RESPRO Vec_Comp ;
 
     FinSi ;
 
-
-// Projection Chargement
+//-----------------Projection Chargement-----------------\\
     Si (EXISTE CHA_Comp) ;
 
         NbCharg = DIMENSION CHA_Comp ;
@@ -78,7 +65,8 @@ DEBPROC PR_Projeter Bas_Red*TABLE Mat_Comp/RIGIDITE Vec_Comp/CHPOINT
                     Lis_Proj = Lis_Proj et (XTY f_esp_i CHP_i L_f LFOR) ;
                 Fin It_i ;
 
-                FOR_Proj = MANU 'CHPO' MAI_POD LISF Lis_Proj;
+                //FOR_Proj = MANU 'CHPO' MAI_POD LISF Lis_Proj;
+                FOR_Proj = MANU 'CHPO' MAI_POD 'Q' Lis_Proj;
 
                 CHA_Proj = CHAR FORC FOR_Proj EVO_i ;
 
